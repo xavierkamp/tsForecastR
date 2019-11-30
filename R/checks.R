@@ -6,6 +6,7 @@
 #' @param backtesting_opt NULL or a list
 #' @return A list of backtesting options
 check_backtesting_opt <- function(backtesting_opt) {
+  `%>%` <- magrittr::`%>%`
   if (base::is.null(backtesting_opt)) {
     backtesting_opt <-
       base::list(use_backtesting = FALSE,
@@ -112,6 +113,7 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
 #' @param input_data ts, mts or xts object
 #' @return xts object with punctuations dropped in colnames
 check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
+  `%>%` <- magrittr::`%>%`
   if (base::is.null(input_data)) {
     return(input_data)
   } else if (!base::class(input_data)[1] %in% c("ts", "mts", "xts")) {
@@ -150,7 +152,6 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 #' @return NULL or a valid filepath
 check_save_fc_to_file <- function(save_fc_to_file) {
   if (!base::is.null(save_fc_to_file)) {
-
   }
   return(save_fc_to_file)
 }
@@ -162,6 +163,7 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 #' @param model_names list or vector of strings
 #' @return model_names: vector of strings
 check_model_names <- function(model_names) {
+  `%>%` <- magrittr::`%>%`
   available_models <- c("arima", "ets", "tbats", "bsts",
                         "stl", "snaive", "nnetar", "automl_h2o",
                         "lstm_keras", "hybrid")
