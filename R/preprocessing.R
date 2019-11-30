@@ -1,5 +1,4 @@
-# Preprocessing functions
-
+# Preprocessing functions:
 # This file contains functions used in the preprocessing steps in the forecasting procedures.
 
 #' Add empty placeholders
