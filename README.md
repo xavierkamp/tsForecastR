@@ -1,4 +1,4 @@
-# Forecasting Engine In R
+# Time Series Forecasting
 
 This project involves developing a forecasting engine which is capable of applying traditional time series and 
 machine learning models on individual and multiple time series (with or without a hierarchical structure). 
