@@ -15,8 +15,8 @@ inventory projections, financial forecasting, etc. All codes are written in R.
 
 ### Prerequisites
 
-install R
-install RStudio
+Install R: https://cloud.r-project.org/,
+Install RStudio: https://rstudio.com/products/rstudio/download/
 
 ### Dependencies
 
@@ -41,7 +41,7 @@ install RStudio
 ### Install
 
 ```
-library(devtools)
+library("devtools")
 devtools::install_github("xav-ka", "tsForecast")
 ```
 
