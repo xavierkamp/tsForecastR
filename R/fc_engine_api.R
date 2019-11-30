@@ -20,7 +20,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
                         save_fc_to_file = NULL,
                         use_parallel = FALSE,
                         ...) {
-
+  `%>%` <- magrittr::`%>%`
   model_output <- base::list()
   mts_data_xts <- check_data_sv_as_xts(mts_data, default_colname = "time_series")
   xreg_data_xts <- check_data_sv_as_xts(xreg_data, default_colname = "feature")
