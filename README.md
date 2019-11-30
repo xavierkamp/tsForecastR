@@ -43,7 +43,7 @@ Install RStudio: https://rstudio.com/products/rstudio/download/
 
 ```
 library("devtools")
-devtools::install_github("xav-ka", "tsForecast")
+devtools::install_github("xav-Ka/tsForecast")
 ```
 
 
