@@ -19,6 +19,7 @@ Imports:
     h2o,
     keras,
     lubridate,
+    magrittr,
     parallel,
     purrr,
     stats,
