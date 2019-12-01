@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocessing.R
 \name{split_train_test_set}
 \alias{split_train_test_set}
-\title{Split the data into train, validation and test set}
+\title{Split the data into a training, validation and test set}
 \usage{
 split_train_test_set(
   input_data,
@@ -18,5 +18,5 @@ split_train_test_set(
 
 }
 \description{
-Split the data into train, validation and test set
+Split the data into a training, validation and test set
 }
