@@ -21,6 +21,8 @@ generate_fc <- function(mts_data, fc_horizon = 1,
                         use_parallel = FALSE,
                         ...) {
   `%>%` <- magrittr::`%>%`
+  `%do%` <- foreach::`%do%`
+  `%dopar%` <- foreach::`%dopar%`
   model_output <- base::list()
   mts_data_xts <- check_data_sv_as_xts(mts_data, default_colname = "time_series")
   xreg_data_xts <- check_data_sv_as_xts(xreg_data, default_colname = "feature")
@@ -47,7 +49,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
     nb_cores <- parallel::detectCores()
     cl <- parallel::makeCluster(nb_cores)
     doParallel::registerDoParallel(cl)
-    foreach::foreach(ind = ind_seq) foreach::%dopar% {
+    foreach::foreach(ind = ind_seq) %dopar% {
       source("./R/fc_models.R")
       source("./R/checks.R")
       source("./R/preprocessing.R")
@@ -67,7 +69,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
       }
     }
     parallel::stopCluster(cl)
-    foreach::foreach(ind = ind_seq) foreach::%do% {
+    foreach::foreach(ind = ind_seq) %do% {
       model_names_parall_proc <- model_names[model_names == "automl_h2o"]
       ts_data_xts <- mts_data_xts[, ind]
       ts_colname <- base::colnames(ts_data_xts)
@@ -84,7 +86,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
       }
     }
   } else {
-    foreach::foreach(ind = ind_seq) foreach::%do% {
+    foreach::foreach(ind = ind_seq) %do% {
       model_names_parall_proc <- model_names
       ts_data_xts <- mts_data_xts[,ind]
       ts_colname <- base::colnames(ts_data_xts)
