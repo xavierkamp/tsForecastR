@@ -47,7 +47,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
     nb_cores <- parallel::detectCores()
     cl <- parallel::makeCluster(nb_cores)
     doParallel::registerDoParallel(cl)
-    foreach::foreach(ind = ind_seq) %dopar% {
+    foreach::foreach(ind = ind_seq) foreach::%dopar% {
       source("./R/fc_models.R")
       source("./R/checks.R")
       source("./R/preprocessing.R")
@@ -67,7 +67,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
       }
     }
     parallel::stopCluster(cl)
-    foreach::foreach(ind = ind_seq) %do% {
+    foreach::foreach(ind = ind_seq) foreach::%do% {
       model_names_parall_proc <- model_names[model_names == "automl_h2o"]
       ts_data_xts <- mts_data_xts[, ind]
       ts_colname <- base::colnames(ts_data_xts)
@@ -84,7 +84,7 @@ generate_fc <- function(mts_data, fc_horizon = 1,
       }
     }
   } else {
-    foreach::foreach(ind = ind_seq) %do% {
+    foreach::foreach(ind = ind_seq) foreach::%do% {
       model_names_parall_proc <- model_names
       ts_data_xts <- mts_data_xts[,ind]
       ts_colname <- base::colnames(ts_data_xts)
