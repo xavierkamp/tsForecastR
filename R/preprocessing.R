@@ -1,4 +1,5 @@
-# Preprocessing functions:
+# Preprocessing functions
+
 # This file contains functions used in the preprocessing steps in the forecasting procedures.
 
 #' Add empty placeholders
@@ -6,7 +7,6 @@
 #' @param input_data
 #' @return
 add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
-  `%>%` <- magrittr::`%>%`
   input_data_xts <- check_data_sv_as_xts(input_data)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   if (backtesting_opt$use_backtesting) {
@@ -31,9 +31,9 @@ add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
 #' @param input_data
 #' @return
 add_features <- function(input_data, xreg_data = NULL) {
-  `%>%` <- magrittr::`%>%`
   input_data_xts <- check_data_sv_as_xts(input_data)
   xreg_data_xts <- check_data_sv_as_xts(xreg_data)
+
   if (base::is.null(xreg_data_xts)) {
     joined_data_xts <- input_data_xts
   } else {
@@ -56,16 +56,17 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
                                  valid_set_size = 0, tmp_test_set_size = 0,
                                  backtesting_opt = NULL,
                                  ...) {
-  `%>%` <- magrittr::`%>%`
   input_data_xts <- check_data_sv_as_xts(input_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   valid_set_size <- check_valid_set_size(valid_set_size)
   tmp_test_set_size <- check_tmp_test_set_size(tmp_test_set_size)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   bt_iter <- check_backtesting_iter(bt_iter, backtesting_opt)
+
   backtesting_set_size <- backtesting_opt$backtesting_set_size
   backtesting_method <- backtesting_opt$backtesting_method
   nb_periods <- backtesting_opt$backtesting_nb_iters
+
   if (backtesting_opt$use_backtesting) {
     if ((backtesting_set_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
       last_train_pos <-
@@ -76,6 +77,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[1:(last_train_pos), ]
+
     } else if ((backtesting_set_size[1] == 'expanding' & backtesting_method[1] == 'moving')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
@@ -83,6 +85,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[1:(last_train_pos), ]
+
     } else if ((backtesting_set_size[1] == 'fixed' & backtesting_method[1] == 'rolling')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
@@ -92,6 +95,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[(1 + bt_iter - 1):(last_train_pos), ]
+
     } else if ((backtesting_set_size[1] == 'fixed' & backtesting_method[1] == 'moving')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
@@ -135,7 +139,6 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' @param data_df
 #' @return
 normalize_data <- function(data_df) {
-  `%>%` <- magrittr::`%>%`
   if (!base::is.data.frame(data_df)) {
     stop("The data must be a data.frame obj before normalizing!")
   }
@@ -198,7 +201,6 @@ add_timesteps <- function(data_df, fc_horizon = 12,
                                                                         "moving"),
                                                  backtesting_set_size = c("expanding",
                                                                           "fixed"))) {
-  `%>%` <- magrittr::`%>%`
   if (tsteps >= lag_setting) {
     max_lag <- tsteps
   }else{

@@ -9,7 +9,7 @@ Description: Functions and tools to facilitate the use of traditional time serie
     data. To identify the best performing models, different backtesting scenarios 
     are available.
 Depends:
-    R (>= 3.6.0)
+    R
 Imports:
     bsts,
     doParallel,
@@ -19,7 +19,6 @@ Imports:
     h2o,
     keras,
     lubridate,
-    magrittr,
     parallel,
     purrr,
     stats,
