@@ -239,7 +239,7 @@ generate_fc_stl <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(forecast::stl, c(base::list(x_train), stl_arg))
+    md <- base::do.call(stats::stl, c(base::list(x_train), stl_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
     base::eval(base::parse(text = base::paste("model_output$period_",
                                               bt_iter, "$fc <- fc",
