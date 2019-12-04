@@ -8,9 +8,8 @@ generate_fc(
   mts_data,
   fc_horizon = 12,
   xreg_data = NULL,
-  backtesting_opt = list(use_backtesting = FALSE, backtesting_nb_iters = 1,
-    backtesting_method = c("rolling", "moving"), backtesting_set_size = c("expanding",
-    "fixed")),
+  backtesting_opt = list(use_bt = FALSE, nb_iters = 1, method = c("rolling", "moving"),
+    sample_size = c("expanding", "fixed")),
   model_names = c("arima", "ets", "tbats", "bsts", "stl", "snaive", "nnetar"),
   models_args = NULL,
   save_fc_to_file = NULL,
@@ -23,7 +22,11 @@ generate_fc(
 
 \item{fc_horizon}{An integer, the forcasting horizon}
 
-\item{backtesting_opt}{A list, options of the backtesting program}
+\item{backtesting_opt}{A list, options for the backtesting program
+use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+nb_iters: An integer, to determine the number of backtesting operations to apply
+method: A string, to determine whether to use a rolling or a moving forecasting window
+sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
 
 \item{model_names}{A list or character, names of models to apply}
 
@@ -60,7 +63,8 @@ fc <- generate_fc(AirPassengers,
                                   "stl", "nnetar"),
                   model_args = list(ets_arg = list(model = "ZZA",
                                                    opt.crit = "amse",
-                                                   upper = c(0.3, 0.2, 0.2, 0.98),
+                                                   upper = c(0.3, 0.2,
+                                                             0.2, 0.98),
                                     stl_arg = list(s.window = "periodic")))
                   use_parallel = TRUE)
 
@@ -68,12 +72,12 @@ fc <- generate_fc(AirPassengers,
 fc <- generate_fc(AirPassengers,
                   model_names = "arima",
                   fc_horizon = 12,
-                  backtesting_opt = list(use_backtesting = TRUE))
+                  backtesting_opt = list(use_bt = TRUE))
 
 # Generate forecasts on past dates with multiple iterations and a rolling window
 fc <- generate_fc(AirPassengers,
                   model_names = "tbats",
                   fc_horizon = 6,
-                  backtesting_opt = list(use_backtesting = TRUE,
-                                         backtesting_nb_iters = 6))
+                  backtesting_opt = list(use_bt = TRUE,
+                                         nb_iters = 6))
 }

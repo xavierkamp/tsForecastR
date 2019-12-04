@@ -1,15 +1,18 @@
-# Preprocessing functions:
-# This file contains functions used in the preprocessing steps in the forecasting procedures.
-
 #' Add empty placeholders
-#'
-#' @param input_data
-#' @return
+#' @description Empty values are added when forecasts are generated for future periods when values are unknown
+#' @param input_data A univariate or multivariate ts, mts or xts object
+#' @param fc_horizon An integer, forecasting horizon
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#' @return A univariate or multivariate xts object
 add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
   `%>%` <- magrittr::`%>%`
   input_data_xts <- check_data_sv_as_xts(input_data)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  if (backtesting_opt$use_backtesting) {
+  if (backtesting_opt$use_bt) {
     placeholder_data_xts <- input_data_xts
   } else {
     future_dates <-
@@ -27,9 +30,9 @@ add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
 }
 
 #' Add features
-#'
-#' @param input_data
-#' @return
+#' @param input_data A univariate or multivariate ts, mts or xts object
+#' @param xreg_data A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @return A univariate or multivariate xts object
 add_features <- function(input_data, xreg_data = NULL) {
   `%>%` <- magrittr::`%>%`
   input_data_xts <- check_data_sv_as_xts(input_data)
@@ -49,9 +52,17 @@ add_features <- function(input_data, xreg_data = NULL) {
 }
 
 #' Split the data into a training, validation and test set
-#'
-#' @param input_data
-#' @return
+#' @param input_data A univariate or multivariate ts, mts or xts object
+#' @param fc_horizon An integer, forecasting horizon
+#' @param bt_iter An integer, number of the current backtesting operation
+#' @param valid_set_size An integer, the validation set size (default = 0)
+#' @param tmp_test_set_size An integer, size of a second test set (used by h2o.automl) (default = 0)
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#' @return A list, training, validation and test sets
 split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
                                  valid_set_size = 0, tmp_test_set_size = 0,
                                  backtesting_opt = NULL,
@@ -63,11 +74,11 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   tmp_test_set_size <- check_tmp_test_set_size(tmp_test_set_size)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   bt_iter <- check_backtesting_iter(bt_iter, backtesting_opt)
-  backtesting_set_size <- backtesting_opt$backtesting_set_size
-  backtesting_method <- backtesting_opt$backtesting_method
-  nb_periods <- backtesting_opt$backtesting_nb_iters
-  if (backtesting_opt$use_backtesting) {
-    if ((backtesting_set_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
+  backtesting_sample_size <- backtesting_opt$sample_size
+  backtesting_method <- backtesting_opt$method
+  nb_periods <- backtesting_opt$nb_iters
+  if (backtesting_opt$use_bt) {
+    if ((backtesting_sample_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
          - fc_horizon
@@ -76,14 +87,14 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[1:(last_train_pos), ]
-    } else if ((backtesting_set_size[1] == 'expanding' & backtesting_method[1] == 'moving')) {
+    } else if ((backtesting_sample_size[1] == 'expanding' & backtesting_method[1] == 'moving')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
          - fc_horizon * (nb_periods - bt_iter + 1)
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[1:(last_train_pos), ]
-    } else if ((backtesting_set_size[1] == 'fixed' & backtesting_method[1] == 'rolling')) {
+    } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'rolling')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
          - fc_horizon
@@ -92,7 +103,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
          - valid_set_size
          - tmp_test_set_size)
       x_train <- input_data_xts[(1 + bt_iter - 1):(last_train_pos), ]
-    } else if ((backtesting_set_size[1] == 'fixed' & backtesting_method[1] == 'moving')) {
+    } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'moving')) {
       last_train_pos <-
         (base::nrow(input_data_xts)
          - fc_horizon * (nb_periods - bt_iter + 1)
@@ -131,9 +142,8 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 }
 
 #' Normalize the data
-#'
-#' @param data_df
-#' @return a list with normalized data and scalers
+#' @param data_df A data.frame object
+#' @return A list, normalized data and scalers
 normalize_data <- function(data_df) {
   `%>%` <- magrittr::`%>%`
   if (!base::is.data.frame(data_df)) {
@@ -168,7 +178,8 @@ normalize_data <- function(data_df) {
                                                  c(mean_history, scale_history) %>%
                                                  matrix(ncol = 2) %>%
                                                  {
-                                                   colnames(.) <- c('mean_history', 'scale_history')
+                                                   colnames(.) <- c('mean_history',
+                                                                    'scale_history')
                                                    .
                                                  }",
                                               sep = "")))
@@ -179,7 +190,7 @@ normalize_data <- function(data_df) {
 }
 
 #' Add timesteps
-#' Description:
+#' @description
 #' for lstm, when the number of time steps (i.e. number of lags) is defined,
 #' for each input variable, the required number of lagged values needs to be
 #' added as inputs to the input matrix
@@ -187,29 +198,30 @@ normalize_data <- function(data_df) {
 #' when the ts is seasonal with periodicity = 12, then lag_setting should be 12.
 #' The volume of the same month of previous year will most likely have a high
 #' influence on today's volume.
-#' when the ts is non-seasonal, lagSetting = 1, i.e. the volume of previous
+#' when the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
 #' month will most likely have the strongest impact on today.
 #'
-#' when lag_setting = 12 and tsteps < lagSetting (e.g. tsteps=4),
+#' when lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
 #' then input values will be: t-12, t-11, t-10, t-9
-#' when lag_setting = 12 and tsteps = lagSetting, then input values will be:
+#' when lag_setting = 12 and tsteps = lag_setting, then input values will be:
 #' t-12, t-11, ... , t-1
-#' when lagSetting = 12 and tsteps > lagSetting (e.g. tsteps = 15),
+#' when lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
 #' then input values will be: t-15, ... , t-12, ... , t-1
 #'
-#' Same goes for lagSetting other than 12.
-#'
-#' @param data_df
-#' @return
-add_timesteps <- function(data_df, fc_horizon = 12,
+#' Same goes for lag_setting other than 12.
+#' @param data_df A data.frame object
+#' @param fc_horizon An integer, forecasting horizon
+#' @param valid_set_size An integer, the validation set size (default = 0)
+#' @param tsteps An integer, the number of time steps
+#' @param lag_setting An integer, lag to apply on regressors
+#' @return A data.frame object
+add_timesteps <- function(data_df,
+                          fc_horizon = 12,
                           valid_set_size = 12,
-                          tsteps = 12, lag_setting = 12,
-                          backtesting_opt = list(use_backtesting = FALSE,
-                                                 backtesting_nb_iter = 1,
-                                                 backtesting_method = c("rolling",
-                                                                        "moving"),
-                                                 backtesting_set_size = c("expanding",
-                                                                          "fixed"))) {
+                          tsteps = 12,
+                          lag_setting = 12,
+                          ...) {
+
   `%>%` <- magrittr::`%>%`
   if (tsteps >= lag_setting) {
     max_lag <- tsteps
@@ -307,24 +319,18 @@ add_timesteps <- function(data_df, fc_horizon = 12,
   return(complete_data)
 }
 
-#' Check validation set size
-#' This function ensures that the selected validation set size is valid.
-#' If not, the function throws an error.
-#'
-#' @param valid_set_size must be a positive integer
-#' @return valid_set_size: a positive integer
-reshape_X_3d <- function(X, tsteps = 1, nb_features = 1) {
+#' Reshape regressors X
+#' @param X must be a positive integer
+#' @param tsteps A positive integer, number of time steps
+#' @param nb_features A positive integer, number of features/regressors
+reshape_X <- function(X, tsteps = 1, nb_features = 1) {
   base::dim(X) <- c(base::dim(X)[1], tsteps, nb_features)
   return(X)
 }
 
-#' Check validation set size
-#' This function ensures that the selected validation set size is valid.
-#' If not, the function throws an error.
-#'
-#' @param valid_set_size must be a positive integer
-#' @return valid_set_size: a positive integer
-reshape_Y_2d <- function(X) {
-  base::dim(X) <- c(base::dim(X)[1], 1)
-  return(X)
+#' Reshape target variable y
+#' @param Y must be a positive integer
+reshape_Y <- function(Y) {
+  base::dim(Y) <- c(base::dim(Y)[1], 1)
+  return(Y)
 }

@@ -6,9 +6,20 @@
 \usage{
 add_placeholders(input_data, fc_horizon, backtesting_opt = NULL)
 }
-\value{
+\arguments{
+\item{input_data}{A univariate or multivariate ts, mts or xts object}
 
+\item{fc_horizon}{An integer, forecasting horizon}
+
+\item{backtesting_opt}{A list, options for the backtesting program
+use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+nb_iters: An integer, to determine the number of backtesting operations to apply
+method: A string, to determine whether to use a rolling or a moving forecasting window
+sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+}
+\value{
+A univariate or multivariate xts object
 }
 \description{
-Add empty placeholders
+Empty values are added when forecasts are generated for future periods when values are unknown
 }

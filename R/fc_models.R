@@ -4,7 +4,11 @@
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
 #' @examples
@@ -17,13 +21,13 @@
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_arima(AirPassengers,
 #'                         fc_horizon = 12,
-#'                         backtesting_opt = list(use_backtesting = TRUE))
+#'                         backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_arima(AirPassengers,
 #'                         fc_horizon = 6,
-#'                         backtesting_opt = list(use_backtesting = TRUE,
-#'                                                backtesting_nb_iters = 6))
+#'                         backtesting_opt = list(use_bt = TRUE,
+#'                                                nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_arima <- function(ts_data_xts,
@@ -53,7 +57,7 @@ generate_fc_arima <- function(ts_data_xts,
   ts_contiguous_data <-
     add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
     add_features(xreg_xts)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          bt_iter = bt_iter,
@@ -83,7 +87,11 @@ generate_fc_arima <- function(ts_data_xts,
 #' time series data.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
 #' @examples
@@ -96,13 +104,13 @@ generate_fc_arima <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_ets(AirPassengers,
 #'                       fc_horizon = 12,
-#'                       backtesting_opt = list(use_backtesting = TRUE))
+#'                       backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_ets(AirPassengers,
 #'                       fc_horizon = 6,
-#'                       backtesting_opt = list(use_backtesting = TRUE,
-#'                                              backtesting_nb_iters = 6))
+#'                       backtesting_opt = list(use_bt = TRUE,
+#'                                              nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_ets <- function(ts_data_xts,
@@ -126,7 +134,7 @@ generate_fc_ets <- function(ts_data_xts,
   model_output <- base::list()
   md <- fc <- NULL
   ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          bt_iter = bt_iter,
@@ -147,7 +155,11 @@ generate_fc_ets <- function(ts_data_xts,
 #' time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
 #' @examples
@@ -160,13 +172,13 @@ generate_fc_ets <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_tbats(AirPassengers,
 #'                         fc_horizon = 12,
-#'                         backtesting_opt = list(use_backtesting = TRUE))
+#'                         backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_tbats(AirPassengers,
 #'                         fc_horizon = 6,
-#'                         backtesting_opt = list(use_backtesting = TRUE,
-#'                                                backtesting_nb_iters = 6))
+#'                         backtesting_opt = list(use_bt = TRUE,
+#'                                                nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
@@ -183,7 +195,7 @@ generate_fc_tbats <- function(ts_data_xts,
   model_output <- base::list()
   md <- fc <- NULL
   ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -227,7 +239,11 @@ generate_fc_tbats <- function(ts_data_xts,
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
 #' @examples
@@ -240,13 +256,13 @@ generate_fc_tbats <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_nnetar(AirPassengers,
 #'                          fc_horizon = 12,
-#'                          backtesting_opt = list(use_backtesting = TRUE))
+#'                          backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_nnetar(AirPassengers,
 #'                          fc_horizon = 6,
-#'                          backtesting_opt = list(use_backtesting = TRUE,
-#'                                                 backtesting_nb_iters = 6))
+#'                          backtesting_opt = list(use_bt = TRUE,
+#'                                                 nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
@@ -267,7 +283,7 @@ generate_fc_nnetar <- function(ts_data_xts,
   ts_contiguous_data <-
     add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
     add_features(xreg_xts)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -296,7 +312,11 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' time series data.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
 #' @examples
@@ -309,13 +329,13 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_stl(AirPassengers,
 #'                       fc_horizon = 12,
-#'                       backtesting_opt = list(use_backtesting = TRUE))
+#'                       backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_stl(AirPassengers,
 #'                       fc_horizon = 6,
-#'                       backtesting_opt = list(use_backtesting = TRUE,
-#'                                              backtesting_nb_iters = 6))
+#'                       backtesting_opt = list(use_bt = TRUE,
+#'                                              nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_stl <- function(ts_data_xts,
@@ -335,7 +355,7 @@ generate_fc_stl <- function(ts_data_xts,
   model_output <- base::list()
   md <- fc <- NULL
   ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -356,7 +376,11 @@ generate_fc_stl <- function(ts_data_xts,
 #' time series data.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
 #' @examples
@@ -369,13 +393,13 @@ generate_fc_stl <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_snaive(AirPassengers,
 #'                          fc_horizon = 12,
-#'                          backtesting_opt = list(use_backtesting = TRUE))
+#'                          backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_snaive(AirPassengers,
 #'                          fc_horizon = 6,
-#'                          backtesting_opt = list(use_backtesting = TRUE,
-#'                                                 backtesting_nb_iters = 6))
+#'                          backtesting_opt = list(use_bt = TRUE,
+#'                                                 nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_snaive <- function(ts_data_xts,
@@ -396,7 +420,7 @@ generate_fc_snaive <- function(ts_data_xts,
     warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
     return(NULL)
   }
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -417,7 +441,11 @@ generate_fc_snaive <- function(ts_data_xts,
 #' time series data.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @examples
@@ -430,13 +458,13 @@ generate_fc_snaive <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_bsts(AirPassengers,
 #'                        fc_horizon = 12,
-#'                        backtesting_opt = list(use_backtesting = TRUE))
+#'                        backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_bsts(AirPassengers,
 #'                        fc_horizon = 6,
-#'                        backtesting_opt = list(use_backtesting = TRUE,
-#'                                               backtesting_nb_iters = 6))
+#'                        backtesting_opt = list(use_bt = TRUE,
+#'                                               nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
@@ -532,7 +560,7 @@ generate_fc_bsts <- function(ts_data_xts,
     ss <- bsts::AddSeasonal(ss, ts_data_xts, nseasons = stats::frequency(ts_data_xts))
   }
   ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -560,7 +588,11 @@ generate_fc_bsts <- function(ts_data_xts,
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
 #' @examples
@@ -573,13 +605,13 @@ generate_fc_bsts <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_lstm_keras(AirPassengers,
 #'                              fc_horizon = 12,
-#'                              backtesting_opt = list(use_backtesting = TRUE))
+#'                              backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_lstm_keras(AirPassengers,
 #'                              fc_horizon = 6,
-#'                              backtesting_opt = list(use_backtesting = TRUE,
-#'                                                     backtesting_nb_iters = 6))
+#'                              backtesting_opt = list(use_bt = TRUE,
+#'                                                     nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_lstm_keras <- function(ts_data_xts,
@@ -720,7 +752,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     add_features(xreg_xts)
   ts_name <- base::colnames(ts_data_xts)
   ts_freq <- stats::frequency(ts_data_xts)
-  for (bt_iter in 1:backtesting_opt$backtesting_nb_iters) {
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -750,8 +782,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                lstm_keras_arg$time_features,
                                "key") %>%
                       base::unlist())
-    normalized_data <- normalize_data(ts_data)
-    normalized_data <- normalized_data
+    normalization_step <- normalize_data(ts_data)
+    normalized_data <- normalization_step[["data"]]
+    mean_history <- normalization_step[["scalers"]][base::colnames(ts_data_xts)][, 'mean_history']
+    scale_history <- normalization_step[["scalers"]][base::colnames(ts_data_xts)][, 'scale_history']
     data_with_tsteps <- add_timesteps(data_df = normalized_data,
                                       fc_horizon = fc_horizon,
                                       valid_set_size = lstm_keras_arg$valid_set_size,
@@ -766,43 +800,43 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       dplyr::filter(key == "Training") %>%
       dplyr::select(y) %>%
       base::as.matrix() %>%
-      reshape_Y_2d()
+      reshape_Y()
     y_valid_tensor <-
       data_with_tsteps %>%
       dplyr::filter(key == "Validation") %>%
       dplyr::select(y) %>%
       base::as.matrix() %>%
-      reshape_Y_2d()
+      reshape_Y()
     y_test_tensor <-
       data_with_tsteps %>%
       dplyr::filter(key == "Test") %>%
       dplyr::select(y) %>%
       base::as.matrix() %>%
-      reshape_Y_2d()
+      reshape_Y()
     x_train_tensor <-
       data_with_tsteps %>%
       dplyr::filter(key == "Training") %>%
       dplyr::select(-y, -key) %>%
       base::as.matrix() %>%
-      reshape_X_3d(.,
-                   tsteps = lstm_keras_arg$nb_timesteps,
-                   nb_features = nb_features)
+      reshape_X(.,
+                tsteps = lstm_keras_arg$nb_timesteps,
+                nb_features = nb_features)
     x_valid_tensor <-
       data_with_tsteps %>%
       dplyr::filter(key == "Validation") %>%
       dplyr::select(-y, -key) %>%
       base::as.matrix() %>%
-      reshape_X_3d(.,
-                   tsteps = lstm_keras_arg$nb_timesteps,
-                   nb_features = nb_features)
+      reshape_X(.,
+                tsteps = lstm_keras_arg$nb_timesteps,
+                nb_features = nb_features)
     x_test_tensor <-
       data_with_tsteps %>%
       dplyr::filter(key == "Test") %>%
       dplyr::select(-y, -key) %>%
       base::as.matrix() %>%
-      reshape_X_3d(.,
-                   tsteps = lstm_keras_arg$nb_timesteps,
-                   nb_features = nb_features)
+      reshape_X(.,
+                tsteps = lstm_keras_arg$nb_timesteps,
+                nb_features = nb_features)
     #### modelling ####
     model <- keras::keras_model_sequential()
     if (lstm_keras_arg$nb_stacked_layers > 0) {
@@ -906,20 +940,6 @@ generate_fc_lstm_keras <- function(ts_data_xts,
           utils::tail(pred_list, lstm_keras_arg$nb_timesteps)
       }
     }
-    mean_history <-
-      ts_data %>%
-      dplyr::filter(key == "Training") %>%
-      {
-        base::mean(.[, base::colnames(ts_data_xts)] %>% as.matrix(),
-                   na.rm = TRUE)
-      }
-    scale_history <-
-      ts_data %>%
-      dplyr::filter(key == "Training") %>%
-      {
-        stats::sd(.[, base::colnames(ts_data_xts)] %>% as.matrix(),
-                  na.rm = TRUE)
-      }
     y_predict_matrix <-
       pred_list %>%
       base::matrix(., nrow = fc_horizon, ncol = 1) * scale_history + mean_history
@@ -960,7 +980,11 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options of the backtesting program
+#' @param backtesting_opt A list, options for the backtesting program
+#'    use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'    nb_iters: An integer, to determine the number of backtesting operations to apply
+#'    method: A string, to determine whether to use a rolling or a moving forecasting window
+#'    sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
 #' @examples
@@ -973,13 +997,13 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_automl_h2o(AirPassengers,
 #'                              fc_horizon = 12,
-#'                              backtesting_opt = list(use_backtesting = TRUE))
+#'                              backtesting_opt = list(use_bt = TRUE))
 #'
 #' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_automl_h2o(AirPassengers,
 #'                              fc_horizon = 6,
-#'                              backtesting_opt = list(use_backtesting = TRUE,
-#'                                                     backtesting_nb_iters = 6))
+#'                              backtesting_opt = list(use_bt = TRUE,
+#'                                                     nb_iters = 6))
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,
@@ -991,7 +1015,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    ...){
   # options:
   # nb_threads
-  # use_backtesting
+  # use_bt
   # nb_periods <- backtesting_opt
   # fc_horizon
   # train_set_size
@@ -999,7 +1023,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   # test_set_size
   `%>%` <- magrittr::`%>%`
   h2o::h2o.init(port = 54321, nthreads = nb_threads)
-  if (!backtesting_opt$use_backtesting & nb_periods != 1) {
+  if (!backtesting_opt$use_bt & nb_periods != 1) {
     print("When forecasting (backtesting=FALSE),
           the number of periods is automatically set to 1!
           You do not need to explicitly set this argument.")
@@ -1008,28 +1032,28 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   ts_contiguous_data <- timeSeries::na.contiguous(ts_data_xts)
   valid_set_size <- 12
   test_set_size <- 12
-  nb_periods <- backtesting_opt$backtesting_nb_iters
+  nb_periods <- backtesting_opt$nb_iters
   train_set_size <-
     base::length(ts_contiguous_data) -
     valid_set_size -
     test_set_size -
-    backtesting_opt$use_backtesting * fc_horizon -
+    backtesting_opt$use_bt * fc_horizon -
     nb_periods + 1
 
   if (base::length(ts_contiguous_data) -
-      backtesting_opt$use_backtesting * fc_horizon -
+      backtesting_opt$use_bt * fc_horizon -
       nb_periods + 1 <= 0) {
     stop("The length of the ts obj is not long enough!")
   }
   ts_data_df <-
     ts_contiguous_data %>%
     base::as.matrix() %>%
-    base::rbind(base::matrix(base::rep(NaN, fc_horizon * backtesting_opt$use_backtesting))) %>%
+    base::rbind(base::matrix(base::rep(NaN, fc_horizon * backtesting_opt$use_bt))) %>%
     {
       base::rownames(.) <-
         c(zoo::index(ts_contiguous_data),
                      timetk::tk_make_future_timeseries(zoo::index(ts_contiguous_data),
-                                                       fc_horizon * backtesting_opt$use_backtesting)) %>%
+                                                       fc_horizon * backtesting_opt$use_bt)) %>%
         base::as.character()
       .
     } %>%

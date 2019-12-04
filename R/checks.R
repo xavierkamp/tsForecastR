@@ -1,38 +1,38 @@
 #' Check backtesting options
+#' @description
 #' This function ensures that the selected backtesting options are valid.
 #' If not, the function throws an error. If the options are NULL, then default
 #' values will be applied.
-#'
 #' @param backtesting_opt NULL or a list
 #' @return A list of backtesting options
 check_backtesting_opt <- function(backtesting_opt) {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(backtesting_opt)) {
     backtesting_opt <-
-      base::list(use_backtesting = FALSE,
-                 backtesting_nb_iters = 1,
-                 backtesting_method = c("rolling",
-                                        "moving"),
-                 backtesting_set_size = c("expanding",
-                                          "fixed"))
+      base::list(use_bt = FALSE,
+                 nb_iters = 1,
+                 method = c("rolling",
+                             "moving"),
+                 sample_size = c("expanding",
+                                 "fixed"))
   } else if (!base::is.list(backtesting_opt)) {
     stop("backtesting_opt must be a list!")
-  } else if (!base::is.logical(backtesting_opt$use_backtesting)) {
+  } else if (!base::is.logical(backtesting_opt$use_bt)) {
     stop("To use backtesting, please specify TRUE or FALSE as an argument!")
-  } else if (!base::is.numeric(backtesting_opt$backtesting_nb_iters)) {
+  } else if (!base::is.numeric(backtesting_opt$nb_iters)) {
     stop("The number of iterations must be an integer!")
-  } else if (backtesting_opt$backtesting_nb_iters != base::as.integer(backtesting_opt$backtesting_nb_iters)) {
+  } else if (backtesting_opt$nb_iters != base::as.integer(backtesting_opt$nb_iters)) {
     stop("The number of iterations must be an integer!")
-  } else if (backtesting_opt$backtesting_nb_iters < 1) {
+  } else if (backtesting_opt$nb_iters < 1) {
     stop("The number of iterations must be a positive non-zero integer!")
-  } else if (!backtesting_opt$backtesting_method[1] %in% c("rolling", "moving")) {
+  } else if (!backtesting_opt$method[1] %in% c("rolling", "moving")) {
     stop("The backtesting method must either 'rolling' or 'moving'!")
-  } else if (!backtesting_opt$backtesting_set_size[1] %in% c("expanding", "fixed")) {
+  } else if (!backtesting_opt$sample_size[1] %in% c("expanding", "fixed")) {
     stop ("The training set size must be either 'expanding' or 'fixed'!")
   }
-  if (!backtesting_opt$use_backtesting) {
-    if (backtesting_opt$backtesting_nb_iters != 1) {
-      backtesting_opt$backtesting_nb_iters <- 1
+  if (!backtesting_opt$use_bt) {
+    if (backtesting_opt$nb_iters != 1) {
+      backtesting_opt$nb_iters <- 1
       warning("As no backtesting is applied, there will be only one forecasting exercise for each time series!")
     }
   }
@@ -40,9 +40,9 @@ check_backtesting_opt <- function(backtesting_opt) {
 }
 
 #' Check forecasting horizon
+#' @description
 #' This function ensures that the selected forecasting horizon is valid.
 #' If not, the function throws an error.
-#'
 #' @param fc_horizon must be a positive integer
 #' @return fc_horizon: a positive integer
 check_fc_horizon <- function(fc_horizon) {
@@ -55,9 +55,9 @@ check_fc_horizon <- function(fc_horizon) {
 }
 
 #' Check validation set size
+#' @description
 #' This function ensures that the selected validation set size is valid.
 #' If not, the function throws an error.
-#'
 #' @param valid_set_size must be a positive integer
 #' @return valid_set_size: a positive integer
 check_valid_set_size <- function(valid_set_size) {
@@ -70,10 +70,10 @@ check_valid_set_size <- function(valid_set_size) {
 }
 
 #' Check optional test set size
+#' @description
 #' This function ensures that the optional test set size is valid. The optional
 #' test set size is used to identify the best performing model inside the
 #' h2o.automl procedure. If the argument is invalid, the function throws an error.
-#'
 #' @param tmp_test_set_size must be a positive integer
 #' @return tmp_test_set_size: a positive integer
 check_tmp_test_set_size <- function(tmp_test_set_size) {
@@ -86,9 +86,9 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 }
 
 #' Check backtesting iteration number
+#' @description
 #' This function ensures that the backtesting iteration number is valid.
 #' If not, the function throws an error.
-#'
 #' @param bt_iter must be a positive integer which is smaller or equal to the
 #'     number of backtesting operations to perform.
 #' @return bt_iter: a positive integer
@@ -98,18 +98,18 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
     stop("The sample number must be an positive non-zero integer!")
   } else if (bt_iter != base::as.integer(bt_iter) | bt_iter < 1) {
     stop("The sample number must be a positive non-zero integer!")
-  } else if (bt_iter > backtesting_opt$backtesting_nb_iters) {
+  } else if (bt_iter > backtesting_opt$nb_iters) {
     stop("More iterations performed than specified in the backtesting plan!")
   }
   return(bt_iter)
 }
 
 #' Check the time series data and convert to xts
+#' @description
 #' This function ensures that the input data is of type xts, ts or mts and
 #' converts it to an xts object. Furthermore, if no colnames are specified, default
 #' colnames will be applied. Moreover, punctuations in colnames will dropped to
 #' avoid errors when converting between different data types.
-#'
 #' @param input_data ts, mts or xts object
 #' @return xts object with punctuations dropped in colnames
 check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
@@ -145,9 +145,9 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 }
 
 #' Check the filepath where forecasts can be saved
+#' @description
 #' This function ensures that the filepath where forecast can be saved is valid
 #' If not the argument is invalid, the function throws an error.
-#'
 #' @param save_fc_to_file NULL or a valid filepath
 #' @return NULL or a valid filepath
 check_save_fc_to_file <- function(save_fc_to_file) {
@@ -157,9 +157,9 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 }
 
 #' Check model names
+#' @description
 #' This function ensures that the selected model names are valid.
 #' If not, the function throws an error.
-#'
 #' @param model_names list or vector of strings
 #' @return model_names: vector of strings
 check_model_names <- function(model_names) {
@@ -184,10 +184,10 @@ check_model_names <- function(model_names) {
 }
 
 #' Check models' arguments
+#' @description
 #' This function ensures that the models' arguments are a list. Furthermore, the
 #' function checks if these arguments match the selected model names, otherwise they
 #' will be dropped.
-#'
 #' @param models_args a list
 #' @return models_args: a list
 check_models_args <- function(models_args, model_names = NULL) {
@@ -207,9 +207,9 @@ check_models_args <- function(models_args, model_names = NULL) {
 }
 
 #' Check parallel processing option
+#' @description
 #' This function ensures that the user selects a valid parallel processing option.
 #' If use_parallel = True, then time series will be processed in parallel.
-#'
 #' @param use_parallel a boolean
 #' @return a boolean
 check_use_parallel <- function(use_parallel) {

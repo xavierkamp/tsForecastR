@@ -6,8 +6,13 @@
 \usage{
 add_features(input_data, xreg_data = NULL)
 }
-\value{
+\arguments{
+\item{input_data}{A univariate or multivariate ts, mts or xts object}
 
+\item{xreg_data}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+}
+\value{
+A univariate or multivariate xts object
 }
 \description{
 Add features

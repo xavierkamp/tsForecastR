@@ -2,11 +2,7 @@
 % Please edit documentation in R/preprocessing.R
 \name{add_timesteps}
 \alias{add_timesteps}
-\title{Add timesteps
-Description:
-for lstm, when the number of time steps (i.e. number of lags) is defined,
-for each input variable, the required number of lagged values needs to be
-added as inputs to the input matrix}
+\title{Add timesteps}
 \usage{
 add_timesteps(
   data_df,
@@ -14,28 +10,40 @@ add_timesteps(
   valid_set_size = 12,
   tsteps = 12,
   lag_setting = 12,
-  backtesting_opt = list(use_backtesting = FALSE, backtesting_nb_iter = 1,
-    backtesting_method = c("rolling", "moving"), backtesting_set_size = c("expanding",
-    "fixed"))
+  ...
 )
 }
-\value{
+\arguments{
+\item{data_df}{A data.frame object}
 
+\item{fc_horizon}{An integer, forecasting horizon}
+
+\item{valid_set_size}{An integer, the validation set size (default = 0)}
+
+\item{tsteps}{An integer, the number of time steps}
+
+\item{lag_setting}{An integer, lag to apply on regressors}
+}
+\value{
+A data.frame object
 }
 \description{
+for lstm, when the number of time steps (i.e. number of lags) is defined,
+for each input variable, the required number of lagged values needs to be
+added as inputs to the input matrix
+
 when the ts is seasonal with periodicity = 12, then lag_setting should be 12.
 The volume of the same month of previous year will most likely have a high
 influence on today's volume.
-when the ts is non-seasonal, lagSetting = 1, i.e. the volume of previous
+when the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
 month will most likely have the strongest impact on today.
-}
-\details{
-when lag_setting = 12 and tsteps < lagSetting (e.g. tsteps=4),
+
+when lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
 then input values will be: t-12, t-11, t-10, t-9
-when lag_setting = 12 and tsteps = lagSetting, then input values will be:
+when lag_setting = 12 and tsteps = lag_setting, then input values will be:
 t-12, t-11, ... , t-1
-when lagSetting = 12 and tsteps > lagSetting (e.g. tsteps = 15),
+when lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
 then input values will be: t-15, ... , t-12, ... , t-1
 
-Same goes for lagSetting other than 12.
+Same goes for lag_setting other than 12.
 }

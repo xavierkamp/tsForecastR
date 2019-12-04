@@ -6,8 +6,11 @@
 \usage{
 normalize_data(data_df)
 }
+\arguments{
+\item{data_df}{A data.frame object}
+}
 \value{
-a list with normalized data and scalers
+A list, normalized data and scalers
 }
 \description{
 Normalize the data

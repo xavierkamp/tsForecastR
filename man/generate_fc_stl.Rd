@@ -18,7 +18,11 @@ generate_fc_stl(
 
 \item{fc_horizon}{An integer, the forcasting horizon}
 
-\item{backtesting_opt}{A list, options of the backtesting program}
+\item{backtesting_opt}{A list, options for the backtesting program
+use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+nb_iters: An integer, to determine the number of backtesting operations to apply
+method: A string, to determine whether to use a rolling or a moving forecasting window
+sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
@@ -41,11 +45,11 @@ fc <- generate_fc_stl(AirPassengers,
 # Generate forecasts on past dates to analyze performance
 fc <- generate_fc_stl(AirPassengers,
                       fc_horizon = 12,
-                      backtesting_opt = list(use_backtesting = TRUE))
+                      backtesting_opt = list(use_bt = TRUE))
 
 # Generate forecasts on past dates with multiple iterations and a rolling window
 fc <- generate_fc_stl(AirPassengers,
                       fc_horizon = 6,
-                      backtesting_opt = list(use_backtesting = TRUE,
-                                             backtesting_nb_iters = 6))
+                      backtesting_opt = list(use_bt = TRUE,
+                                             nb_iters = 6))
 }
