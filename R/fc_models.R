@@ -6,13 +6,13 @@
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
@@ -94,13 +94,13 @@ generate_fc_arima <- function(ts_data_xts,
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
@@ -167,13 +167,13 @@ generate_fc_ets <- function(ts_data_xts,
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
@@ -256,13 +256,13 @@ generate_fc_tbats <- function(ts_data_xts,
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
@@ -334,13 +334,13 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
@@ -403,13 +403,13 @@ generate_fc_stl <- function(ts_data_xts,
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
@@ -473,13 +473,13 @@ generate_fc_snaive <- function(ts_data_xts,
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @examples
@@ -624,13 +624,13 @@ generate_fc_bsts <- function(ts_data_xts,
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
@@ -1021,13 +1021,13 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function

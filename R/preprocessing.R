@@ -4,13 +4,13 @@
 #' @param fc_horizon An integer, forecasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @return A univariate or multivariate xts object
 add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
@@ -64,13 +64,13 @@ add_features <- function(input_data, xreg_data = NULL) {
 #' @param tmp_test_set_size An integer, size of a second test set (used by h2o.automl) (default = 0)
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
 #'
-#'  method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @return A list, training, validation and test sets
 split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
