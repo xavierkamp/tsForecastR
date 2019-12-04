@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_lstm_keras}
 \alias{generate_fc_lstm_keras}
-\title{Long-Short Term Memory Network:
-applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
-time series data.}
+\title{Long-Short Term Memory Network}
 \usage{
 generate_fc_lstm_keras(
   ts_data_xts,
@@ -33,23 +31,22 @@ generate_fc_lstm_keras(
 A list, forecast object for each forecasted period
 }
 \description{
-Long-Short Term Memory Network:
-applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
+Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
 time series data.
 }
 \examples{
 library(datasets)
 
-# Generate forecasts on unknown periods
+# Generate forecasts on future dates
 fc <- generate_fc_lstm_keras(AirPassengers,
                              fc_horizon = 12)
 
-# Generate forecasts on past values to analyze performance
+# Generate forecasts on past dates to analyze performance
 fc <- generate_fc_lstm_keras(AirPassengers,
                              fc_horizon = 12,
                              backtesting_opt = list(use_backtesting = TRUE))
 
-# Generate forecasts on past values with multiple iterations and a rolling window
+# Generate forecasts on past dates with multiple iterations and a rolling window
 fc <- generate_fc_lstm_keras(AirPassengers,
                              fc_horizon = 6,
                              backtesting_opt = list(use_backtesting = TRUE,

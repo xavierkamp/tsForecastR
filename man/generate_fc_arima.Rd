@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_arima}
 \alias{generate_fc_arima}
-\title{ARIMA Model:
-applies the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
-on time series data.}
+\title{ARIMA Model}
 \usage{
 generate_fc_arima(
   ts_data_xts,
@@ -33,8 +31,7 @@ generate_fc_arima(
 A list, forecast object for each forecasted period
 }
 \description{
-ARIMA Model:
-applies the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
+Function to apply the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
 on time series data.
 }
 \examples{

@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_bsts}
 \alias{generate_fc_bsts}
-\title{Bayesian Structural Time Series Model:
-applies the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
-time series data.}
+\title{Bayesian Structural Time Series Model}
 \usage{
 generate_fc_bsts(
   ts_data_xts,
@@ -30,8 +28,7 @@ generate_fc_bsts(
 A list, forecast object for each forecasted period
 }
 \description{
-Bayesian Structural Time Series Model:
-applies the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
+Function to apply the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
 time series data.
 }
 \examples{

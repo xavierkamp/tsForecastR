@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_nnetar}
 \alias{generate_fc_nnetar}
-\title{Neural Network:
-applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
-time series data.}
+\title{Neural Network}
 \usage{
 generate_fc_nnetar(
   ts_data_xts,
@@ -33,8 +31,7 @@ generate_fc_nnetar(
 A list, forecast object for each forecasted period
 }
 \description{
-Neural Network:
-applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
+Function to apply the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
 time series data.
 }
 \examples{

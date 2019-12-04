@@ -13,7 +13,7 @@
 #' @examples
 #' library(datasets)
 #'
-#' # Generate forecasts on unknown periods
+#' # Generate forecasts on future dates
 #' fc <- generate_fc(AirPassengers,
 #'                   fc_horizon = 12)
 #'
@@ -32,13 +32,13 @@
 #'                                     stl_arg = list(s.window = "periodic")))
 #'                   use_parallel = TRUE)
 #'
-#' # Generate forecasts on past values to analyze performance
+#' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc(AirPassengers,
 #'                   model_names = "arima",
 #'                   fc_horizon = 12,
 #'                   backtesting_opt = list(use_backtesting = TRUE))
 #'
-#' # Generate forecasts on past values with multiple iterations
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc(AirPassengers,
 #'                   model_names = "tbats",
 #'                   fc_horizon = 6,

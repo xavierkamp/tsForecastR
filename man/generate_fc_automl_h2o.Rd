@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_automl_h2o}
 \alias{generate_fc_automl_h2o}
-\title{Automated Machine Learning:
-applies the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
-time series data.}
+\title{Automated Machine Learning}
 \usage{
 generate_fc_automl_h2o(
   ts_data_xts,
@@ -32,23 +30,22 @@ generate_fc_automl_h2o(
 A list, forecast object for each forecasted period
 }
 \description{
-Automated Machine Learning:
-applies the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
+Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
 time series data.
 }
 \examples{
 library(datasets)
 
-# Generate forecasts on unknown periods
+# Generate forecasts on future dates
 fc <- generate_fc_automl_h2o(AirPassengers,
                              fc_horizon = 12)
 
-# Generate forecasts on past values to analyze performance
+# Generate forecasts on past dates to analyze performance
 fc <- generate_fc_automl_h2o(AirPassengers,
                              fc_horizon = 12,
                              backtesting_opt = list(use_backtesting = TRUE))
 
-# Generate forecasts on past values with multiple iterations
+# Generate forecasts on past dates with multiple iterations and a rolling window
 fc <- generate_fc_automl_h2o(AirPassengers,
                              fc_horizon = 6,
                              backtesting_opt = list(use_backtesting = TRUE,

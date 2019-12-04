@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_stl}
 \alias{generate_fc_stl}
-\title{Season-Trend Decomposition with Loess Model:
-applies the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
-time series data.}
+\title{Season-Trend Decomposition with Loess Model}
 \usage{
 generate_fc_stl(
   ts_data_xts,
@@ -30,8 +28,7 @@ generate_fc_stl(
 A list, forecast object for each forecasted period
 }
 \description{
-Season-Trend Decomposition with Loess Model:
-applies the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
+Function to apply the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
 time series data.
 }
 \examples{

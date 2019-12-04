@@ -574,16 +574,16 @@ generate_fc_bsts <- function(ts_data_xts,
 #' @examples
 #' library(datasets)
 #'
-#' # Generate forecasts on unknown periods
+#' # Generate forecasts on future dates
 #' fc <- generate_fc_lstm_keras(AirPassengers,
 #'                              fc_horizon = 12)
 #'
-#' # Generate forecasts on past values to analyze performance
+#' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_lstm_keras(AirPassengers,
 #'                              fc_horizon = 12,
 #'                              backtesting_opt = list(use_backtesting = TRUE))
 #'
-#' # Generate forecasts on past values with multiple iterations and a rolling window
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_lstm_keras(AirPassengers,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_backtesting = TRUE,
@@ -975,16 +975,16 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' @examples
 #' library(datasets)
 #'
-#' # Generate forecasts on unknown periods
+#' # Generate forecasts on future dates
 #' fc <- generate_fc_automl_h2o(AirPassengers,
 #'                              fc_horizon = 12)
 #'
-#' # Generate forecasts on past values to analyze performance
+#' # Generate forecasts on past dates to analyze performance
 #' fc <- generate_fc_automl_h2o(AirPassengers,
 #'                              fc_horizon = 12,
 #'                              backtesting_opt = list(use_backtesting = TRUE))
 #'
-#' # Generate forecasts on past values with multiple iterations
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
 #' fc <- generate_fc_automl_h2o(AirPassengers,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_backtesting = TRUE,

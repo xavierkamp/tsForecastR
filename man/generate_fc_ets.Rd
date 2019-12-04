@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_ets}
 \alias{generate_fc_ets}
-\title{Exponential Smoothing Model:
-applies the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
-time series data.}
+\title{Exponential Smoothing Model}
 \usage{
 generate_fc_ets(
   ts_data_xts,
@@ -30,8 +28,7 @@ generate_fc_ets(
 A list, forecast object for each forecasted period
 }
 \description{
-Exponential Smoothing Model:
-applies the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
+Function to apply the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
 time series data.
 }
 \examples{

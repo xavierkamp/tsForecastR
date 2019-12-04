@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_snaive}
 \alias{generate_fc_snaive}
-\title{Seasonal Naive Model:
-applies the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
-time series data.}
+\title{Seasonal Naive Model}
 \usage{
 generate_fc_snaive(
   ts_data_xts,
@@ -30,8 +28,7 @@ generate_fc_snaive(
 A list, forecast object for each forecasted period
 }
 \description{
-Seasonal Naive Model:
-applies the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
+Function to apply the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
 time series data.
 }
 \examples{

@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_tbats}
 \alias{generate_fc_tbats}
-\title{TBATS Model:
-applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
-time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.}
+\title{TBATS Model}
 \usage{
 generate_fc_tbats(
   ts_data_xts,
@@ -30,8 +28,7 @@ generate_fc_tbats(
 A list, forecast object for each forecasted period
 }
 \description{
-TBATS Model:
-applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
+Function to apply the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
 time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
 }
 \examples{

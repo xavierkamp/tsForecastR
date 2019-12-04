@@ -2,9 +2,7 @@
 % Please edit documentation in R/fc_engine_api.R
 \name{generate_fc}
 \alias{generate_fc}
-\title{Forecasting Engine API:
-enables the user to select different forecasting algorithms ranging from
-traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).}
+\title{Forecasting Engine API}
 \usage{
 generate_fc(
   mts_data,
@@ -41,14 +39,13 @@ generate_fc(
 A list, forecast object for each forecasted period
 }
 \description{
-Forecasting Engine API:
-enables the user to select different forecasting algorithms ranging from
+Function which enables the user to select different forecasting algorithms ranging from
 traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
 }
 \examples{
 library(datasets)
 
-# Generate forecasts on unknown periods
+# Generate forecasts on future dates
 fc <- generate_fc(AirPassengers,
                   fc_horizon = 12)
 
@@ -67,13 +64,13 @@ fc <- generate_fc(AirPassengers,
                                     stl_arg = list(s.window = "periodic")))
                   use_parallel = TRUE)
 
-# Generate forecasts on past values to analyze performance
+# Generate forecasts on past dates to analyze performance
 fc <- generate_fc(AirPassengers,
                   model_names = "arima",
                   fc_horizon = 12,
                   backtesting_opt = list(use_backtesting = TRUE))
 
-# Generate forecasts on past values with multiple iterations
+# Generate forecasts on past dates with multiple iterations and a rolling window
 fc <- generate_fc(AirPassengers,
                   model_names = "tbats",
                   fc_horizon = 6,
