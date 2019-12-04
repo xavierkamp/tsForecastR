@@ -1,4 +1,4 @@
-Package: tsForecast
+Package: tsForecastR
 Type: Package
 Title: Forecasting with Traditional Time Series and Machine Learning Models
 Version: 0.1.0
