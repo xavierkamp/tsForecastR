@@ -1,7 +1,6 @@
-#' ARIMA Model:
-#' applies the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
+#' ARIMA Model
+#' @description Function to apply the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
 #' on time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
@@ -79,10 +78,9 @@ generate_fc_arima <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Exponential Smoothing Model:
-#' applies the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
+#' Exponential Smoothing Model
+#' @description Function to apply the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options of the backtesting program
@@ -144,10 +142,9 @@ generate_fc_ets <- function(ts_data_xts,
   return(model_output)
 }
 
-#' TBATS Model:
-#' applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
+#' TBATS Model
+#' @description Function to apply the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options of the backtesting program
@@ -224,10 +221,9 @@ generate_fc_tbats <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Neural Network:
-#' applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
+#' Neural Network
+#' @description Function to apply the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
@@ -295,10 +291,9 @@ generate_fc_nnetar <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Season-Trend Decomposition with Loess Model:
-#' applies the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
+#' Season-Trend Decomposition with Loess Model
+#' @description Function to apply the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options of the backtesting program
@@ -356,10 +351,9 @@ generate_fc_stl <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Seasonal Naive Model:
-#' applies the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
+#' Seasonal Naive Model
+#' @description Function to apply the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options of the backtesting program
@@ -418,10 +412,9 @@ generate_fc_snaive <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Bayesian Structural Time Series Model:
-#' applies the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
+#' Bayesian Structural Time Series Model
+#' @description Function to apply the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param backtesting_opt A list, options of the backtesting program
@@ -561,10 +554,9 @@ generate_fc_bsts <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Long-Short Term Memory Network:
-#' applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
+#' Long-Short Term Memory Network
+#' @description Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
@@ -962,10 +954,9 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Automated Machine Learning:
-#' applies the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
+#' Automated Machine Learning
+#' @description Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
 #' time series data.
-#'
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors

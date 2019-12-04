@@ -1,7 +1,6 @@
-#' Forecasting Engine API:
-#' enables the user to select different forecasting algorithms ranging from
+#' Forecasting Engine API
+#' @description Function which enables the user to select different forecasting algorithms ranging from
 #' traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
-#'
 #' @param mts_data A univariate or multivariate ts, mts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
