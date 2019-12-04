@@ -21,15 +21,15 @@ generate_fc_lstm_keras(
 
 \item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
 
-\item{backtesting_opt}{A list, options for the backtesting program
+\item{backtesting_opt}{A list, options for the backtesting program:
 
-   use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+ use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 
-   nb_iters: An integer, to determine the number of backtesting operations to apply
+ nb_iters: An integer, to determine the number of backtesting operations to apply
 
-   method: A string, to determine whether to use a rolling or a moving forecasting window
+ method: A string, to determine whether to use a rolling or a moving forecasting window
 
-   sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 

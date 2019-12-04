@@ -18,17 +18,15 @@ generate_fc_bsts(
 
 \item{fc_horizon}{An integer, the forcasting horizon}
 
-\item{backtesting_opt}{A list, options for the backtesting program
+\item{backtesting_opt}{A list, options for the backtesting program:
 
-   use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+ use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 
-   nb_iters: An integer, to determine the number of backtesting operations to apply
+ nb_iters: An integer, to determine the number of backtesting operations to apply
 
-   method: A string, to determine whether to use a rolling or a moving forecasting window
+ method: A string, to determine whether to use a rolling or a moving forecasting window
 
-   sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
-
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+ sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
 
 \item{bsts_arg}{A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function}
 }
