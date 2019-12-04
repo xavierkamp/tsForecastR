@@ -10,7 +10,7 @@ check_backtesting_opt <- function(backtesting_opt) {
   if (base::is.null(backtesting_opt)) {
     backtesting_opt <-
       base::list(use_backtesting = FALSE,
-                 backtesting_nb_iter = 1,
+                 backtesting_nb_iters = 1,
                  backtesting_method = c("rolling",
                                         "moving"),
                  backtesting_set_size = c("expanding",

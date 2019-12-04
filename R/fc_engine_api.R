@@ -1,12 +1,52 @@
-#' Forecasting Engine API
-#'
-#' This function enables the user to select different forecasting algorithms ranging from
+#' Forecasting Engine API:
+#' enables the user to select different forecasting algorithms ranging from
 #' traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
 #'
-#' @param mts_data ts, mts or xts object
-#' @return A list of forecasts for each time series
+#' @param mts_data A univariate or multivariate ts, mts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param model_names A list or character, names of models to apply
+#' @param model_args A list, optional arguments to pass to the models
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param use_parallel A boolean, apply parallel processing
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on unknown periods
+#' fc <- generate_fc(AirPassengers,
+#'                   fc_horizon = 12)
+#'
+#' fc <- generate_fc(AirPassengers,
+#'                   fc_horizon = 6,
+#'                   model_names = c("arima", "ets",
+#'                                   "lstm_keras",
+#'                                   "automl_h2o"))
+#' fc <- generate_fc(AirPassengers,
+#'                   fc_horizon = 6,
+#'                   model_names = c("ets", "snaive",
+#'                                   "stl", "nnetar"),
+#'                   model_args = list(ets_arg = list(model = "ZZA",
+#'                                                    opt.crit = "amse",
+#'                                                    upper = c(0.3, 0.2, 0.2, 0.98),
+#'                                     stl_arg = list(s.window = "periodic")))
+#'                   use_parallel = TRUE)
+#'
+#' # Generate forecasts on past values to analyze performance
+#' fc <- generate_fc(AirPassengers,
+#'                   model_names = "arima",
+#'                   fc_horizon = 12,
+#'                   backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past values with multiple iterations
+#' fc <- generate_fc(AirPassengers,
+#'                   model_names = "tbats",
+#'                   fc_horizon = 6,
+#'                   backtesting_opt = list(use_backtesting = TRUE,
+#'                                          backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
-generate_fc <- function(mts_data, fc_horizon = 1,
+generate_fc <- function(mts_data, fc_horizon = 12,
                         xreg_data = NULL,
                         backtesting_opt = list(use_backtesting = FALSE,
                                                backtesting_nb_iters = 1,

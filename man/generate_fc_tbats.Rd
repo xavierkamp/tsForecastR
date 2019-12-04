@@ -2,9 +2,9 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_tbats}
 \alias{generate_fc_tbats}
-\title{TBATS Model
-This function applies the tbats function from the forecast package on
-time series data. The tbats function is only applicable on ts objects.}
+\title{TBATS Model:
+applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
+time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.}
 \usage{
 generate_fc_tbats(
   ts_data_xts,
@@ -16,13 +16,39 @@ generate_fc_tbats(
 )
 }
 \arguments{
-\item{ts_data_xts}{univariate xts object}
+\item{ts_data_xts}{A univariate ts or xts object}
+
+\item{fc_horizon}{An integer, the forcasting horizon}
+
+\item{backtesting_opt}{A list, options of the backtesting program}
+
+\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{tbats_arg}{A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function}
 }
 \value{
-A list of forecast objects
+A list, forecast object for each forecasted period
 }
 \description{
-TBATS Model
-This function applies the tbats function from the forecast package on
-time series data. The tbats function is only applicable on ts objects.
+TBATS Model:
+applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
+time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
+}
+\examples{
+library(datasets)
+
+# Generate forecasts on future dates
+fc <- generate_fc_tbats(AirPassengers,
+                        fc_horizon = 12)
+
+# Generate forecasts on past dates to analyze performance
+fc <- generate_fc_tbats(AirPassengers,
+                        fc_horizon = 12,
+                        backtesting_opt = list(use_backtesting = TRUE))
+
+# Generate forecasts on past dates with multiple iterations and a rolling window
+fc <- generate_fc_tbats(AirPassengers,
+                        fc_horizon = 6,
+                        backtesting_opt = list(use_backtesting = TRUE,
+                                               backtesting_nb_iters = 6))
 }

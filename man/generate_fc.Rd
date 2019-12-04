@@ -2,11 +2,13 @@
 % Please edit documentation in R/fc_engine_api.R
 \name{generate_fc}
 \alias{generate_fc}
-\title{Forecasting Engine API}
+\title{Forecasting Engine API:
+enables the user to select different forecasting algorithms ranging from
+traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).}
 \usage{
 generate_fc(
   mts_data,
-  fc_horizon = 1,
+  fc_horizon = 12,
   xreg_data = NULL,
   backtesting_opt = list(use_backtesting = FALSE, backtesting_nb_iters = 1,
     backtesting_method = c("rolling", "moving"), backtesting_set_size = c("expanding",
@@ -19,12 +21,62 @@ generate_fc(
 )
 }
 \arguments{
-\item{mts_data}{ts, mts or xts object}
+\item{mts_data}{A univariate or multivariate ts, mts or xts object}
+
+\item{fc_horizon}{An integer, the forcasting horizon}
+
+\item{backtesting_opt}{A list, options of the backtesting program}
+
+\item{model_names}{A list or character, names of models to apply}
+
+\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{use_parallel}{A boolean, apply parallel processing}
+
+\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+
+\item{model_args}{A list, optional arguments to pass to the models}
 }
 \value{
-A list of forecasts for each time series
+A list, forecast object for each forecasted period
 }
 \description{
-This function enables the user to select different forecasting algorithms ranging from
+Forecasting Engine API:
+enables the user to select different forecasting algorithms ranging from
 traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
+}
+\examples{
+library(datasets)
+
+# Generate forecasts on unknown periods
+fc <- generate_fc(AirPassengers,
+                  fc_horizon = 12)
+
+fc <- generate_fc(AirPassengers,
+                  fc_horizon = 6,
+                  model_names = c("arima", "ets",
+                                  "lstm_keras",
+                                  "automl_h2o"))
+fc <- generate_fc(AirPassengers,
+                  fc_horizon = 6,
+                  model_names = c("ets", "snaive",
+                                  "stl", "nnetar"),
+                  model_args = list(ets_arg = list(model = "ZZA",
+                                                   opt.crit = "amse",
+                                                   upper = c(0.3, 0.2, 0.2, 0.98),
+                                    stl_arg = list(s.window = "periodic")))
+                  use_parallel = TRUE)
+
+# Generate forecasts on past values to analyze performance
+fc <- generate_fc(AirPassengers,
+                  model_names = "arima",
+                  fc_horizon = 12,
+                  backtesting_opt = list(use_backtesting = TRUE))
+
+# Generate forecasts on past values with multiple iterations
+fc <- generate_fc(AirPassengers,
+                  model_names = "tbats",
+                  fc_horizon = 6,
+                  backtesting_opt = list(use_backtesting = TRUE,
+                                         backtesting_nb_iters = 6))
 }

@@ -1,11 +1,34 @@
-#' ARIMA Model
-#' This function applies the auto.arima function from the forecast package on
-#' time series data.
+#' ARIMA Model:
+#' applies the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
+#' on time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_arima(AirPassengers,
+#'                         fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_arima(AirPassengers,
+#'                         fc_horizon = 12,
+#'                         backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_arima(AirPassengers,
+#'                         fc_horizon = 6,
+#'                         backtesting_opt = list(use_backtesting = TRUE,
+#'                                                backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
-generate_fc_arima <- function(ts_data_xts, fc_horizon = 12,
+generate_fc_arima <- function(ts_data_xts,
+                              fc_horizon = 12,
                               xreg_xts = NULL,
                               backtesting_opt = NULL,
                               save_fc_to_file = NULL,
@@ -56,12 +79,33 @@ generate_fc_arima <- function(ts_data_xts, fc_horizon = 12,
   return(model_output)
 }
 
-#' Exponential Smoothing Model
-#' This function applies the ets function from the forecast package on
+#' Exponential Smoothing Model:
+#' applies the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_ets(AirPassengers,
+#'                       fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_ets(AirPassengers,
+#'                       fc_horizon = 12,
+#'                       backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_ets(AirPassengers,
+#'                       fc_horizon = 6,
+#'                       backtesting_opt = list(use_backtesting = TRUE,
+#'                                              backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_ets <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -100,12 +144,33 @@ generate_fc_ets <- function(ts_data_xts,
   return(model_output)
 }
 
-#' TBATS Model
-#' This function applies the tbats function from the forecast package on
-#' time series data. The tbats function is only applicable on ts objects.
+#' TBATS Model:
+#' applies the \code{\link[forecast]{tbats}} function from the \code{\link[forecast]{forecast}} package on
+#' time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_tbats(AirPassengers,
+#'                         fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_tbats(AirPassengers,
+#'                         fc_horizon = 12,
+#'                         backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_tbats(AirPassengers,
+#'                         fc_horizon = 6,
+#'                         backtesting_opt = list(use_backtesting = TRUE,
+#'                                                backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
                               fc_horizon = 12,
@@ -159,12 +224,34 @@ generate_fc_tbats <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Neural Network
-#' This function applies the nnetar function from the forecast package on
+#' Neural Network:
+#' applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future periods
+#' fc <- generate_fc_nnetar(AirPassengers,
+#'                          fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_nnetar(AirPassengers,
+#'                          fc_horizon = 12,
+#'                          backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_nnetar(AirPassengers,
+#'                          fc_horizon = 6,
+#'                          backtesting_opt = list(use_backtesting = TRUE,
+#'                                                 backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
                                fc_horizon = 12,
@@ -208,12 +295,33 @@ generate_fc_nnetar <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Season-Trend Decomposition with Loess Model
-#' This function applies the stl function from the forecast package on
+#' Season-Trend Decomposition with Loess Model:
+#' applies the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_stl(AirPassengers,
+#'                       fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_stl(AirPassengers,
+#'                       fc_horizon = 12,
+#'                       backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_stl(AirPassengers,
+#'                       fc_horizon = 6,
+#'                       backtesting_opt = list(use_backtesting = TRUE,
+#'                                              backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_stl <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -248,12 +356,33 @@ generate_fc_stl <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Seasonal Naive Model
-#' This function applies the snaive function from the forecast package on
+#' Seasonal Naive Model:
+#' applies the \code{\link[forecast]{snaive}} function from the \code{\link[forecast]{forecast}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_snaive(AirPassengers,
+#'                          fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_snaive(AirPassengers,
+#'                          fc_horizon = 12,
+#'                          backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_snaive(AirPassengers,
+#'                          fc_horizon = 6,
+#'                          backtesting_opt = list(use_backtesting = TRUE,
+#'                                                 backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_snaive <- function(ts_data_xts,
                                fc_horizon = 12,
@@ -289,12 +418,33 @@ generate_fc_snaive <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Bayesian Structural Time Series Model
-#' This function applies the bsts function from the bsts package on
+#' Bayesian Structural Time Series Model:
+#' applies the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on future dates
+#' fc <- generate_fc_bsts(AirPassengers,
+#'                        fc_horizon = 12)
+#'
+#' # Generate forecasts on past dates to analyze performance
+#' fc <- generate_fc_bsts(AirPassengers,
+#'                        fc_horizon = 12,
+#'                        backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past dates with multiple iterations and a rolling window
+#' fc <- generate_fc_bsts(AirPassengers,
+#'                        fc_horizon = 6,
+#'                        backtesting_opt = list(use_backtesting = TRUE,
+#'                                               backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
                              fc_horizon = 12,
@@ -411,12 +561,34 @@ generate_fc_bsts <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Long-Short Term Memory Network
-#' This function applies lstm networks from the keras package on
+#' Long-Short Term Memory Network:
+#' applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on unknown periods
+#' fc <- generate_fc_lstm_keras(AirPassengers,
+#'                              fc_horizon = 12)
+#'
+#' # Generate forecasts on past values to analyze performance
+#' fc <- generate_fc_lstm_keras(AirPassengers,
+#'                              fc_horizon = 12,
+#'                              backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past values with multiple iterations and a rolling window
+#' fc <- generate_fc_lstm_keras(AirPassengers,
+#'                              fc_horizon = 6,
+#'                              backtesting_opt = list(use_backtesting = TRUE,
+#'                                                     backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_lstm_keras <- function(ts_data_xts,
                                    fc_horizon = 12,
@@ -432,10 +604,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_output <- base::list()
   if (base::is.null(lstm_keras_arg)) {
-    lstm_keras_arg = base::list(valid_set_size = 12,
+    lstm_keras_arg = base::list(valid_set_size = stats::frequency(ts_data_xts),
                                 stateful = FALSE,
                                 nb_stacked_layers = 0,
-                                lag_setting = frequency(ts_data_xts),
+                                lag_setting = stats::frequency(ts_data_xts),
                                 loss = "mean_absolute_error",
                                 lr = 0.001,
                                 momentum = 0.05,
@@ -443,7 +615,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                 recurrent_dropout = 0.2,
                                 nb_units = 100,
                                 nb_epochs = 50,
-                                nb_timesteps = 12,
+                                nb_timesteps = stats::frequency(ts_data_xts),
                                 batch_size = 1,
                                 optimizer_type = "adam",
                                 patience = 10,
@@ -454,128 +626,103 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   } else {
     if ("valid_set_size" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$valid_set_size)) {
-        warning("default valid_set_size is 12")
+        warning("The validation set size argument is invalid, setting to default: frequency of the data")
+        lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
       }
     } else {
-      lstm_keras_arg$valid_set_size <- 12
+      warning("The validation set size argument is missing, setting to default: frequency of the data")
+      lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
     }
     if ("stateful" %in% base::names(lstm_keras_arg)) {
       if (!base::is.logical(lstm_keras_arg$stateful)) {
+        warning("The value of the stateful argument is invalid, using FALSE as default.")
         lstm_keras_arg$stateful <- FALSE
       }
     } else {
+      warning("The value of the stateful argument is missing, using FALSE as default.")
       lstm_keras_arg$stateful <- FALSE
     }
     if ("nb_stacked_layers" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$nb_stacked_layers)) {
+        warning("The value of the number of stacked layers is invalid, using 0 as default")
         lstm_keras_arg$nb_stacked_layers <- 0
       }
     } else {
+      warning("The value of the number of stacked layers is missing, using 0 as default")
       lstm_keras_arg$nb_stacked_layers <- 0
     }
-    if ("lag_setting" %in% base::names(lstm_keras_arg)) {
-      if (!base::is.numeric(lstm_keras_arg$lag_setting)) {
-        lstm_keras_arg$lag_setting <- frequency(ts_data_xts)
-      }
-    } else {
-      lstm_keras_arg$lag_setting <- frequency(ts_data_xts)
+    if (!"lag_setting" %in% base::names(lstm_keras_arg)) {
+      warning("The number of lags is missing, using the frequency of the data as default")
+      lstm_keras_arg$lag_setting <- stats::frequency(ts_data_xts)
     }
-    if ("loss" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"loss" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the loss function is missing, using 'mean_absolute_error' as default")
+      lstm_keras_arg <- "mean_absolute_error"
     }
-    if ("lr" %in% base::names(lstm_keras_arg)) {
-      if (!base::is.numeric(lstm_keras_arg$lr)) {
-        lstm_keras_arg$lr <- 0.001
-      }
-    } else {
+    if (!"lr" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the learning rate is missing, using 0.001 as default")
       lstm_keras_arg$lr <- 0.001
     }
-    if ("momentum" %in% base::names(lstm_keras_arg)) {
-      if (!base::is.numeric(lstm_keras_arg$momentum)) {
-        lstm_keras_arg$momentum <- 0.05
-      }
-    } else {
+    if (!"momentum" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the momentumn is missing, using 0.05 as default")
       lstm_keras_arg$momentum <- 0.05
     }
-    if ("dropout" %in% base::names(lstm_keras_arg)) {
-      if (!base::is.numeric(lstm_keras_arg$dropout)) {
-        lstm_keras_arg$dropout <- 0.2
-      }
-    } else {
+    if (!"dropout" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the dropout rate is missing, using 0.2 as default")
       lstm_keras_arg$dropout <- 0.2
     }
-    if ("stateful" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"recurrent_dropout" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the recurrent dropout is missing, using 0.2 as default")
+      lstm_keras_arg$recurrent_dropout <- 0.2
     }
-    if ("recurrent_dropout" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"nb_units" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the number of units in LSTM cell is missing, using 100 as default")
+      lstm_keras_arg$nb_units <- 100
     }
-    if ("nb_units" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"nb_epochs" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the number of epochs is missing, using 50 as default")
+      lstm_keras_arg$nb_epochs <- 50
     }
-    if ("nb_epochs" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"nb_timesteps" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the number of time steps is missing, using the frequency of the data as default")
+      lstm_keras_arg$nb_timesteps <- stats::frequency(ts_data_xts)
     }
-    if ("nb_timesteps" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"batch_size" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the batch size is missing, using 1 as default")
+      lstm_keras_arg$batch_size <- 1
     }
-    if ("batch_size" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"optimizer_type" %in% base::names(lstm_keras_arg)) {
+      warning("The type of optimizer to apply is missing, using 'adam' as default")
+      lstm_keras_arg$optimizer_type <- "adam"
     }
-    if ("optimizer_type" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"patience" %in% base::names(lstm_keras_arg)) {
+      warning("The value of the loss function is missing, using 10 as default")
+      lstm_keras_arg$patience <- 10
     }
-    if ("patience" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"verbose" %in% base::names(lstm_keras_arg)) {
+      warning("The value of verbose is missing, using TRUE as default")
+      lstm_keras_arg$verbose <- TRUE
     }
-    if ("verbose" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
-    }
-    if ("stateful" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
-    }
-    if ("time_features" %in% base::names(lstm_keras_arg)) {
-
-    } else {
-
+    if (!"time_features" %in% base::names(lstm_keras_arg)) {
+      warning("The value of time features to select is missing, using 'month' and 'year' as default")
+      lstm_keras_arg$time_features <- c("month", "year")
     }
     if ("seed" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$seed)) {
+        warning("The value of seed is invalid, using NULL as default")
         lstm_keras_arg$seed <- NULL
       }
     } else {
+      warning("The value of seed is missing, using NULL as default")
       lstm_keras_arg$seed <- NULL
     }
-
   }
   base::set.seed(lstm_keras_arg$seed)
   seed <- base::as.integer(stats::runif(1, min = 1, max = 9999))
   keras::use_session_with_seed(seed,
                                disable_gpu = TRUE,
                                disable_parallel_cpu = TRUE)
-  callbacks <- base::list(callback_early_stopping(patience = lstm_keras_arg$patience))
+  callbacks <- base::list(keras::callback_early_stopping(patience = lstm_keras_arg$patience))
   ts_contiguous_data <-
     add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
     add_features(xreg_xts)
@@ -612,6 +759,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                "key") %>%
                       base::unlist())
     normalized_data <- normalize_data(ts_data)
+    normalized_data <- normalized_data
     data_with_tsteps <- add_timesteps(data_df = normalized_data,
                                       fc_horizon = fc_horizon,
                                       valid_set_size = lstm_keras_arg$valid_set_size,
@@ -744,15 +892,8 @@ generate_fc_lstm_keras <- function(ts_data_xts,
         base::cat("Epoch: ", epoch_iter)
       }
     }
-    if (base::length(x_test_tensor) == 0) {
-      if (base::length(x_valid_tensor) == 0) {
-        new_x_test_data <- x_train_tensor[base::nrow(x_train_tensor), ,]
-      } else {
-        new_x_test_data <- x_valid_tensor[base::nrow(x_valid_tensor), ,]
-      }
-    } else {
-      new_x_test_data <- x_test_tensor[1, ,]
-    }
+
+    new_x_test_data <- x_test_tensor
     pred_list <- NULL
     for (i in 1:fc_horizon) {
       # generate a one-step ahead forecast
@@ -760,47 +901,53 @@ generate_fc_lstm_keras <- function(ts_data_xts,
         stats::predict(new_x_test_data[i, ,] %>%
                          array(data = .,
                                dim = c(1,
-                                       lstm_keras_arg$tsteps,
-                                       lstm_keras_arg$nb_features)),
+                                       lstm_keras_arg$nb_timesteps,
+                                       nb_features)),
                        batch_size = lstm_keras_arg$batch_size) %>%
         .[, 1]
       pred_list <- c(pred_list, prediction)
       if (i < fc_horizon) {
-        first_tstep <- base::max((lstm_keras_arg$tsteps - i + 1), 0)
+        first_tstep <- base::max((lstm_keras_arg$nb_timesteps - i + 1), 0)
         new_x_test_data[i + 1,
-                        first_tstep:lstm_keras_arg$tsteps,
+                        first_tstep:lstm_keras_arg$nb_timesteps,
                         1] <-
-          utils::tail(pred_list, lstm_keras_arg$tsteps)
+          utils::tail(pred_list, lstm_keras_arg$nb_timesteps)
       }
     }
-    center_history <-
-      data_with_features %>%
-      dplyr::filter(key == "Training" | key == "Validation") %>%
+    mean_history <-
+      ts_data %>%
+      dplyr::filter(key == "Training") %>%
       {
-        base::mean(.$value)
+        base::mean(.[, base::colnames(ts_data_xts)] %>% as.matrix(),
+                   na.rm = TRUE)
       }
     scale_history <-
-      data_with_features %>%
-      dplyr::filter(key == "Training" | key == "Validation") %>%
+      ts_data %>%
+      dplyr::filter(key == "Training") %>%
       {
-        stats::sd(.$value)
+        stats::sd(.[, base::colnames(ts_data_xts)] %>% as.matrix(),
+                  na.rm = TRUE)
       }
     y_predict_matrix <-
       pred_list %>%
-      base::matrix(., nrow = fcHorizon, ncol = 1) * scale_history + center_history
-    y_predict <- y_predict_matrix
-    # save model
+      base::matrix(., nrow = fc_horizon, ncol = 1) * scale_history + mean_history
     tbl1 <-
-      data_with_features %>%
-      dplyr::select(index, value, key) %>%
-      dplyr::filter(!is.na(key)) %>%
+      dplyr::bind_rows(
+        ts_train,
+        ts_valid,
+        ts_test) %>%
+      dplyr::select("index", base::colnames(ts_data_xts), "key") %>%
       dplyr::mutate(key = "actual")
     tbl2 <-
-      data_with_features %>%
-      select(index, value, key) %>%
-      dplyr::filter(key == "Prediction") %>%
-      dplyr::mutate(value = pred_list * scale_history + center_history) %>%
-      dplyr::mutate(key = "predict")
+      ts_test %>%
+      dplyr::select("index", "key") %>%
+      base::cbind(y_predict_matrix) %>%
+      {
+        colnames(.) <- c("index", "key", base::colnames(ts_data_xts))
+        .
+      }
+
+
     ret <- list(tbl1, tbl2) %>%
       purrr::reduce(time_bind_rows, index = index) %>%
       dplyr::arrange(key, index) %>%
@@ -815,12 +962,34 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   return(model_output)
 }
 
-#' Automated Machine Learning
-#' This function applies the h2o.automl function from the h2o package on
+#' Automated Machine Learning:
+#' applies the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
 #' time series data.
 #'
-#' @param ts_data_xts univariate xts object
-#' @return A list of forecast objects
+#' @param ts_data_xts A univariate ts or xts object
+#' @param fc_horizon An integer, the forcasting horizon
+#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param backtesting_opt A list, options of the backtesting program
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
+#' @examples
+#' library(datasets)
+#'
+#' # Generate forecasts on unknown periods
+#' fc <- generate_fc_automl_h2o(AirPassengers,
+#'                              fc_horizon = 12)
+#'
+#' # Generate forecasts on past values to analyze performance
+#' fc <- generate_fc_automl_h2o(AirPassengers,
+#'                              fc_horizon = 12,
+#'                              backtesting_opt = list(use_backtesting = TRUE))
+#'
+#' # Generate forecasts on past values with multiple iterations
+#' fc <- generate_fc_automl_h2o(AirPassengers,
+#'                              fc_horizon = 6,
+#'                              backtesting_opt = list(use_backtesting = TRUE,
+#'                                                     backtesting_nb_iters = 6))
+#' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,
                                    fc_horizon = 12,

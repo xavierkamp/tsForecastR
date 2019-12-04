@@ -133,7 +133,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' Normalize the data
 #'
 #' @param data_df
-#' @return
+#' @return a list with normalized data and scalers
 normalize_data <- function(data_df) {
   `%>%` <- magrittr::`%>%`
   if (!base::is.data.frame(data_df)) {
@@ -141,6 +141,7 @@ normalize_data <- function(data_df) {
   }
   df <- data_df
   features_to_norm <- base::colnames(df)[base::colnames(df) != "key"]
+  scalers <- list()
   for (feature in features_to_norm) {
     position_feature <-
       base::colnames(df) %>%
@@ -162,8 +163,19 @@ normalize_data <- function(data_df) {
         .
       } %>%
       dplyr::select(-tmp_var)
+
+    base::eval(base::parse(text = base::paste("scalers$", feature, " <-
+                                                 c(mean_history, scale_history) %>%
+                                                 matrix(ncol = 2) %>%
+                                                 {
+                                                   colnames(.) <- c('mean_history', 'scale_history')
+                                                   .
+                                                 }",
+                                              sep = "")))
   }
-  return(df)
+  normalized_data <- list(df, scalers)
+  names(normalized_data) <- c("data", "scalers")
+  return(normalized_data)
 }
 
 #' Add timesteps

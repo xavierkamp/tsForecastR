@@ -2,8 +2,8 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_nnetar}
 \alias{generate_fc_nnetar}
-\title{Neural Network
-This function applies the nnetar function from the forecast package on
+\title{Neural Network:
+applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
 time series data.}
 \usage{
 generate_fc_nnetar(
@@ -17,13 +17,41 @@ generate_fc_nnetar(
 )
 }
 \arguments{
-\item{ts_data_xts}{univariate xts object}
+\item{ts_data_xts}{A univariate ts or xts object}
+
+\item{fc_horizon}{An integer, the forcasting horizon}
+
+\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+
+\item{backtesting_opt}{A list, options of the backtesting program}
+
+\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{nnetar_arg}{A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function}
 }
 \value{
-A list of forecast objects
+A list, forecast object for each forecasted period
 }
 \description{
-Neural Network
-This function applies the nnetar function from the forecast package on
+Neural Network:
+applies the \code{\link[forecast]{nnetar}} function from the \code{\link[forecast]{forecast}} package on
 time series data.
+}
+\examples{
+library(datasets)
+
+# Generate forecasts on future periods
+fc <- generate_fc_nnetar(AirPassengers,
+                         fc_horizon = 12)
+
+# Generate forecasts on past dates to analyze performance
+fc <- generate_fc_nnetar(AirPassengers,
+                         fc_horizon = 12,
+                         backtesting_opt = list(use_backtesting = TRUE))
+
+# Generate forecasts on past dates with multiple iterations and a rolling window
+fc <- generate_fc_nnetar(AirPassengers,
+                         fc_horizon = 6,
+                         backtesting_opt = list(use_backtesting = TRUE,
+                                                backtesting_nb_iters = 6))
 }

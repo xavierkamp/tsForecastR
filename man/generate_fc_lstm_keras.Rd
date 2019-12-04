@@ -2,8 +2,8 @@
 % Please edit documentation in R/fc_models.R
 \name{generate_fc_lstm_keras}
 \alias{generate_fc_lstm_keras}
-\title{Long-Short Term Memory Network
-This function applies lstm networks from the keras package on
+\title{Long-Short Term Memory Network:
+applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
 time series data.}
 \usage{
 generate_fc_lstm_keras(
@@ -17,13 +17,41 @@ generate_fc_lstm_keras(
 )
 }
 \arguments{
-\item{ts_data_xts}{univariate xts object}
+\item{ts_data_xts}{A univariate ts or xts object}
+
+\item{fc_horizon}{An integer, the forcasting horizon}
+
+\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+
+\item{backtesting_opt}{A list, options of the backtesting program}
+
+\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{lstm_keras_arg}{A list, optional arguments to pass to the lstm network}
 }
 \value{
-A list of forecast objects
+A list, forecast object for each forecasted period
 }
 \description{
-Long-Short Term Memory Network
-This function applies lstm networks from the keras package on
+Long-Short Term Memory Network:
+applies lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
 time series data.
+}
+\examples{
+library(datasets)
+
+# Generate forecasts on unknown periods
+fc <- generate_fc_lstm_keras(AirPassengers,
+                             fc_horizon = 12)
+
+# Generate forecasts on past values to analyze performance
+fc <- generate_fc_lstm_keras(AirPassengers,
+                             fc_horizon = 12,
+                             backtesting_opt = list(use_backtesting = TRUE))
+
+# Generate forecasts on past values with multiple iterations and a rolling window
+fc <- generate_fc_lstm_keras(AirPassengers,
+                             fc_horizon = 6,
+                             backtesting_opt = list(use_backtesting = TRUE,
+                                                    backtesting_nb_iters = 6))
 }

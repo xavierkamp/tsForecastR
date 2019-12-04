@@ -7,7 +7,7 @@
 normalize_data(data_df)
 }
 \value{
-
+a list with normalized data and scalers
 }
 \description{
 Normalize the data
