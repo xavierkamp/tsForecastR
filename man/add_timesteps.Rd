@@ -28,22 +28,22 @@ add_timesteps(
 A data.frame object
 }
 \description{
-for lstm, when the number of time steps (i.e. number of lags) is defined,
+For lstm, when the number of time steps (i.e. number of lags) is defined,
 for each input variable, the required number of lagged values needs to be
 added as inputs to the input matrix
 
-when the ts is seasonal with periodicity = 12, then lag_setting should be 12.
+When the ts is seasonal with periodicity = 12, then lag_setting should be 12.
 The volume of the same month of previous year will most likely have a high
 influence on today's volume.
-when the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
+When the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
 month will most likely have the strongest impact on today.
 
-when lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
-then input values will be: t-12, t-11, t-10, t-9
-when lag_setting = 12 and tsteps = lag_setting, then input values will be:
-t-12, t-11, ... , t-1
-when lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
-then input values will be: t-15, ... , t-12, ... , t-1
+When lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
+then input values will be: t-12, t-11, t-10, t-9.
+When lag_setting = 12 and tsteps = lag_setting, then input values will be:
+t-12, t-11, ... , t-1.
+When lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
+then input values will be: t-15, ... , t-12, ... , t-1.
 
 Same goes for lag_setting other than 12.
 }

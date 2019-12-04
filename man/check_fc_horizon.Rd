@@ -7,10 +7,10 @@
 check_fc_horizon(fc_horizon)
 }
 \arguments{
-\item{fc_horizon}{must be a positive integer}
+\item{fc_horizon}{A positive integer}
 }
 \value{
-fc_horizon: a positive integer
+fc_horizon: A positive integer
 }
 \description{
 This function ensures that the selected forecasting horizon is valid.

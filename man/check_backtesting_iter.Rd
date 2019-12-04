@@ -7,7 +7,7 @@
 check_backtesting_iter(bt_iter, backtesting_opt = NULL)
 }
 \arguments{
-\item{bt_iter}{must be a positive integer which is smaller or equal to the
+\item{bt_iter}{A positive integer which is smaller or equal to the
 number of backtesting operations to perform.}
 }
 \value{

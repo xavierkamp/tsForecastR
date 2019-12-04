@@ -7,10 +7,10 @@
 check_valid_set_size(valid_set_size)
 }
 \arguments{
-\item{valid_set_size}{must be a positive integer}
+\item{valid_set_size}{An integer}
 }
 \value{
-valid_set_size: a positive integer
+valid_set_size: An integer
 }
 \description{
 This function ensures that the selected validation set size is valid.

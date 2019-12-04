@@ -5,13 +5,13 @@
 #' values will be applied.
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of backtesting operations to apply
 #'
-#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @return A list of backtesting options
 check_backtesting_opt <- function(backtesting_opt) {
@@ -52,8 +52,8 @@ check_backtesting_opt <- function(backtesting_opt) {
 #' @description
 #' This function ensures that the selected forecasting horizon is valid.
 #' If not, the function throws an error.
-#' @param fc_horizon must be a positive integer
-#' @return fc_horizon: a positive integer
+#' @param fc_horizon A positive integer
+#' @return fc_horizon: A positive integer
 check_fc_horizon <- function(fc_horizon) {
   if (!base::is.numeric(fc_horizon)) {
     stop("The forecasting horizon must be an positive non-zero integer!")
@@ -67,8 +67,8 @@ check_fc_horizon <- function(fc_horizon) {
 #' @description
 #' This function ensures that the selected validation set size is valid.
 #' If not, the function throws an error.
-#' @param valid_set_size must be a positive integer
-#' @return valid_set_size: a positive integer
+#' @param valid_set_size An integer
+#' @return valid_set_size: An integer
 check_valid_set_size <- function(valid_set_size) {
   if (!base::is.numeric(valid_set_size)) {
     stop("The validation set size must be an positive non-zero integer!")
@@ -83,7 +83,7 @@ check_valid_set_size <- function(valid_set_size) {
 #' This function ensures that the optional test set size is valid. The optional
 #' test set size is used to identify the best performing model inside the
 #' h2o.automl procedure. If the argument is invalid, the function throws an error.
-#' @param tmp_test_set_size must be a positive integer
+#' @param tmp_test_set_size A positive integer
 #' @return tmp_test_set_size: a positive integer
 check_tmp_test_set_size <- function(tmp_test_set_size) {
   if (!base::is.numeric(tmp_test_set_size)) {
@@ -98,8 +98,8 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 #' @description
 #' This function ensures that the backtesting iteration number is valid.
 #' If not, the function throws an error.
-#' @param bt_iter must be a positive integer which is smaller or equal to the
-#'     number of backtesting operations to perform.
+#' @param bt_iter A positive integer which is smaller or equal to the
+#' number of backtesting operations to perform.
 #' @return bt_iter: a positive integer
 check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
@@ -169,7 +169,7 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 #' @description
 #' This function ensures that the selected model names are valid.
 #' If not, the function throws an error.
-#' @param model_names list or vector of strings
+#' @param model_names A list or vector of strings
 #' @return model_names: vector of strings
 check_model_names <- function(model_names) {
   `%>%` <- magrittr::`%>%`
@@ -197,8 +197,8 @@ check_model_names <- function(model_names) {
 #' This function ensures that the models' arguments are a list. Furthermore, the
 #' function checks if these arguments match the selected model names, otherwise they
 #' will be dropped.
-#' @param models_args a list
-#' @return models_args: a list
+#' @param models_args A list
+#' @return models_args: A list
 check_models_args <- function(models_args, model_names = NULL) {
   if (!base::is.null(models_args)){
     if (!base::is.list(models_args)) {
@@ -219,8 +219,8 @@ check_models_args <- function(models_args, model_names = NULL) {
 #' @description
 #' This function ensures that the user selects a valid parallel processing option.
 #' If use_parallel = True, then time series will be processed in parallel.
-#' @param use_parallel a boolean
-#' @return a boolean
+#' @param use_parallel A boolean
+#' @return A boolean
 check_use_parallel <- function(use_parallel) {
   if (base::is.null(use_parallel)) {
     use_parallel = FALSE

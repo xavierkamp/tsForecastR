@@ -7,7 +7,7 @@
 check_tmp_test_set_size(tmp_test_set_size)
 }
 \arguments{
-\item{tmp_test_set_size}{must be a positive integer}
+\item{tmp_test_set_size}{A positive integer}
 }
 \value{
 tmp_test_set_size: a positive integer

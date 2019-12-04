@@ -4,13 +4,13 @@
 #' @param fc_horizon An integer, forecasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of backtesting operations to apply
 #'
-#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @return A univariate or multivariate xts object
 add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
@@ -64,13 +64,13 @@ add_features <- function(input_data, xreg_data = NULL) {
 #' @param tmp_test_set_size An integer, size of a second test set (used by h2o.automl) (default = 0)
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
-#'  - use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
 #'
-#'  - nb_iters: An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of backtesting operations to apply
 #'
-#'  - method: A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  - sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
 #' @return A list, training, validation and test sets
 split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
@@ -201,22 +201,22 @@ normalize_data <- function(data_df) {
 
 #' Add timesteps
 #' @description
-#' for lstm, when the number of time steps (i.e. number of lags) is defined,
+#' For lstm, when the number of time steps (i.e. number of lags) is defined,
 #' for each input variable, the required number of lagged values needs to be
 #' added as inputs to the input matrix
 #'
-#' when the ts is seasonal with periodicity = 12, then lag_setting should be 12.
+#' When the ts is seasonal with periodicity = 12, then lag_setting should be 12.
 #' The volume of the same month of previous year will most likely have a high
 #' influence on today's volume.
-#' when the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
+#' When the ts is non-seasonal, lag_setting = 1, i.e. the volume of previous
 #' month will most likely have the strongest impact on today.
 #'
-#' when lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
-#' then input values will be: t-12, t-11, t-10, t-9
-#' when lag_setting = 12 and tsteps = lag_setting, then input values will be:
-#' t-12, t-11, ... , t-1
-#' when lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
-#' then input values will be: t-15, ... , t-12, ... , t-1
+#' When lag_setting = 12 and tsteps < lag_setting (e.g. tsteps=4),
+#' then input values will be: t-12, t-11, t-10, t-9.
+#' When lag_setting = 12 and tsteps = lag_setting, then input values will be:
+#' t-12, t-11, ... , t-1.
+#' When lag_setting = 12 and tsteps > lag_setting (e.g. tsteps = 15),
+#' then input values will be: t-15, ... , t-12, ... , t-1.
 #'
 #' Same goes for lag_setting other than 12.
 #' @param data_df A data.frame object

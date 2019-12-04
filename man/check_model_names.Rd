@@ -7,7 +7,7 @@
 check_model_names(model_names)
 }
 \arguments{
-\item{model_names}{list or vector of strings}
+\item{model_names}{A list or vector of strings}
 }
 \value{
 model_names: vector of strings

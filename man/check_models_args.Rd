@@ -7,10 +7,10 @@
 check_models_args(models_args, model_names = NULL)
 }
 \arguments{
-\item{models_args}{a list}
+\item{models_args}{A list}
 }
 \value{
-models_args: a list
+models_args: A list
 }
 \description{
 This function ensures that the models' arguments are a list. Furthermore, the

@@ -7,10 +7,10 @@
 check_use_parallel(use_parallel)
 }
 \arguments{
-\item{use_parallel}{a boolean}
+\item{use_parallel}{A boolean}
 }
 \value{
-a boolean
+A boolean
 }
 \description{
 This function ensures that the user selects a valid parallel processing option.
