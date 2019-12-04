@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_model_names}
 \alias{check_model_names}
-\title{Check model names
-This function ensures that the selected model names are valid.
-If not, the function throws an error.}
+\title{Check model names}
 \usage{
 check_model_names(model_names)
 }
@@ -15,7 +13,6 @@ check_model_names(model_names)
 model_names: vector of strings
 }
 \description{
-Check model names
 This function ensures that the selected model names are valid.
 If not, the function throws an error.
 }

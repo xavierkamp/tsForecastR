@@ -2,10 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_models_args}
 \alias{check_models_args}
-\title{Check models' arguments
-This function ensures that the models' arguments are a list. Furthermore, the
-function checks if these arguments match the selected model names, otherwise they
-will be dropped.}
+\title{Check models' arguments}
 \usage{
 check_models_args(models_args, model_names = NULL)
 }
@@ -16,7 +13,6 @@ check_models_args(models_args, model_names = NULL)
 models_args: a list
 }
 \description{
-Check models' arguments
 This function ensures that the models' arguments are a list. Furthermore, the
 function checks if these arguments match the selected model names, otherwise they
 will be dropped.

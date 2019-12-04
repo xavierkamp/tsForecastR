@@ -2,10 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_tmp_test_set_size}
 \alias{check_tmp_test_set_size}
-\title{Check optional test set size
-This function ensures that the optional test set size is valid. The optional
-test set size is used to identify the best performing model inside the
-h2o.automl procedure. If the argument is invalid, the function throws an error.}
+\title{Check optional test set size}
 \usage{
 check_tmp_test_set_size(tmp_test_set_size)
 }
@@ -16,7 +13,6 @@ check_tmp_test_set_size(tmp_test_set_size)
 tmp_test_set_size: a positive integer
 }
 \description{
-Check optional test set size
 This function ensures that the optional test set size is valid. The optional
 test set size is used to identify the best performing model inside the
 h2o.automl procedure. If the argument is invalid, the function throws an error.

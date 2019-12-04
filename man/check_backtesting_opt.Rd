@@ -2,10 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_backtesting_opt}
 \alias{check_backtesting_opt}
-\title{Check backtesting options
-This function ensures that the selected backtesting options are valid.
-If not, the function throws an error. If the options are NULL, then default
-values will be applied.}
+\title{Check backtesting options}
 \usage{
 check_backtesting_opt(backtesting_opt)
 }
@@ -16,7 +13,6 @@ check_backtesting_opt(backtesting_opt)
 A list of backtesting options
 }
 \description{
-Check backtesting options
 This function ensures that the selected backtesting options are valid.
 If not, the function throws an error. If the options are NULL, then default
 values will be applied.

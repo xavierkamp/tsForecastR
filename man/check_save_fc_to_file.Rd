@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_save_fc_to_file}
 \alias{check_save_fc_to_file}
-\title{Check the filepath where forecasts can be saved
-This function ensures that the filepath where forecast can be saved is valid
-If not the argument is invalid, the function throws an error.}
+\title{Check the filepath where forecasts can be saved}
 \usage{
 check_save_fc_to_file(save_fc_to_file)
 }
@@ -15,7 +13,6 @@ check_save_fc_to_file(save_fc_to_file)
 NULL or a valid filepath
 }
 \description{
-Check the filepath where forecasts can be saved
 This function ensures that the filepath where forecast can be saved is valid
 If not the argument is invalid, the function throws an error.
 }

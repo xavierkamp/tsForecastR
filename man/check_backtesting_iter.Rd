@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_backtesting_iter}
 \alias{check_backtesting_iter}
-\title{Check backtesting iteration number
-This function ensures that the backtesting iteration number is valid.
-If not, the function throws an error.}
+\title{Check backtesting iteration number}
 \usage{
 check_backtesting_iter(bt_iter, backtesting_opt = NULL)
 }
@@ -16,7 +14,6 @@ number of backtesting operations to perform.}
 bt_iter: a positive integer
 }
 \description{
-Check backtesting iteration number
 This function ensures that the backtesting iteration number is valid.
 If not, the function throws an error.
 }

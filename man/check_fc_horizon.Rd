@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_fc_horizon}
 \alias{check_fc_horizon}
-\title{Check forecasting horizon
-This function ensures that the selected forecasting horizon is valid.
-If not, the function throws an error.}
+\title{Check forecasting horizon}
 \usage{
 check_fc_horizon(fc_horizon)
 }
@@ -15,7 +13,6 @@ check_fc_horizon(fc_horizon)
 fc_horizon: a positive integer
 }
 \description{
-Check forecasting horizon
 This function ensures that the selected forecasting horizon is valid.
 If not, the function throws an error.
 }

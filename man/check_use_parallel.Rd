@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_use_parallel}
 \alias{check_use_parallel}
-\title{Check parallel processing option
-This function ensures that the user selects a valid parallel processing option.
-If use_parallel = True, then time series will be processed in parallel.}
+\title{Check parallel processing option}
 \usage{
 check_use_parallel(use_parallel)
 }
@@ -15,7 +13,6 @@ check_use_parallel(use_parallel)
 a boolean
 }
 \description{
-Check parallel processing option
 This function ensures that the user selects a valid parallel processing option.
 If use_parallel = True, then time series will be processed in parallel.
 }

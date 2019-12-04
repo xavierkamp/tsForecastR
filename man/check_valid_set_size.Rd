@@ -2,9 +2,7 @@
 % Please edit documentation in R/checks.R
 \name{check_valid_set_size}
 \alias{check_valid_set_size}
-\title{Check validation set size
-This function ensures that the selected validation set size is valid.
-If not, the function throws an error.}
+\title{Check validation set size}
 \usage{
 check_valid_set_size(valid_set_size)
 }
@@ -15,7 +13,6 @@ check_valid_set_size(valid_set_size)
 valid_set_size: a positive integer
 }
 \description{
-Check validation set size
 This function ensures that the selected validation set size is valid.
 If not, the function throws an error.
 }
