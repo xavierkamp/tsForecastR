@@ -17,7 +17,7 @@ inventory projections, financial forecasting, etc. All codes are written in R.
 
 Install R: https://cloud.r-project.org/
 
-(optional, but recommended) Install RStudio: https://rstudio.com/products/rstudio/download/
+Install RStudio: https://rstudio.com/products/rstudio/download/ (optional, but recommended)
 
 ### Dependencies
 
