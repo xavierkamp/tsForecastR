@@ -26,10 +26,14 @@ split_train_test_set(
 \item{tmp_test_set_size}{An integer, size of a second test set (used by h2o.automl) (default = 0)}
 
 \item{backtesting_opt}{A list, options for the backtesting program
-use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
-nb_iters: An integer, to determine the number of backtesting operations to apply
-method: A string, to determine whether to use a rolling or a moving forecasting window
-sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+
+   use_bt: A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+
+   nb_iters: An integer, to determine the number of backtesting operations to apply
+
+   method: A string, to determine whether to use a rolling or a moving forecasting window
+
+   sample_size: A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
 }
 \value{
 A list, training, validation and test sets
