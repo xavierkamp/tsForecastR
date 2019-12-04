@@ -30,7 +30,7 @@ generate_fc_automl_h2o(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{\link[h2o]{h2o}} package on
+Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o} package on
 time series data.
 }
 \examples{

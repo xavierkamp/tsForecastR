@@ -28,7 +28,7 @@ generate_fc_stl(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply the \code{\link[stats]{stl}} function from the \code{\link[stats]{stats}} package on
+Function to apply the \code{\link[stats]{stl}} function from the \code{stats} package on
 time series data.
 }
 \examples{

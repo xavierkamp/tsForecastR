@@ -31,7 +31,7 @@ generate_fc_arima(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply the \code{\link[forecast]{auto.arima}} function from the \code{\link[forecast]{forecast}} package
+Function to apply the \code{\link[forecast]{auto.arima}} function from the \code{forecast} package
 on time series data.
 }
 \examples{

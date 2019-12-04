@@ -28,7 +28,7 @@ generate_fc_ets(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply the \code{\link[forecast]{ets}} function from the \code{\link[forecast]{forecast}} package on
+Function to apply the \code{\link[forecast]{ets}} function from the \code{forecast} package on
 time series data.
 }
 \examples{

@@ -28,7 +28,7 @@ generate_fc_bsts(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply the \code{\link[bsts]{bsts}} function from the \code{\link[bsts]{bsts}} package on
+Function to apply the \code{\link[bsts]{bsts}} function from the \code{bsts} package on
 time series data.
 }
 \examples{

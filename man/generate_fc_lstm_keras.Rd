@@ -31,7 +31,7 @@ generate_fc_lstm_keras(
 A list, forecast object for each forecasted period
 }
 \description{
-Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{\link[keras]{keras}} package on
+Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{keras} package on
 time series data.
 }
 \examples{
