@@ -80,8 +80,14 @@ generate_fc_arima <- function(ts_data_xts,
     }
     md <- base::do.call(forecast::auto.arima, c(base::list(x_train), arima_arg))
     fc <- forecast::forecast(md, h = fc_horizon, xreg = xreg_test)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "arima",
+                                model_args = arima_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -134,11 +140,7 @@ generate_fc_ets <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
-  if (base::is.null(ets_arg)) {
-    ets_arg = base::list(model = "ZZA",
-                         opt.crit = "amse",
-                         upper = c(0.3, 0.2, 0.2, 0.98))
-  } else if (!base::is.list(ets_arg)) {
+  if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
     stop("Model arguments must be of type list!")
   }
   model_output <- base::list()
@@ -153,8 +155,14 @@ generate_fc_ets <- function(ts_data_xts,
     x_test <- sample_split[["test"]]
     md <- base::do.call(forecast::ets, c(base::list(x_train), ets_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "ets",
+                                model_args = ets_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -241,8 +249,14 @@ generate_fc_tbats <- function(ts_data_xts,
       }
     md <- base::do.call(forecast::tbats, c(base::list(x_train), tbats_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "tbats",
+                                model_args = tbats_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -320,8 +334,15 @@ generate_fc_nnetar <- function(ts_data_xts,
     }
     md <- base::do.call(forecast::nnetar, c(base::list(x_train), nnetar_arg))
     fc <- forecast::forecast(md, h = fc_horizon, xreg = xreg_test)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "nnetar",
+                                exclude_PI = TRUE,
+                                model_args = nnetar_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -389,8 +410,14 @@ generate_fc_stl <- function(ts_data_xts,
     x_test <- sample_split[["test"]]
     md <- base::do.call(stats::stl, c(base::list(x_train), stl_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "stl",
+                                model_args = stl_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -459,8 +486,14 @@ generate_fc_snaive <- function(ts_data_xts,
     x_test <- sample_split[["test"]]
     md <- base::do.call(forecast::snaive, c(base::list(x_train), snaive_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
+    results <- save_fc_forecast(fc_obj = fc,
+                                sample_split = sample_split,
+                                actual_data = ts_data_xts,
+                                save_fc_to_file,
+                                model_name = "snaive",
+                                model_args = snaive_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -609,8 +642,14 @@ generate_fc_bsts <- function(ts_data_xts,
                      family = bsts_arg$family)
     fc <- stats::predict(md, horizon = fc_horizon,
                          quantiles = c(0.025, 0.975))
+    results <- save_fc_bsts(fc_obj = fc,
+                            sample_split = sample_split,
+                            actual_data = ts_data_xts,
+                            save_fc_to_file = save_fc_to_file,
+                            model_name = "bsts",
+                            model_args = bsts_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- fc",
+                                              bt_iter, "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -957,7 +996,6 @@ generate_fc_lstm_keras <- function(ts_data_xts,
         base::cat("Epoch: ", epoch_iter)
       }
     }
-
     new_x_test_data <- x_test_tensor
     pred_list <- NULL
     for (i in 1:fc_horizon) {
@@ -979,36 +1017,22 @@ generate_fc_lstm_keras <- function(ts_data_xts,
           utils::tail(pred_list, lstm_keras_arg$nb_timesteps)
       }
     }
-    y_predict_matrix <-
+    fc <-
       pred_list %>%
-      base::matrix(., nrow = fc_horizon, ncol = 1) * scale_history + mean_history
-    tbl1 <-
-      dplyr::bind_rows(
-        ts_train,
-        ts_valid,
-        ts_test) %>%
-      dplyr::select("index", base::colnames(ts_data_xts), "key") %>%
-      dplyr::mutate(key = "actual")
-    tbl2 <-
-      ts_test %>%
-      dplyr::select("index", "key") %>%
-      base::cbind(y_predict_matrix) %>%
+      base::matrix(., nrow = fc_horizon, ncol = 1) %>%
       {
-        colnames(.) <- c("index", "key", base::colnames(ts_data_xts))
-        .
-      }
-
-
-    ret <- list(tbl1, tbl2) %>%
-      purrr::reduce(time_bind_rows, index = index) %>%
-      dplyr::arrange(key, index) %>%
-      dplyr::mutate(key = forcats::as_factor(key))
-
-    fc <- stats::ts(tbl2$value,
-                    start = c(lubridate::year(first_pred_date),
-                              lubridate::month(first_pred_date)),
-                    frequency = stats::frequency(ts_data_xts))
-
+         . * scale_history + mean_history
+      } %>%
+      as.data.frame()
+    results <- save_fc_lstm(fc_obj = fc,
+                            sample_split = sample_split,
+                            actual_data = ts_data_xts,
+                            save_fc_to_file,
+                            model_name = "lstm_keras",
+                            model_args = lstm_keras_arg)
+    base::eval(base::parse(text = base::paste("model_output$period_",
+                                              bt_iter, "$fc <- results",
+                                              sep = "")))
   }
   return(model_output)
 }
@@ -1056,6 +1080,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    save_fc_to_file = NULL,
                                    automl_h2o_arg = list(max_models = 5,
                                                          stopping_metric = "MAE"),
+                                   nb_cores = 1,
                                    ...){
   # options:
   # nb_threads
@@ -1066,7 +1091,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   # valid_set_size
   # test_set_size
   `%>%` <- magrittr::`%>%`
-  h2o::h2o.init(port = 54321, nthreads = nb_threads)
+  h2o::h2o.init(port = 54321, nthreads = nb_cores)
   if (!backtesting_opt$use_bt & nb_periods != 1) {
     print("When forecasting (backtesting=FALSE),
           the number of periods is automatically set to 1!

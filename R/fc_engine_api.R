@@ -64,10 +64,10 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                sample_size = c("expanding",
                                                                "fixed")),
                         model_names = c("arima", "ets", "tbats", "bsts",
-                                        "stl", "snaive", "nnetar"),
+                                        "stl", "snaive", "nnetar", "lstm_keras"),
                         models_args = NULL,
                         save_fc_to_file = NULL,
-                        use_parallel = FALSE,
+                        nb_cores = 1,
                         ...) {
   `%>%` <- magrittr::`%>%`
   `%do%` <- foreach::`%do%`
@@ -91,11 +91,14 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   models_args <- check_models_args(models_args, model_names)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
-  use_parallel <- check_use_parallel(use_parallel)
-
+  nb_cores <- check_nb_cores(nb_cores)
+  if (nb_cores > 1) {
+    use_parallel <- TRUE
+  } else {
+    use_parallel <- FALSE
+  }
   ind_seq <- base::seq(base::ncol(mts_data_xts))
   if (use_parallel) {
-    nb_cores <- parallel::detectCores()
     cl <- parallel::makeCluster(nb_cores)
     doParallel::registerDoParallel(cl)
     foreach::foreach(ind = ind_seq) %dopar% {
@@ -130,6 +133,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                   "fc_horizon = fc_horizon, ",
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
+                                                  "nb_cores = nb_cores",
                                                   model_name, "_arg = models_args$", model_name, "_arg)",
                                                   sep = "")))
       }
@@ -147,6 +151,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                   "fc_horizon = fc_horizon, ",
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
+                                                  "nb_cores = nb_cores, ",
                                                   model_name, "_arg = models_args$", model_name, "_arg)",
                                                   sep = "")))
       }
