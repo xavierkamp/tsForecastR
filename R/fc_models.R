@@ -12,7 +12,8 @@
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
@@ -40,6 +41,7 @@ generate_fc_arima <- function(ts_data_xts,
                               xreg_xts = NULL,
                               backtesting_opt = NULL,
                               save_fc_to_file = NULL,
+                              preprocess_fct = NULL,
                               arima_arg = NULL,
                               ...) {
   `%>%` <- magrittr::`%>%`
@@ -60,7 +62,9 @@ generate_fc_arima <- function(ts_data_xts,
   model_output <- base::list()
   md <- fc <- NULL
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
+    add_placeholders(ts_data_xts,
+                     fc_horizon,
+                     backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
@@ -71,7 +75,8 @@ generate_fc_arima <- function(ts_data_xts,
     x_train <- sample_split[["train"]][, base::colnames(ts_data_xts)]
     x_test <- sample_split[["test"]][, base::colnames(ts_data_xts)]
     if (!is.null(xreg_xts)) {
-      xreg_names <- colnames(ts_contiguous_data)[!colnames(ts_contiguous_data) %in% colnames(ts_data_xts)]
+      xreg_names <- colnames(ts_contiguous_data)[!colnames(ts_contiguous_data) %in%
+                                                   colnames(ts_data_xts)]
       xreg_train <- sample_split[["train"]][, xreg_names]
       xreg_test <- sample_split[["test"]][, xreg_names]
       arima_arg$xreg <- xreg_train
@@ -106,7 +111,8 @@ generate_fc_arima <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
@@ -145,7 +151,9 @@ generate_fc_ets <- function(ts_data_xts,
   }
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
+  ts_contiguous_data <- add_placeholders(ts_data_xts,
+                                         fc_horizon,
+                                         backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -181,7 +189,8 @@ generate_fc_ets <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
@@ -217,7 +226,9 @@ generate_fc_tbats <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
+  ts_contiguous_data <- add_placeholders(ts_data_xts,
+                                         fc_horizon,
+                                         backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -276,7 +287,8 @@ generate_fc_tbats <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
@@ -315,7 +327,9 @@ generate_fc_nnetar <- function(ts_data_xts,
   model_output <- base::list()
   md <- fc <- NULL
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
+    add_placeholders(ts_data_xts,
+                     fc_horizon,
+                     backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
@@ -325,7 +339,8 @@ generate_fc_nnetar <- function(ts_data_xts,
     x_train <- sample_split[["train"]][, base::colnames(ts_data_xts)]
     x_test <- sample_split[["test"]][, base::colnames(ts_data_xts)]
     if (!base::is.null(xreg_xts)) {
-      xreg_names <- base::colnames(ts_contiguous_data)[!base::colnames(ts_contiguous_data) %in% base::colnames(ts_data_xts)]
+      xreg_names <- base::colnames(ts_contiguous_data)[!base::colnames(ts_contiguous_data) %in%
+                                                         base::colnames(ts_data_xts)]
       xreg_train <- sample_split[["train"]][, xreg_names]
       xreg_test <- sample_split[["test"]][, xreg_names]
       nnetar_arg$reg <- xreg_train
@@ -361,7 +376,8 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
@@ -400,7 +416,9 @@ generate_fc_stl <- function(ts_data_xts,
   }
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
+  ts_contiguous_data <- add_placeholders(ts_data_xts,
+                                         fc_horizon,
+                                         backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -436,7 +454,8 @@ generate_fc_stl <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
@@ -472,7 +491,9 @@ generate_fc_snaive <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
+  ts_contiguous_data <- add_placeholders(ts_data_xts,
+                                         fc_horizon,
+                                         backtesting_opt)
   if (fc_horizon > 2 * stats::frequency(ts_contiguous_data)) {
     warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
     return(NULL)
@@ -512,7 +533,8 @@ generate_fc_snaive <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @examples
@@ -626,7 +648,9 @@ generate_fc_bsts <- function(ts_data_xts,
   if (bsts_arg$seasonal) {
     ss <- bsts::AddSeasonal(ss, ts_data_xts, nseasons = stats::frequency(ts_data_xts))
   }
-  ts_contiguous_data <- add_placeholders(ts_data_xts, fc_horizon, backtesting_opt)
+  ts_contiguous_data <- add_placeholders(ts_data_xts,
+                                         fc_horizon,
+                                         backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -669,7 +693,8 @@ generate_fc_bsts <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
@@ -705,6 +730,11 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_output <- base::list()
+  all_time_features <-
+    timetk::tk_get_timeseries_signature(ts_data_xts %>%
+                                          zoo::index() %>%
+                                          lubridate::as_date()) %>%
+    colnames()
   if (base::is.null(lstm_keras_arg)) {
     lstm_keras_arg = base::list(valid_set_size = stats::frequency(ts_data_xts),
                                 stateful = FALSE,
@@ -716,15 +746,14 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                 dropout = 0.2,
                                 recurrent_dropout = 0.2,
                                 nb_units = 100,
-                                nb_epochs = 50,
+                                nb_epochs = 60,
                                 nb_timesteps = stats::frequency(ts_data_xts),
                                 batch_size = 1,
                                 optimizer_type = "adam",
-                                patience = 10,
+                                patience = 15,
                                 verbose = TRUE,
                                 seed = NULL,
-                                time_features = c("month",
-                                                  "year"))
+                                time_features = c("month", "year"))
   } else {
     if ("valid_set_size" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$valid_set_size)) {
@@ -805,8 +834,19 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       warning("The value of verbose is missing, using TRUE as default")
       lstm_keras_arg$verbose <- TRUE
     }
-    if (!"time_features" %in% base::names(lstm_keras_arg)) {
-      warning("The value of time features to select is missing, using 'month' and 'year' as default")
+    if ("time_features" %in% base::names(lstm_keras_arg)) {
+      if (sum(!lstm_keras_arg$time_features %in% all_time_features) > 0) {
+        warning(paste("The value of time features to select is invalid, setting to default: c('month', 'year'). ",
+                      "All available options are: c('",
+                      paste(all_time_features, collapse = "', '"), "')",
+                      sep = ""))
+        lstm_keras_arg$time_features <- c("month", "year")
+      }
+    } else {
+      warning(paste("The value of time features to select is missing, setting to default: c('month', 'year'). ",
+                    "All available options are: c('",
+                    paste(all_time_features, collapse = "', '"), "')",
+                    sep = ""))
       lstm_keras_arg$time_features <- c("month", "year")
     }
     if ("seed" %in% base::names(lstm_keras_arg)) {
@@ -826,7 +866,9 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                disable_parallel_cpu = TRUE)
   callbacks <- base::list(keras::callback_early_stopping(patience = lstm_keras_arg$patience))
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts, fc_horizon, backtesting_opt) %>%
+    add_placeholders(ts_data_xts,
+                     fc_horizon,
+                     backtesting_opt) %>%
     add_features(xreg_xts)
   ts_name <- base::colnames(ts_data_xts)
   ts_freq <- stats::frequency(ts_data_xts)
@@ -915,7 +957,6 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       reshape_X(.,
                 tsteps = lstm_keras_arg$nb_timesteps,
                 nb_features = nb_features)
-    #### modelling ####
     model <- keras::keras_model_sequential()
     if (lstm_keras_arg$nb_stacked_layers > 0) {
       model %>%
@@ -1024,12 +1065,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
          . * scale_history + mean_history
       } %>%
       as.data.frame()
-    results <- save_fc_lstm(fc_obj = fc,
-                            sample_split = sample_split,
-                            actual_data = ts_data_xts,
-                            save_fc_to_file,
-                            model_name = "lstm_keras",
-                            model_args = lstm_keras_arg)
+    results <- save_fc_ml(fc_obj = fc,
+                          sample_split = sample_split,
+                          actual_data = ts_data_xts,
+                          save_fc_to_file,
+                          model_name = "lstm_keras",
+                          model_args = lstm_keras_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
                                               bt_iter, "$fc <- results",
                                               sep = "")))
@@ -1051,7 +1092,8 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
@@ -1075,109 +1117,207 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,
+                                   xreg_xts = NULL,
                                    fc_horizon = 12,
                                    backtesting_opt = NULL,
                                    save_fc_to_file = NULL,
-                                   automl_h2o_arg = list(max_models = 5,
-                                                         stopping_metric = "MAE"),
+                                   automl_h2o_arg = NULL,
                                    nb_cores = 1,
                                    ...){
-  # options:
-  # nb_threads
-  # use_bt
-  # nb_periods <- backtesting_opt
-  # fc_horizon
-  # train_set_size
-  # valid_set_size
-  # test_set_size
   `%>%` <- magrittr::`%>%`
   h2o::h2o.init(port = 54321, nthreads = nb_cores)
-  if (!backtesting_opt$use_bt & nb_periods != 1) {
-    print("When forecasting (backtesting=FALSE),
-          the number of periods is automatically set to 1!
-          You do not need to explicitly set this argument.")
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  xreg_xts <- check_data_sv_as_xts(xreg_xts)
+  fc_horizon <- check_fc_horizon(fc_horizon)
+  backtesting_opt <- check_backtesting_opt(backtesting_opt)
+  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  model_output <- list()
+  all_time_features <-
+    timetk::tk_get_timeseries_signature(ts_data_xts %>%
+                                          zoo::index() %>%
+                                          lubridate::as_date()) %>%
+    colnames()
+  if (is.null(automl_h2o_arg)) {
+    automl_h2o_arg <-
+      list(max_models = 5,
+           max_runtime_secs = 3600,
+           max_runtime_secs_per_model = 30,
+           stopping_metric = "MAE",
+           seed = NULL,
+           exclude_algos = NULL,
+           time_features = all_time_features,
+           valid_set_size = stats::frequency(ts_data_xts),
+           test_set_size = stats::frequency(ts_data_xts))
+  } else {
+    if (!is.list(automl_h2o_arg)) {
+      warning(paste("The model arguments must be passed as a list! Setting to defaults: ",
+                    "list(max_models = 5, max_runtime_secs = 3600, stopping_metric = 'MAE', ",
+                    "seed = NULL, exclude_algos = NULL, ",
+                    "valid_set_size = frequency(ts_data), ",
+                    "test_set_size = frequency(ts_data))",
+                    sep = ""))
+      automl_h2o_arg <-
+        list(max_models = 5,
+             max_runtime_secs = 3600,
+             max_runtime_secs_per_model = 30,
+             stopping_metric = "MAE",
+             seed = NULL,
+             exclude_algos = NULL,
+             time_features = all_time_features,
+             valid_set_size = stats::frequency(ts_data_xts),
+             test_set_size = stats::frequency(ts_data_xts))
+    }
+    if (!is.null(automl_h2o_arg$max_models)) {
+      if (!is.numeric(automl_h2o_arg$max_models)) {
+        warning("Value of max models is invalid. Setting to default: 10")
+        automl_h2o_arg$max_models <- 5
+      }
+    } else {
+      warning("Value of max models is missing. Setting to default: 10")
+      automl_h2o_arg$max_models <- 5
+    }
+    if ("max_runtime_secs" %in% names(automl_h2o_arg)) {
+      if (!is.numeric(automl_h2o_arg$max_runtime_secs)) {
+        warning("Value of maximum runtime seconds is invalid. Setting to default: 3600")
+        automl_h2o_arg$max_runtime_secs <- 3600
+      }
+    } else {
+      warning("Value of maximum runtime seconds is missing. Setting to default: 3600")
+      automl_h2o_arg$max_runtime_secs <- 3600
+    }
+    if ("max_runtime_secs" %in% names(automl_h2o_arg)) {
+      if (!is.numeric(automl_h2o_arg$max_runtime_secs_per_model)) {
+        warning("Value of maximum runtime seconds per model is invalid. Setting to default: 0 (to disable)")
+        automl_h2o_arg$max_runtime_secs_per_model <- 30
+      }
+    } else {
+      warning("Value of maximum runtime seconds per model is missing. Setting to default: 0 (to disable)")
+      automl_h2o_arg$max_runtime_secs_per_model <- 30
+    }
+    if ("stopping_metric" %in% names(automl_h2o_arg)) {
+      if (!automl_h2o_arg$stopping_metric %in% c("AUTO", "deviance", "logloss",
+                                                 "MSE", "RMSE", "MAE", "RMSLE")) {
+        warning("Value for stopping metric is invalid. Setting to default: 'MAE'")
+        automl_h2o_arg$stopping_metric <- 'MAE'
+      }
+    } else {
+      warning("Value for stopping metric is missing. Setting to default: 'MAE'")
+      automl_h2o_arg$stopping_metric <- "MAE"
+    }
+    if (!is.null(automl_h2o_arg$seed)) {
+      if (!is.numeric(automl_h2o_arg$seed)) {
+        warning("Value for seed is invalid. Setting to default: NULL")
+        automl_h2o_arg$seed <- NULL
+      }
+    }
+    if (!is.null(automl_h2o_arg$exclude_algos)) {
+      if (!is.character(automl_h2o_arg$exclude_algos)) {
+        warning("Value for excluding algos is invalid. Setting to default: NULL")
+        automl_h2o_arg$exclude_algos <- NULL
+      }
+    }
+    if ("time_features" %in% names(automl_h2o_arg)) {
+      if (sum(!automl_h2o_arg$time_features %in% all_time_features) > 0) {
+        warning(paste("These values for time_features are invalid: ",
+                      automl_h2o_arg$time_features %>%
+                        .[!. %in% all_time_features],
+                      ". ",
+                      "Setting to default: ",
+                      "c('",
+                      paste(all_time_features, collapse = "', '"),
+                      "')",
+                      sep = ""))
+        automl_h2o_arg$time_features <- all_time_features
+      }
+    } else {
+      warning(paste("Value for time_features are missing. Setting to default: ",
+                    "c('",
+                    paste(all_time_features, collapse = "', '"),
+                    "')",
+                    sep = ""))
+      automl_h2o_arg$time_features <- all_time_features
+    }
+    if ("valid_set_size" %in% names(automl_h2o_arg)) {
+      if (!is.numeric(automl_h2o_arg$valid_set_size)) {
+        warning("Value for validation set size is invalid. Setting to default: frequency(ts_data)")
+        automl_h2o_arg$valid_set_size <- stats::frequency(ts_data_xts)
+      }
+    } else {
+      automl_h2o_arg$valid_set_size <- stats::frequency(ts_data_xts)
+    }
+    if ("test_set_size" %in% names(automl_h2o_arg)) {
+      if (!is.numeric(automl_h2o_arg$test_set_size)) {
+        warning("Value for test set size is invalid. Setting to default: frequency(ts_data)")
+        automl_h2o_arg$test_set_size <- stats::frequency(ts_data_xts)
+      }
+    } else {
+      automl_h2o_arg$test_set_size <- stats::frequency(ts_data_xts)
+    }
   }
-  ID <- base::colnames(ts_data_xts)
-  ts_contiguous_data <- timeSeries::na.contiguous(ts_data_xts)
-  valid_set_size <- 12
-  test_set_size <- 12
-  nb_periods <- backtesting_opt$nb_iters
-  train_set_size <-
-    base::length(ts_contiguous_data) -
-    valid_set_size -
-    test_set_size -
-    backtesting_opt$use_bt * fc_horizon -
-    nb_periods + 1
-
-  if (base::length(ts_contiguous_data) -
-      backtesting_opt$use_bt * fc_horizon -
-      nb_periods + 1 <= 0) {
-    stop("The length of the ts obj is not long enough!")
-  }
-  ts_data_df <-
-    ts_contiguous_data %>%
-    base::as.matrix() %>%
-    base::rbind(base::matrix(base::rep(NaN, fc_horizon * backtesting_opt$use_bt))) %>%
-    {
-      base::rownames(.) <-
-        c(zoo::index(ts_contiguous_data),
-                     timetk::tk_make_future_timeseries(zoo::index(ts_contiguous_data),
-                                                       fc_horizon * backtesting_opt$use_bt)) %>%
-        base::as.character()
-      .
-    } %>%
-    xts::xts(., order.by = base::rownames(.) %>% zoo::as.yearmon() %>% lubridate::as_date()) %>%
-    base::as.data.frame() %>%
-    tibble::rownames_to_column("Date")
-  ts_augmented_data <- timetk::tk_augment_timeseries_signature(ts_data_df)
-  ts_cleaned <-
-    ts_augmented_data %>%
-    dplyr::select(-diff)
-
-  for (bt_iter in 1:nb_periods) {
-    last_train_date <- ts_augmented_data$Date[train_set_size
-                                              + period_iter
-                                              - 1]
-    last_valid_date <- ts_augmented_data$Date[train_set_size
-                                              + valid_set_size
-                                              + period_iter
-                                              - 1]
-    last_test_date <- ts_augmented_data$Date[train_set_size
-                                             + valid_set_size
-                                             + test_set_size
-                                             + period_iter
-                                             - 1]
-    last_pred_date <- ts_augmented_data$Date[train_set_size
-                                             + valid_set_size
-                                             + test_set_size
-                                             + fc_horizon
-                                             + period_iter
-                                             - 1]
+  ts_contiguous_data <-
+    timeSeries::na.contiguous(ts_data_xts) %>%
+    add_placeholders(fc_horizon = fc_horizon,
+                     backtesting_opt = backtesting_opt) %>%
+    add_features(xreg_xts)
+  for (bt_iter in 1:backtesting_opt$nb_iters) {
+    sample_split <- split_train_test_set(ts_contiguous_data,
+                                         fc_horizon,
+                                         bt_iter,
+                                         automl_h2o_arg$valid_set_size,
+                                         automl_h2o_arg$test_set_size,
+                                         backtesting_opt)
+    ts_train <-
+      sample_split[["train"]] %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate("index" = zoo::index(sample_split[["train"]]) %>% lubridate::as_date()) %>%
+      dplyr::mutate("key" = "Training") %>%
+      timetk::tk_augment_timeseries_signature()
+    ts_valid <-
+      sample_split[["valid"]] %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate("index" = zoo::index(sample_split[["valid"]]) %>% lubridate::as_date()) %>%
+      dplyr::mutate("key" = "Validation") %>%
+      timetk::tk_augment_timeseries_signature()
+    ts_tmp_test <-
+      sample_split[["tmp_test"]] %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate("index" = zoo::index(sample_split[["tmp_test"]]) %>% lubridate::as_date()) %>%
+      dplyr::mutate("key" = "Tmp_Test") %>%
+      timetk::tk_augment_timeseries_signature()
+    ts_test <-
+      sample_split[["test"]] %>%
+      tibble::as_tibble() %>%
+      dplyr::mutate("index" = zoo::index(sample_split[["test"]]) %>% lubridate::as_date()) %>%
+      dplyr::mutate("key" = "Test") %>%
+      timetk::tk_augment_timeseries_signature()
+    ts_data <-
+      dplyr::bind_rows(ts_train, ts_valid, ts_tmp_test, ts_test) %>%
+      dplyr::select(base::list(colnames(ts_contiguous_data),
+                               automl_h2o_arg$time_features,
+                               "key") %>%
+                      base::unlist())
+    ts_cleaned <- ts_data[!colnames(ts_data) %in% c("diff", "index")]
     train_h2o <-
       ts_cleaned %>%
-      dplyr::filter(Date <= last_train_date) %>%
-      dplyr::select(-Date) %>%
+      dplyr::filter(key == "Training") %>%
       dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
                        %>% base::as.factor()) %>%
       h2o::as.h2o()
     valid_h2o <-
       ts_cleaned %>%
-      dplyr::filter(Date <= last_valid_date & Date > last_train_date) %>%
-      dplyr::select(-Date) %>%
+      dplyr::filter(key == "Validation") %>%
+      dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
+                       %>% base::as.factor()) %>%
+      h2o::as.h2o()
+    tmp_test_h2o <-
+      ts_cleaned %>%
+      dplyr::filter(key == "Tmp_Test") %>%
       dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
                        %>% base::as.factor()) %>%
       h2o::as.h2o()
     test_h2o <-
       ts_cleaned %>%
-      dplyr::filter(Date <= last_test_date & Date > last_valid_date) %>%
-      dplyr::select(-Date) %>%
-      dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
-                       %>% base::as.factor()) %>%
-      h2o::as.h2o()
-    input_pred_h2o <-
-      ts_cleaned %>%
-      dplyr::filter(Date <= last_pred_date & Date > last_test_date) %>%
-      dplyr::select(-Date) %>%
+      dplyr::filter(key == "Test") %>%
       dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
                        %>% base::as.factor()) %>%
       h2o::as.h2o()
@@ -1187,15 +1327,26 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                          y = y,
                                          training_frame = train_h2o,
                                          validation_frame = valid_h2o,
-                                         leaderboard_frame = test_h2o,
-                                         max_models = max_nb_models,
-                                         max_runtime_secs = max_runtime_secs,
-                                         stopping_metric = "MAE",
-                                         seed = 1234,
-                                         exclude_algos = algos_to_exclude)
+                                         leaderboard_frame = tmp_test_h2o,
+                                         max_models = automl_h2o_arg$max_models,
+                                         max_runtime_secs = automl_h2o_arg$max_runtime_secs,
+                                         max_runtime_secs_per_model = automl_h2o_arg$max_runtime_secs_per_model,
+                                         stopping_metric = automl_h2o_arg$stopping_metric,
+                                         seed = automl_h2o_arg$seed,
+                                         exclude_algos = automl_h2o_arg$algos_to_exclude)
     h2o_model <- automl_models_h2o@leader
-    pred_h2o <- h2o::h2o.predict(h2o_model, input_pred_h2o)
-    h2o::h2o.removeAll()
+    pred_h2o <- h2o::h2o.predict(h2o_model, test_h2o)
+    results <- save_fc_ml(fc_obj = pred_h2o %>% as.data.frame(),
+                          sample_split = sample_split,
+                          actual_data = ts_data_xts,
+                          save_fc_to_file,
+                          model_name = "automl_h2o",
+                          model_args = automl_h2o_arg)
+    base::eval(base::parse(text = base::paste("model_output$period_",
+                                              bt_iter,
+                                              "$fc <- results",
+                                              sep = "")))
   }
+  h2o::h2o.removeAll()
   return(model_output)
 }

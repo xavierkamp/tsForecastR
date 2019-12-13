@@ -12,7 +12,8 @@
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
 #'
 #' @param model_names A list or character, names of models to apply
 #' @param model_args A list, optional arguments to pass to the models

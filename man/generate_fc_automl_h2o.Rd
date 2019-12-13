@@ -6,15 +6,19 @@
 \usage{
 generate_fc_automl_h2o(
   ts_data_xts,
+  xreg_xts = NULL,
   fc_horizon = 12,
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
-  automl_h2o_arg = list(max_models = 5, stopping_metric = "MAE"),
+  automl_h2o_arg = NULL,
+  nb_cores = 1,
   ...
 )
 }
 \arguments{
 \item{ts_data_xts}{A univariate ts or xts object}
+
+\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
 
 \item{fc_horizon}{An integer, the forcasting horizon}
 
@@ -26,13 +30,12 @@ generate_fc_automl_h2o(
 
  method - A string, to determine whether to use a rolling or a moving forecasting window
 
- sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should expand or
+ remain fixed across backtesting operations}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
 \item{automl_h2o_arg}{A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function}
-
-\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
 }
 \value{
 A list, forecast object for each forecasted period

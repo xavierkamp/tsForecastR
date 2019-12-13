@@ -10,10 +10,11 @@ generate_fc(
   xreg_data = NULL,
   backtesting_opt = list(use_bt = FALSE, nb_iters = 1, method = c("rolling", "moving"),
     sample_size = c("expanding", "fixed")),
-  model_names = c("arima", "ets", "tbats", "bsts", "stl", "snaive", "nnetar"),
+  model_names = c("arima", "ets", "tbats", "bsts", "stl", "snaive", "nnetar",
+    "lstm_keras"),
   models_args = NULL,
   save_fc_to_file = NULL,
-  use_parallel = FALSE,
+  nb_cores = 1,
   ...
 )
 }
@@ -30,17 +31,18 @@ generate_fc(
 
  method - A string, to determine whether to use a rolling or a moving forecasting window
 
- sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should expand or
+ remain fixed across backtesting operations}
 
 \item{model_names}{A list or character, names of models to apply}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
-\item{use_parallel}{A boolean, apply parallel processing}
-
 \item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
 
 \item{model_args}{A list, optional arguments to pass to the models}
+
+\item{use_parallel}{A boolean, apply parallel processing}
 }
 \value{
 A list, forecast object for each forecasted period

@@ -360,9 +360,9 @@ save_fc_bsts <- function(fc_obj, actual_data, sample_split,
     return(results)
   }
 }
-save_fc_lstm <- function(fc_obj, actual_data, sample_split,
-                         save_fc_to_file, model_name,
-                         model_args = NULL,
+save_fc_ml <- function(fc_obj, actual_data, sample_split,
+                       save_fc_to_file, model_name,
+                       model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
   if (!is.data.frame(fc_obj)) {

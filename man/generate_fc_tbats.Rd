@@ -26,7 +26,8 @@ generate_fc_tbats(
 
  method - A string, to determine whether to use a rolling or a moving forecasting window
 
- sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should expand or
+ remain fixed across backtesting operations}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 

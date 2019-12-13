@@ -19,6 +19,13 @@ Install R: https://cloud.r-project.org/
 
 Install RStudio: https://rstudio.com/products/rstudio/download/ (optional, but recommended)
 
+### Install
+
+```
+library("devtools")
+devtools::install_github("xavierkamp/tsForecastR")
+```
+
 ### Dependencies
 
     bsts,
@@ -38,14 +45,6 @@ Install RStudio: https://rstudio.com/products/rstudio/download/ (optional, but r
     utils,
     xts,
     zoo
-
-### Install
-
-```
-library("devtools")
-devtools::install_github("xavierkamp/tsForecastR")
-```
-
 
 ## Functions
 

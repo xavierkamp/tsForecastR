@@ -151,6 +151,18 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   return(split)
 }
 
+preprocess_fct <- function(ts_data_xts, fct) {
+  if (is.null(fct)) {
+    transformed_data <- ts_data_xts
+  } else if (!is.function(fct)) {
+    transformed_data <- ts_data_xts
+  } else {
+    transformed_data <-
+      ts_data_xts %>%
+      fct()
+  }
+  return(transformed_data)
+}
 #' Normalize the data
 #' @param data_df A data.frame object
 #' @return A list, normalized data and scalers
