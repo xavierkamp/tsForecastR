@@ -1,3 +1,10 @@
+print_model_name <- function(model_name) {
+  model_name <- check_model_names(model_name)
+  cat(paste("Currently forecasting with: ",
+            model_name,
+            "\n",
+            sep = ""))
+}
 get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
   `%>%` <- magrittr::`%>%`
   if (!is.list(fc_obj)) {

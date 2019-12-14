@@ -54,7 +54,7 @@
 #'                   fc_horizon = 6,
 #'                   backtesting_opt = list(use_bt = TRUE,
 #'                                          nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc <- function(mts_data, fc_horizon = 12,
                         xreg_data = NULL,
@@ -65,7 +65,9 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                sample_size = c("expanding",
                                                                "fixed")),
                         model_names = c("arima", "ets", "tbats", "bsts",
-                                        "stl", "snaive", "nnetar", "lstm_keras"),
+                                        "stl", "snaive", "nnetar",
+                                        "lstm_keras", "automl_h2o"),
+                        preprocess_fct = NULL,
                         models_args = NULL,
                         save_fc_to_file = NULL,
                         nb_cores = 1,
@@ -104,20 +106,24 @@ generate_fc <- function(mts_data, fc_horizon = 12,
     doParallel::registerDoParallel(cl)
     foreach::foreach(ind = ind_seq) %dopar% {
       source("./R/fc_models.R")
-      source("./R/checks.R")
+      source("./R/arg_checks.R")
+      source("./R/data_management.R")
       source("./R/preprocessing.R")
       model_names_parall_proc <- model_names[model_names != "automl_h2o"]
       ts_data_xts <- mts_data_xts[, ind]
       ts_colname <- base::colnames(ts_data_xts)
       for (model_name in model_names_parall_proc) {
-        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$", model_name, " <- ",
+        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
+                                                  model_name, " <- ",
                                                   "generate_fc_", model_name, "(",
                                                   "ts_data_xts = ts_data_xts, ",
                                                   "xreg_xts = xreg_data_xts, ",
                                                   "fc_horizon = fc_horizon, ",
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
-                                                  model_name, "_arg = models_args$", model_name, "_arg)",
+                                                  "preprocess_fct = preprocess_fct, ",
+                                                  model_name, "_arg = models_args$",
+                                                  model_name, "_arg)",
                                                   sep = "")))
       }
     }
@@ -127,15 +133,18 @@ generate_fc <- function(mts_data, fc_horizon = 12,
       ts_data_xts <- mts_data_xts[, ind]
       ts_colname <- base::colnames(ts_data_xts)
       for (model_name in model_names_parall_proc) {
-        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$", model_name, " <- ",
+        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
+                                                  model_name, " <- ",
                                                   "generate_fc_", model_name, "(",
                                                   "ts_data_xts = ts_data_xts, ",
                                                   "xreg_xts = xreg_data_xts, ",
                                                   "fc_horizon = fc_horizon, ",
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
-                                                  "nb_cores = nb_cores",
-                                                  model_name, "_arg = models_args$", model_name, "_arg)",
+                                                  "preprocess_fct = preprocess_fct, ",
+                                                  "nb_cores = nb_cores, ",
+                                                  model_name, "_arg = models_args$",
+                                                  model_name, "_arg)",
                                                   sep = "")))
       }
     }
@@ -145,15 +154,18 @@ generate_fc <- function(mts_data, fc_horizon = 12,
       ts_data_xts <- mts_data_xts[,ind]
       ts_colname <- base::colnames(ts_data_xts)
       for (model_name in model_names_parall_proc) {
-        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$", model_name, " <- ",
+        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
+                                                  model_name, " <- ",
                                                   "generate_fc_", model_name, "(",
                                                   "ts_data_xts = ts_data_xts, ",
                                                   "xreg_xts = xreg_data_xts, ",
                                                   "fc_horizon = fc_horizon, ",
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
+                                                  "preprocess_fct = preprocess_fct, ",
                                                   "nb_cores = nb_cores, ",
-                                                  model_name, "_arg = models_args$", model_name, "_arg)",
+                                                  model_name, "_arg = models_args$",
+                                                  model_name, "_arg)",
                                                   sep = "")))
       }
     }

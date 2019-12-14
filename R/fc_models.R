@@ -50,20 +50,24 @@ generate_fc_arima <- function(ts_data_xts,
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  model_output <- base::list()
+  md <- fc <- NULL
+  model_name <- "arima"
+  print_model_name(model_name)
   if (is.null(arima_arg)) {
-    arima_arg = base::list(D=1 , max.p = 2, max.q = 2,
-                           max.P = 2,max.Q = 2,
-                           max.d = 2,stationary = FALSE,
+    arima_arg = base::list(D = 1 , max.p = 2, max.q = 2,
+                           max.P = 2, max.Q = 2,
+                           max.d = 2, stationary = FALSE,
                            seasonal = TRUE,
                            stepwise = FALSE)
   } else if (!base::is.list(arima_arg)) {
-    stop("Model arguments must be of type list!")
+    stop("Model arguments must be passed as a list!")
   }
-  model_output <- base::list()
-  md <- fc <- NULL
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts,
-                     fc_horizon,
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -71,28 +75,33 @@ generate_fc_arima <- function(ts_data_xts,
                                          fc_horizon = fc_horizon,
                                          bt_iter = bt_iter,
                                          backtesting_opt = backtesting_opt)
-
     x_train <- sample_split[["train"]][, base::colnames(ts_data_xts)]
     x_test <- sample_split[["test"]][, base::colnames(ts_data_xts)]
     if (!is.null(xreg_xts)) {
-      xreg_names <- colnames(ts_contiguous_data)[!colnames(ts_contiguous_data) %in%
-                                                   colnames(ts_data_xts)]
+      xreg_names <-
+        ts_contiguous_data %>%
+        colnames(.)[!colnames(.) %in% colnames(ts_data_xts)]
       xreg_train <- sample_split[["train"]][, xreg_names]
       xreg_test <- sample_split[["test"]][, xreg_names]
       arima_arg$xreg <- xreg_train
     } else {
       xreg_test <- NULL
     }
-    md <- base::do.call(forecast::auto.arima, c(base::list(x_train), arima_arg))
-    fc <- forecast::forecast(md, h = fc_horizon, xreg = xreg_test)
+    md <- base::do.call(forecast::auto.arima,
+                        c(base::list(x_train),
+                          arima_arg))
+    fc <- forecast::forecast(md,
+                             h = fc_horizon,
+                             xreg = xreg_test)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
                                 save_fc_to_file,
-                                model_name = "arima",
+                                model_name = model_name,
                                 model_args = arima_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -139,6 +148,7 @@ generate_fc_ets <- function(ts_data_xts,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
                             save_fc_to_file = NULL,
+                            preprocess_fct = NULL,
                             ets_arg = NULL,
                             ...) {
   `%>%` <- magrittr::`%>%`
@@ -146,14 +156,19 @@ generate_fc_ets <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
     stop("Model arguments must be of type list!")
   }
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts,
-                                         fc_horizon,
-                                         backtesting_opt)
+  model_name <- "ets"
+  print_model_name(model_name)
+  ts_contiguous_data <-
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -161,16 +176,19 @@ generate_fc_ets <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(forecast::ets, c(base::list(x_train), ets_arg))
+    md <- base::do.call(forecast::ets,
+                        c(base::list(x_train),
+                          ets_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
                                 save_fc_to_file,
-                                model_name = "ets",
+                                model_name = model_name,
                                 model_args = ets_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -217,6 +235,7 @@ generate_fc_tbats <- function(ts_data_xts,
                               fc_horizon = 12,
                               backtesting_opt = NULL,
                               save_fc_to_file = NULL,
+                              preprocess_fct = NULL,
                               tbats_arg = NULL,
                               ...) {
   `%>%` <- magrittr::`%>%`
@@ -224,11 +243,16 @@ generate_fc_tbats <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts,
-                                         fc_horizon,
-                                         backtesting_opt)
+  model_name <- "tbats"
+  print_model_name(model_name)
+  ts_contiguous_data <-
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -264,10 +288,11 @@ generate_fc_tbats <- function(ts_data_xts,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
                                 save_fc_to_file,
-                                model_name = "tbats",
+                                model_name = model_name,
                                 model_args = tbats_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -316,6 +341,7 @@ generate_fc_nnetar <- function(ts_data_xts,
                                xreg_xts = NULL,
                                backtesting_opt = NULL,
                                save_fc_to_file = NULL,
+                               preprocess_fct = NULL,
                                nnetar_arg = NULL,
                                ...) {
   `%>%` <- magrittr::`%>%`
@@ -324,11 +350,15 @@ generate_fc_nnetar <- function(ts_data_xts,
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   model_output <- base::list()
   md <- fc <- NULL
+  model_name <- "nnetar"
+  print_model_name(model_name)
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts,
-                     fc_horizon,
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -352,12 +382,13 @@ generate_fc_nnetar <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
-                                save_fc_to_file,
-                                model_name = "nnetar",
+                                save_fc_to_file = save_fc_to_file,
+                                model_name = model_name,
                                 exclude_PI = TRUE,
                                 model_args = nnetar_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -404,6 +435,7 @@ generate_fc_stl <- function(ts_data_xts,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
                             save_fc_to_file = NULL,
+                            preprocess_fct = NULL,
                             stl_arg = NULL,
                             ...) {
   `%>%` <- magrittr::`%>%`
@@ -411,14 +443,19 @@ generate_fc_stl <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  model_output <- base::list()
+  md <- fc <- NULL
+  model_name <- "stl"
+  print_model_name(model_name)
   if (base::is.null(stl_arg)) {
     stl_arg = base::list(s.window = "periodic")
   }
-  model_output <- base::list()
-  md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts,
-                                         fc_horizon,
-                                         backtesting_opt)
+  ts_contiguous_data <-
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -426,16 +463,19 @@ generate_fc_stl <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(stats::stl, c(base::list(x_train), stl_arg))
+    md <- base::do.call(stats::stl,
+                        c(base::list(x_train),
+                          stl_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
                                 save_fc_to_file,
-                                model_name = "stl",
+                                model_name = model_name,
                                 model_args = stl_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -482,6 +522,7 @@ generate_fc_snaive <- function(ts_data_xts,
                                fc_horizon = 12,
                                backtesting_opt = NULL,
                                save_fc_to_file = NULL,
+                               preprocess_fct = NULL,
                                snaive_arg = NULL,
                                ...) {
   `%>%` <- magrittr::`%>%`
@@ -489,11 +530,16 @@ generate_fc_snaive <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   model_output <- base::list()
   md <- fc <- NULL
-  ts_contiguous_data <- add_placeholders(ts_data_xts,
-                                         fc_horizon,
-                                         backtesting_opt)
+  model_name <- "snaive"
+  print_model_name(model_name)
+  ts_contiguous_data <-
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt)
   if (fc_horizon > 2 * stats::frequency(ts_contiguous_data)) {
     warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
     return(NULL)
@@ -505,16 +551,19 @@ generate_fc_snaive <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(forecast::snaive, c(base::list(x_train), snaive_arg))
+    md <- base::do.call(forecast::snaive,
+                        c(base::list(x_train),
+                          snaive_arg))
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 actual_data = ts_data_xts,
                                 save_fc_to_file,
-                                model_name = "snaive",
+                                model_name = model_name,
                                 model_args = snaive_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -560,6 +609,7 @@ generate_fc_bsts <- function(ts_data_xts,
                              fc_horizon = 12,
                              backtesting_opt = NULL,
                              save_fc_to_file = NULL,
+                             preprocess_fct = NULL,
                              bsts_arg = NULL,
                              ...){
   `%>%` <- magrittr::`%>%`
@@ -567,8 +617,11 @@ generate_fc_bsts <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   model_output <- ss <- base::list()
   md <- fc <- NULL
+  model_name <- "bsts"
+  print_model_name(model_name)
   if (base::is.null(bsts_arg)) {
     bsts_arg <- base::list(linear_trend = TRUE,
                            seasonal = TRUE,
@@ -648,9 +701,11 @@ generate_fc_bsts <- function(ts_data_xts,
   if (bsts_arg$seasonal) {
     ss <- bsts::AddSeasonal(ss, ts_data_xts, nseasons = stats::frequency(ts_data_xts))
   }
-  ts_contiguous_data <- add_placeholders(ts_data_xts,
-                                         fc_horizon,
-                                         backtesting_opt)
+  ts_contiguous_data <-
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -670,10 +725,11 @@ generate_fc_bsts <- function(ts_data_xts,
                             sample_split = sample_split,
                             actual_data = ts_data_xts,
                             save_fc_to_file = save_fc_to_file,
-                            model_name = "bsts",
+                            model_name = model_name,
                             model_args = bsts_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -722,6 +778,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                    xreg_xts = NULL,
                                    backtesting_opt = NULL,
                                    save_fc_to_file = NULL,
+                                   preprocess_fct = NULL,
                                    lstm_keras_arg = NULL,
                                    ...) {
   `%>%` <- magrittr::`%>%`
@@ -729,7 +786,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
-  model_output <- base::list()
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  model_output <- list()
+  model_name <- "lstm_keras"
+  print_model_name(model_name)
   all_time_features <-
     timetk::tk_get_timeseries_signature(ts_data_xts %>%
                                           zoo::index() %>%
@@ -866,8 +926,9 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                disable_parallel_cpu = TRUE)
   callbacks <- base::list(keras::callback_early_stopping(patience = lstm_keras_arg$patience))
   ts_contiguous_data <-
-    add_placeholders(ts_data_xts,
-                     fc_horizon,
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
+    add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
   ts_name <- base::colnames(ts_data_xts)
@@ -1069,10 +1130,11 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                           sample_split = sample_split,
                           actual_data = ts_data_xts,
                           save_fc_to_file,
-                          model_name = "lstm_keras",
+                          model_name = model_name,
                           model_args = lstm_keras_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter, "$fc <- results",
+                                              bt_iter,
+                                              "$fc <- results",
                                               sep = "")))
   }
   return(model_output)
@@ -1121,17 +1183,22 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    fc_horizon = 12,
                                    backtesting_opt = NULL,
                                    save_fc_to_file = NULL,
+                                   preprocess_fct = NULL,
                                    automl_h2o_arg = NULL,
                                    nb_cores = 1,
                                    ...){
   `%>%` <- magrittr::`%>%`
-  h2o::h2o.init(port = 54321, nthreads = nb_cores)
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  nb_cores <- check_nb_cores(nb_cores)
   model_output <- list()
+  model_name <- "automl_h2o"
+  print_model_name(model_name)
+  h2o::h2o.init(port = 54321, nthreads = nb_cores)
   all_time_features <-
     timetk::tk_get_timeseries_signature(ts_data_xts %>%
                                           zoo::index() %>%
@@ -1151,8 +1218,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   } else {
     if (!is.list(automl_h2o_arg)) {
       warning(paste("The model arguments must be passed as a list! Setting to defaults: ",
-                    "list(max_models = 5, max_runtime_secs = 3600, stopping_metric = 'MAE', ",
-                    "seed = NULL, exclude_algos = NULL, ",
+                    "list(max_models = 5, max_runtime_secs = 3600, max_runtime_secs_per_model = 30, ",
+                    "stopping_metric = 'MAE', seed = NULL, exclude_algos = NULL, ",
                     "valid_set_size = frequency(ts_data), ",
                     "test_set_size = frequency(ts_data))",
                     sep = ""))
@@ -1255,7 +1322,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     }
   }
   ts_contiguous_data <-
-    timeSeries::na.contiguous(ts_data_xts) %>%
+    preprocess_custom_fct(ts_data_xts,
+                          preprocess_fct) %>%
     add_placeholders(fc_horizon = fc_horizon,
                      backtesting_opt = backtesting_opt) %>%
     add_features(xreg_xts)
@@ -1340,7 +1408,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                           sample_split = sample_split,
                           actual_data = ts_data_xts,
                           save_fc_to_file,
-                          model_name = "automl_h2o",
+                          model_name = model_name,
                           model_args = automl_h2o_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
                                               bt_iter,

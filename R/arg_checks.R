@@ -288,3 +288,18 @@ check_nb_cores <- function(nb_cores) {
   }
   return(nb_cores)
 }
+
+check_preprocess_fct <- function(fct) {
+  if (!is.null(fct) & !is.function(fct)) {
+    if (is.list(fct)) {
+      custom_fct <- fct[[1]]
+      if (!is.function(custom_fct)) {
+        warning("No custom preprocessing function has been found in list. Setting to default: NULL")
+        fct <- NULL
+      }
+    } else {
+      fct <- NULL
+    }
+  }
+  return(fct)
+}

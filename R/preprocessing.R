@@ -1,5 +1,5 @@
 #' Add empty placeholders
-#' @description Empty values are added when forecasts are generated for future periods when values are unknown
+#' @description Empty values are added when forecasts are generated for future periods (i.e. values are unknown)
 #' @param input_data A univariate or multivariate ts, mts or xts object
 #' @param fc_horizon An integer, forecasting horizon
 #' @param backtesting_opt A list, options for the backtesting program:
@@ -151,18 +151,34 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   return(split)
 }
 
-preprocess_fct <- function(ts_data_xts, fct) {
+preprocess_custom_fct <- function(ts_data_xts, fct = NULL) {
+  `%>%` <- magrittr::`%>%`
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  fct <- check_preprocess_fct(fct)
   if (is.null(fct)) {
     transformed_data <- ts_data_xts
-  } else if (!is.function(fct)) {
-    transformed_data <- ts_data_xts
-  } else {
+  } else if (is.function(fct)) {
     transformed_data <-
       ts_data_xts %>%
       fct()
+  } else if (is.list(fct)) {
+    custom_fct <- fct[[1]]
+    if (!is.function(custom_fct)) {
+      warning("First argument in list must be a function! Using no transformation by default")
+      transformed_data <- ts_data_xts
+    } else {
+      fct_args <- fct[[-1]]
+      transformed_data <-
+        ts_data_xts %>%
+        do.call(., custom_fct, c(fct_args))
+    }
+  } else {
+    warning("Arguments were invalid. No transformation will be applied!")
+    transformed_data <- ts_data_xts
   }
   return(transformed_data)
 }
+
 #' Normalize the data
 #' @param data_df A data.frame object
 #' @return A list, normalized data and scalers
