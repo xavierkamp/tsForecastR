@@ -21,7 +21,7 @@ valid_md_ets <- function(ts_data_xts) {
 valid_md_snaive <- function(ts_data_xts, fc_horizon) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
-  if (fc_horizon > 2 * stats::frequency(ts_contiguous_data)) {
+  if (fc_horizon > 2 * stats::frequency(ts_data_xts)) {
     warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
     return(NULL)
   }
