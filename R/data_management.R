@@ -1,3 +1,5 @@
+#' Print to console the model name currently selected
+#' @param model_name A string
 print_model_name <- function(model_name) {
   model_name <- check_model_names(model_name)
   cat(paste("Currently forecasting with: ",
@@ -5,6 +7,13 @@ print_model_name <- function(model_name) {
             "\n",
             sep = ""))
 }
+
+#' Extract forecasts and prediction intervals from list
+#' @description
+#' This function extracts the forecasts and prediction intervals from a list.
+#' @param fc_obj A list, the forecasts must be stored under the keyword 'mean'.
+#' @param exclude_PI A boolean, extract prediction intervals stored under the keywords 'upper' and 'lower'.
+#' @return A data.frame
 get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
   `%>%` <- magrittr::`%>%`
   if (!is.list(fc_obj)) {
@@ -43,6 +52,14 @@ get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
   }
   return(fc)
 }
+
+#' Store model estimates as a string
+#' @description
+#' This function collapses a vector to a single string where values are separated by ';'. This conversion
+#' is useful when estimates are later stored in a data table, providing the user the possibility to check on
+#' the most important model parameters.
+#' @param model_par_vector A vector, estimates of the model parameters to be converted to a single string.
+#' @return A string
 collapse_model_par <- function(model_par_vector) {
   `%>%` <- magrittr::`%>%`
   model_par <-
@@ -50,6 +67,13 @@ collapse_model_par <- function(model_par_vector) {
     paste(names(.), ., collapse = ";")
   return(model_par)
 }
+
+#' Format original data
+#' @description
+#' This function ensures that the original data is uniformely formatted across all forecasting procedures
+#' before saving it in a data table. The original data can be accessed under 'values' with 'key'=='actual'.
+#' @param data_xts An xts object, the original (i.e. unprocessed) time series data
+#' @return A data.frame object
 format_historical_data <- function(data_xts) {
   `%>%` <- magrittr::`%>%`
   data_formated <-
@@ -61,6 +85,18 @@ format_historical_data <- function(data_xts) {
     dplyr::mutate(key = "actual")
   return(data_formated)
 }
+
+#' Combine forecasting info
+#' @description
+#' This function combines every info which will be stored in a data table.
+#' @param model_name A string
+#' @param fc_formated A data.frame
+#' @param actual_formated A data.frame
+#' @param split_keys A data.frame
+#' @param model_descr A string
+#' @param model_par A string
+#' @param model_args A string
+#' @return A data.frame object
 combine_fc_results <- function(model_name,
                                fc_formated,
                                actual_formated,
@@ -83,6 +119,13 @@ combine_fc_results <- function(model_name,
                      model_args = model_args %>% rep(., nrow(data_join)))
   return(results)
 }
+
+#' Get split identifiers
+#' @description
+#' This function identifies which observations belong to which set (e.g. training, validation, test sets) by creating
+#' a split identifier.
+#' @param sample_split A list, the sample split
+#' @return A data.frame
 get_split_keys <- function(sample_split) {
   `%>%` <- magrittr::`%>%`
   names_split <- names(sample_split)
@@ -104,44 +147,78 @@ get_split_keys <- function(sample_split) {
     dplyr::select(dates, split_key)
   return(data)
 }
+
+#' Extract model estimates for ARIMA
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_arima <- function(fc_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef_1 <-
     fc_obj$model$coef %>%
     {
-      names(.) <- paste("coef.", names(.), sep = "")
-      .
+      if (length(.) != 0) {
+        names(.) <- paste("coef.", names(.), sep = "")
+        .
+      }
     }
   model_coef_2 <-
     fc_obj$model$var.coef %>%
     {
-      var_name <- NULL
-      for (row_name in rownames(.)) {
-        for (col_name in colnames(.)) {
-          var_name <- c(var_name,
-                        paste("var.",
-                              row_name,
-                              ".",
-                              col_name,
-                              sep = ""))
+      if (length(.) != 0) {
+        var_name <- NULL
+        for (row_name in rownames(.)) {
+          for (col_name in colnames(.)) {
+            var_name <- c(var_name,
+                          paste("var.",
+                                row_name,
+                                ".",
+                                col_name,
+                                sep = ""))
+          }
         }
+        vectorized_data <- c(.)
+        names(vectorized_data) <- var_name
+        vectorized_data
       }
-      vectorized_data <- c(.)
-      names(vectorized_data) <- var_name
-      vectorized_data
     }
   model_coef <- c(model_coef_1, model_coef_2)
   return(model_coef)
 }
+
+#' Extract model estimates for ETS
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_ets <- function(fc_obj) {
   return(fc_obj$model$par)
 }
+
+#' Extract model estimates for STL
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_stl <- function(fc_obj) {
   return(fc_obj$model$par)
 }
+
+#' Extract model estimates for seasonal naive
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_snaive <- function(fc_obj) {
   return(fc_obj$model$par)
 }
+
+#' Extract model estimates for NNETAR
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_nnetar <- function(fc_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef <-
@@ -153,6 +230,12 @@ extract_coef_nnetar <- function(fc_obj) {
     }
   return(model_coef)
 }
+
+#' Extract model estimates for TBATS
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @return A vector of strings
 extract_coef_tbats <- function(fc_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef <-
@@ -265,7 +348,19 @@ extract_coef_tbats <- function(fc_obj) {
         })
   return(model_coef)
 }
-save_fc_forecast <- function(fc_obj, actual_data, sample_split,
+
+#' Save forecasts (for forecast objects)
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A forecast object
+#' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
+#' @param sample_split A list, the sample split
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param model_name A string, name of the forecasting model
+#' @param model_args A list, optional arguments to pass to the models
+#' @param exclude_PI A boolean, exclude prediction intervals in results
+#' @return A data frame
+save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                              save_fc_to_file, model_name,
                              model_args = NULL,
                              exclude_PI = FALSE, ...) {
@@ -273,7 +368,7 @@ save_fc_forecast <- function(fc_obj, actual_data, sample_split,
   if (class(fc_obj)[1] != "forecast") {
     stop("forecasts must be a forecast object")
   }
-  actual_data_xts <- check_data_sv_as_xts(actual_data)
+  raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
   pred_dates <-
@@ -291,11 +386,11 @@ save_fc_forecast <- function(fc_obj, actual_data, sample_split,
   model_par <- collapse_model_par(model_coef)
   model_args <- collapse_model_par(model_args)
   model_descr <- fc_obj$method
-  actual_data_formated <- format_historical_data(actual_data_xts)
+  raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   results <- combine_fc_results(model_name,
                                 fc_formated,
-                                actual_data_formated,
+                                raw_data_formated,
                                 split_keys,
                                 model_descr,
                                 model_par,
@@ -311,12 +406,23 @@ save_fc_forecast <- function(fc_obj, actual_data, sample_split,
                 sep = "\t",
                 col.names = TRUE,
                 row.names = FALSE)
-    return(NULL)
+    return(base::data.frame())
   } else {
     return(results)
   }
 }
-save_fc_bsts <- function(fc_obj, actual_data, sample_split,
+
+#' Save forecasts (for bsts.prediction objects)
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A bsts.prediction object
+#' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
+#' @param sample_split A list, the sample split
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param model_name A string, name of the forecasting model
+#' @param model_args A list, optional arguments to pass to the models
+#' @return A data frame
+save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                          save_fc_to_file, model_name,
                          model_args = NULL,
                          ...) {
@@ -324,7 +430,7 @@ save_fc_bsts <- function(fc_obj, actual_data, sample_split,
   if (class(fc_obj)[1] != "bsts.prediction") {
     stop("forecasts must be a bsts.prediction object")
   }
-  actual_data_xts <- check_data_sv_as_xts(actual_data)
+  raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
   pred_dates <-
@@ -343,12 +449,12 @@ save_fc_bsts <- function(fc_obj, actual_data, sample_split,
     get_fc_with_PI(fc_obj, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates) %>%
     cbind(., pred_int)
-  actual_data_formated <- format_historical_data(actual_data_xts)
+  raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   model_args <- collapse_model_par(model_args)
   results <- combine_fc_results(model_name = model_name,
                                 fc_formated = fc_formated,
-                                actual_formated = actual_data_formated,
+                                actual_formated = raw_data_formated,
                                 split_keys = split_keys,
                                 model_args = model_args)
   if (!is.null(save_fc_to_file)) {
@@ -362,12 +468,23 @@ save_fc_bsts <- function(fc_obj, actual_data, sample_split,
                 sep = "\t",
                 col.names = TRUE,
                 row.names = FALSE)
-    return(NULL)
+    return(base::data.base())
   } else {
     return(results)
   }
 }
-save_fc_ml <- function(fc_obj, actual_data, sample_split,
+
+#' Save forecasts (for forecast objects)
+#' @description
+#' This function extracts the estimates of the model parameters
+#' @param fc_obj A data.frame object
+#' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
+#' @param sample_split A list, the sample split
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param model_name A string, name of the forecasting model
+#' @param model_args A list, optional arguments to pass to the models
+#' @return A data frame
+save_fc_ml <- function(fc_obj, raw_data, sample_split,
                        save_fc_to_file, model_name,
                        model_args = NULL,
                          ...) {
@@ -375,7 +492,7 @@ save_fc_ml <- function(fc_obj, actual_data, sample_split,
   if (!is.data.frame(fc_obj)) {
     stop("Forecasts must be passed as a data.frame object!")
   }
-  actual_data_xts <- check_data_sv_as_xts(actual_data)
+  raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
   pred_dates <-
@@ -387,12 +504,12 @@ save_fc_ml <- function(fc_obj, actual_data, sample_split,
   fc_formated <-
     get_fc_with_PI(fc_list, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates)
-  actual_data_formated <- format_historical_data(actual_data_xts)
+  raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   model_args <- collapse_model_par(model_args)
   results <- combine_fc_results(model_name = model_name,
                                 fc_formated = fc_formated,
-                                actual_formated = actual_data_formated,
+                                actual_formated = raw_data_formated,
                                 split_keys = split_keys,
                                 model_args = model_args)
   if (!is.null(save_fc_to_file)) {
@@ -406,7 +523,7 @@ save_fc_ml <- function(fc_obj, actual_data, sample_split,
                 sep = "\t",
                 col.names = TRUE,
                 row.names = FALSE)
-    return(NULL)
+    return(base::data.base())
   } else {
     return(results)
   }

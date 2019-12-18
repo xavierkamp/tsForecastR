@@ -10,8 +10,9 @@ generate_fc(
   xreg_data = NULL,
   backtesting_opt = list(use_bt = FALSE, nb_iters = 1, method = c("rolling", "moving"),
     sample_size = c("expanding", "fixed")),
-  model_names = c("arima", "ets", "tbats", "bsts", "stl", "snaive", "nnetar",
-    "lstm_keras"),
+  model_names = c("arima", "ets", "tbats", "snaive", "nnetar", "lstm_keras",
+    "automl_h2o"),
+  preprocess_fct = NULL,
   models_args = NULL,
   save_fc_to_file = NULL,
   nb_cores = 1,
@@ -45,7 +46,7 @@ generate_fc(
 \item{use_parallel}{A boolean, apply parallel processing}
 }
 \value{
-A list, forecast object for each forecasted period
+A list
 }
 \description{
 Function which enables the user to select different forecasting algorithms ranging from

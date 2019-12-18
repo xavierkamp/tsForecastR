@@ -11,7 +11,8 @@
 #'
 #'  method - A string, to determine whether to use a rolling or a moving forecasting window
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should expand or remain
+#'  fixed across backtesting operations
 #'
 #' @return A list of backtesting options
 check_backtesting_opt <- function(backtesting_opt) {
@@ -289,6 +290,11 @@ check_nb_cores <- function(nb_cores) {
   return(nb_cores)
 }
 
+#' Check the custom preprocessing function
+#' @description
+#' This function checks whether the specified function is indeed a function
+#' @param fct A function, the custom preprocessing function to handle missing values in the data
+#' @return NULL (if no fct is specified) or fct (if fct is specified)
 check_preprocess_fct <- function(fct) {
   if (!is.null(fct) & !is.function(fct)) {
     if (is.list(fct)) {

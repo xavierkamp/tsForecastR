@@ -78,6 +78,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
                                  backtesting_opt = NULL,
                                  ...) {
   `%>%` <- magrittr::`%>%`
+  split <- base::list()
   input_data_xts <- check_data_sv_as_xts(input_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   valid_set_size <- check_valid_set_size(valid_set_size)
@@ -151,30 +152,72 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   return(split)
 }
 
-preprocess_custom_fct <- function(ts_data_xts, fct = NULL) {
+#' Determine the number of differencing to obtain a stationary time series
+#' @description Uses \code{\link[forecast]{nsdiffs}} and \code{\link[forecast]{ndiffs}}
+#' to determine the number of differencing to obtain a stationary time series.
+#' @param input_data A univariate or multivariate ts, mts or xts object
+#' @examples
+#' library(datasets)
+#' nb_diffs(AirPassengers)
+#' @return A list, training, validation and test sets
+nb_diffs <- function(input_data, ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  input_data <-
+    check_data_sv_as_xts(input_data) %>%
+    timeSeries::na.contiguous()
+  ts_data <- input_data %>% as.ts()
+  ns_diffs <-
+    tryCatch({
+      forecast::nsdiffs(ts_data, ...)
+    }, error = function(e) {
+      return(0)
+    })
+  ndiffs <-
+    tryCatch({
+      forecast::ndiffs(ts_data, ...)
+    }, error = function(e) {
+      return(0)
+    })
+  list_diffs <- list(ns_diffs, ndiffs)
+  names(list_diffs) <- c("ns_diffs", "ndiffs")
+  return(list_diffs)
+}
+
+#' Customized preprocessing function
+#' @description The user can specify a custom preprocessing function to deal with missing values
+#' @param ts_data_xts A ts, mts or xts object
+#' @examples
+#' library(datasets)
+#' library(timeSeries)
+#' preprocessing(AirPassengers, timeSeries::na.contiguous)
+#'
+#' library(imputeTS)
+#' preprocessing(AirPassengers, imputeTS::na.mean)
+#' @return An xts object
+preprocess_custom_fct <- function(input_data, fct = NULL) {
+  `%>%` <- magrittr::`%>%`
+  ts_data <- check_data_sv_as_xts(input_data)
   fct <- check_preprocess_fct(fct)
   if (is.null(fct)) {
-    transformed_data <- ts_data_xts
+    transformed_data <- ts_data
   } else if (is.function(fct)) {
     transformed_data <-
-      ts_data_xts %>%
+      ts_data %>%
       fct()
   } else if (is.list(fct)) {
     custom_fct <- fct[[1]]
     if (!is.function(custom_fct)) {
       warning("First argument in list must be a function! Using no transformation by default")
-      transformed_data <- ts_data_xts
+      transformed_data <- ts_data
     } else {
       fct_args <- fct[[-1]]
       transformed_data <-
-        ts_data_xts %>%
+        ts_data %>%
         do.call(., custom_fct, c(fct_args))
     }
   } else {
     warning("Arguments were invalid. No transformation will be applied!")
-    transformed_data <- ts_data_xts
+    transformed_data <- ts_data
   }
   return(transformed_data)
 }

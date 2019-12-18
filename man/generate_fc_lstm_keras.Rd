@@ -10,6 +10,7 @@ generate_fc_lstm_keras(
   xreg_xts = NULL,
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
+  preprocess_fct = NULL,
   lstm_keras_arg = NULL,
   ...
 )
@@ -33,6 +34,8 @@ generate_fc_lstm_keras(
  remain fixed across backtesting operations}
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{preprocess_fct}{A custom preprocessing function to deal with missing values}
 
 \item{lstm_keras_arg}{A list, optional arguments to pass to the lstm network}
 }

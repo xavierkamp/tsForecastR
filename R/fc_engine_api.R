@@ -64,8 +64,8 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                           "moving"),
                                                sample_size = c("expanding",
                                                                "fixed")),
-                        model_names = c("arima", "ets", "tbats", "bsts",
-                                        "stl", "snaive", "nnetar",
+                        model_names = c("arima", "ets", "tbats",
+                                        "snaive", "nnetar",
                                         "lstm_keras", "automl_h2o"),
                         preprocess_fct = NULL,
                         models_args = NULL,
@@ -109,6 +109,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
       source("./R/arg_checks.R")
       source("./R/data_management.R")
       source("./R/preprocessing.R")
+      source("./R/valid_md.R")
       model_names_parall_proc <- model_names[model_names != "automl_h2o"]
       ts_data_xts <- mts_data_xts[, ind]
       ts_colname <- base::colnames(ts_data_xts)

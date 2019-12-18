@@ -9,6 +9,7 @@ generate_fc_stl(
   fc_horizon = 12,
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
+  preprocess_fct = NULL,
   stl_arg = NULL,
   ...
 )
@@ -31,10 +32,12 @@ generate_fc_stl(
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
+\item{preprocess_fct}{A custom preprocessing function to deal with missing values}
+
 \item{stl_arg}{A list, optional arguments to pass to the \code{\link[stats]{stl}} function}
 }
 \value{
-A list, forecast object for each forecasted period
+A list
 }
 \description{
 Function to apply the \code{\link[stats]{stl}} function from the \code{stats} package on

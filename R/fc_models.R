@@ -16,6 +16,7 @@
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
 #' @examples
 #' library(datasets)
@@ -34,7 +35,7 @@
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_arima <- function(ts_data_xts,
                               fc_horizon = 12,
@@ -55,15 +56,6 @@ generate_fc_arima <- function(ts_data_xts,
   md <- fc <- NULL
   model_name <- "arima"
   print_model_name(model_name)
-  if (is.null(arima_arg)) {
-    arima_arg = base::list(D = 1 , max.p = 2, max.q = 2,
-                           max.P = 2, max.Q = 2,
-                           max.d = 2, stationary = FALSE,
-                           seasonal = TRUE,
-                           stepwise = FALSE)
-  } else if (!base::is.list(arima_arg)) {
-    stop("Model arguments must be passed as a list!")
-  }
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
                           preprocess_fct) %>%
@@ -87,16 +79,20 @@ generate_fc_arima <- function(ts_data_xts,
     } else {
       xreg_test <- NULL
     }
-    md <- base::do.call(forecast::auto.arima,
-                        c(base::list(x_train),
-                          arima_arg))
+    if (valid_md_arima(x_train)) {
+      md <- base::do.call(forecast::auto.arima,
+                          c(base::list(x_train),
+                            arima_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md,
                              h = fc_horizon,
                              xreg = xreg_test)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
-                                save_fc_to_file,
+                                raw_data = ts_data_xts,
+                                save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 model_args = arima_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -124,6 +120,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
 #' @examples
 #' library(datasets)
@@ -142,7 +139,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_ets <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -176,14 +173,18 @@ generate_fc_ets <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(forecast::ets,
-                        c(base::list(x_train),
-                          ets_arg))
+    if (valid_md_ets(x_train)) {
+      md <- base::do.call(forecast::ets,
+                          c(base::list(x_train),
+                            ets_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
-                                save_fc_to_file,
+                                raw_data = ts_data_xts,
+                                save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 model_args = ets_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -211,6 +212,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
 #' @examples
 #' library(datasets)
@@ -229,7 +231,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
                               fc_horizon = 12,
@@ -282,12 +284,16 @@ generate_fc_tbats <- function(ts_data_xts,
                     frequency = stats::frequency(x_train))
         data
       }
-    md <- base::do.call(forecast::tbats, c(base::list(x_train), tbats_arg))
+    if (valid_md_tbats(x_train)) {
+      md <- base::do.call(forecast::tbats, c(base::list(x_train), tbats_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
-                                save_fc_to_file,
+                                raw_data = ts_data_xts,
+                                save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 model_args = tbats_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -316,6 +322,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
 #' @examples
 #' library(datasets)
@@ -334,7 +341,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'                          fc_horizon = 6,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
                                fc_horizon = 12,
@@ -377,11 +384,15 @@ generate_fc_nnetar <- function(ts_data_xts,
     } else {
       xreg_test <- NULL
     }
-    md <- base::do.call(forecast::nnetar, c(base::list(x_train), nnetar_arg))
+    if (valid_md_nnetar(x_train)) {
+      md <- base::do.call(forecast::nnetar, c(base::list(x_train), nnetar_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md, h = fc_horizon, xreg = xreg_test)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
+                                raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 exclude_PI = TRUE,
@@ -411,6 +422,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
 #' @examples
 #' library(datasets)
@@ -429,7 +441,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_stl <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -448,7 +460,7 @@ generate_fc_stl <- function(ts_data_xts,
   md <- fc <- NULL
   model_name <- "stl"
   print_model_name(model_name)
-  if (base::is.null(stl_arg)) {
+  if (!"s.window" %in% names(stl_arg)) {
     stl_arg = base::list(s.window = "periodic")
   }
   ts_contiguous_data <-
@@ -463,14 +475,18 @@ generate_fc_stl <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(stats::stl,
-                        c(base::list(x_train),
-                          stl_arg))
+    if (valid_md_stl(x_train)) {
+      md <- base::do.call(stats::stl,
+                          c(base::list(x_train),
+                            stl_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
-                                save_fc_to_file,
+                                raw_data = ts_data_xts,
+                                save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 model_args = stl_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -498,6 +514,7 @@ generate_fc_stl <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
 #' @examples
 #' library(datasets)
@@ -540,10 +557,6 @@ generate_fc_snaive <- function(ts_data_xts,
                           preprocess_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt)
-  if (fc_horizon > 2 * stats::frequency(ts_contiguous_data)) {
-    warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
-    return(NULL)
-  }
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
@@ -551,14 +564,18 @@ generate_fc_snaive <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- base::do.call(forecast::snaive,
-                        c(base::list(x_train),
-                          snaive_arg))
+    if (valid_md_snaive(x_train, fc_horizon)) {
+      md <- base::do.call(forecast::snaive,
+                          c(base::list(x_train),
+                            snaive_arg))
+    } else {
+      return(model_output)
+    }
     fc <- forecast::forecast(md, h = fc_horizon)
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
-                                actual_data = ts_data_xts,
-                                save_fc_to_file,
+                                raw_data = ts_data_xts,
+                                save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
                                 model_args = snaive_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -585,6 +602,8 @@ generate_fc_snaive <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @examples
 #' library(datasets)
@@ -603,7 +622,7 @@ generate_fc_snaive <- function(ts_data_xts,
 #'                        fc_horizon = 6,
 #'                        backtesting_opt = list(use_bt = TRUE,
 #'                                               nb_iters = 6))
-#' @return A list, forecast object for each forecasted period
+#' @return A list
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
                              fc_horizon = 12,
@@ -622,6 +641,13 @@ generate_fc_bsts <- function(ts_data_xts,
   md <- fc <- NULL
   model_name <- "bsts"
   print_model_name(model_name)
+  if (stats::frequency(ts_data_xts) <= 1) {
+    warning("For 'bsts': as the data frequency is lower or equal to 1, the value of the
+            'seasonal' argument must be set to FALSE and the value of the 'linear_trend'
+            argument must be set to TRUE.")
+    bsts_arg$seasonal <- FALSE
+    bsts_arg$linear_trend <- TRUE
+  }
   if (base::is.null(bsts_arg)) {
     bsts_arg <- base::list(linear_trend = TRUE,
                            seasonal = TRUE,
@@ -713,17 +739,21 @@ generate_fc_bsts <- function(ts_data_xts,
                                          backtesting_opt = backtesting_opt)
     x_train <- sample_split[["train"]]
     x_test <- sample_split[["test"]]
-    md <- bsts::bsts(x_train,
-                     state.specification = ss,
-                     niter = bsts_arg$niter,
-                     ping = bsts_arg$ping,
-                     seed = bsts_arg$seed,
-                     family = bsts_arg$family)
+    if (valid_md_bsts(x_train)) {
+      md <- bsts::bsts(x_train,
+                       state.specification = ss,
+                       niter = bsts_arg$niter,
+                       ping = bsts_arg$ping,
+                       seed = bsts_arg$seed,
+                       family = bsts_arg$family)
+    } else {
+      return(model_output)
+    }
     fc <- stats::predict(md, horizon = fc_horizon,
                          quantiles = c(0.025, 0.975))
     results <- save_fc_bsts(fc_obj = fc,
                             sample_split = sample_split,
-                            actual_data = ts_data_xts,
+                            raw_data = ts_data_xts,
                             save_fc_to_file = save_fc_to_file,
                             model_name = model_name,
                             model_args = bsts_arg)
@@ -753,6 +783,7 @@ generate_fc_bsts <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
 #' @examples
 #' library(datasets)
@@ -787,7 +818,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
-  model_output <- list()
+  model_output <- base::list()
   model_name <- "lstm_keras"
   print_model_name(model_name)
   all_time_features <-
@@ -795,11 +826,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                           zoo::index() %>%
                                           lubridate::as_date()) %>%
     colnames()
+  nb_diffs <- nb_diffs(ts_data_xts)
   if (base::is.null(lstm_keras_arg)) {
     lstm_keras_arg = base::list(valid_set_size = stats::frequency(ts_data_xts),
                                 stateful = FALSE,
                                 nb_stacked_layers = 0,
-                                lag_setting = stats::frequency(ts_data_xts),
+                                lag_setting = stats::frequency(ts_data_xts) ,
                                 loss = "mean_absolute_error",
                                 lr = 0.001,
                                 momentum = 0.05,
@@ -848,7 +880,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     }
     if (!"loss" %in% base::names(lstm_keras_arg)) {
       warning("The value of the loss function is missing, using 'mean_absolute_error' as default")
-      lstm_keras_arg <- "mean_absolute_error"
+      lstm_keras_arg$loss <- "mean_absolute_error"
     }
     if (!"lr" %in% base::names(lstm_keras_arg)) {
       warning("The value of the learning rate is missing, using 0.001 as default")
@@ -919,8 +951,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       lstm_keras_arg$seed <- NULL
     }
   }
-  base::set.seed(lstm_keras_arg$seed)
-  seed <- base::as.integer(stats::runif(1, min = 1, max = 9999))
+  if (is.null(lstm_keras_arg$seed)) {
+    base::set.seed(lstm_keras_arg$seed)
+    seed <- base::as.integer(stats::runif(1, min = 1, max = 9999))
+  } else {
+    seed <- lstm_keras_arg$seed
+  }
   keras::use_session_with_seed(seed,
                                disable_gpu = TRUE,
                                disable_parallel_cpu = TRUE)
@@ -939,6 +975,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                          nb_iter = bt_iter,
                                          valid_set_size = lstm_keras_arg$valid_set_size,
                                          backtesting_opt = backtesting_opt)
+    if (!valid_md_lstm_keras(sample_split[["train"]],
+                             lstm_keras_arg)) {
+      return(model_output)
+    }
     ts_train <-
       sample_split[["train"]] %>%
       tibble::as_tibble() %>%
@@ -1128,8 +1168,8 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       as.data.frame()
     results <- save_fc_ml(fc_obj = fc,
                           sample_split = sample_split,
-                          actual_data = ts_data_xts,
-                          save_fc_to_file,
+                          raw_data = ts_data_xts,
+                          save_fc_to_file = save_fc_to_file,
                           model_name = model_name,
                           model_args = lstm_keras_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",
@@ -1158,6 +1198,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
 #' @examples
 #' library(datasets)
@@ -1186,7 +1227,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    preprocess_fct = NULL,
                                    automl_h2o_arg = NULL,
                                    nb_cores = 1,
-                                   ...){
+                                   ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
@@ -1334,6 +1375,10 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                          automl_h2o_arg$valid_set_size,
                                          automl_h2o_arg$test_set_size,
                                          backtesting_opt)
+    if (!valid_md_autml_h2o(sample_split[["train"]],
+                            automl_h2o_arg)) {
+      return(model_output)
+    }
     ts_train <-
       sample_split[["train"]] %>%
       tibble::as_tibble() %>%
@@ -1406,8 +1451,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     pred_h2o <- h2o::h2o.predict(h2o_model, test_h2o)
     results <- save_fc_ml(fc_obj = pred_h2o %>% as.data.frame(),
                           sample_split = sample_split,
-                          actual_data = ts_data_xts,
-                          save_fc_to_file,
+                          raw_data = ts_data_xts,
+                          save_fc_to_file= save_fc_to_file,
                           model_name = model_name,
                           model_args = automl_h2o_arg)
     base::eval(base::parse(text = base::paste("model_output$period_",

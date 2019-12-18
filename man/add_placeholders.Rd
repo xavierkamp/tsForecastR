@@ -25,5 +25,5 @@ add_placeholders(input_data, fc_horizon, backtesting_opt = NULL)
 A univariate or multivariate xts object
 }
 \description{
-Empty values are added when forecasts are generated for future periods when values are unknown
+Empty values are added when forecasts are generated for future periods (i.e. values are unknown)
 }

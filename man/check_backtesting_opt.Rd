@@ -15,7 +15,8 @@ check_backtesting_opt(backtesting_opt)
 
  method - A string, to determine whether to use a rolling or a moving forecasting window
 
- sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should expand or remain
+ fixed across backtesting operations}
 }
 \value{
 A list of backtesting options

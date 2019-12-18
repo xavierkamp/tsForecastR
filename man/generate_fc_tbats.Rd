@@ -9,6 +9,7 @@ generate_fc_tbats(
   fc_horizon = 12,
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
+  preprocess_fct = NULL,
   tbats_arg = NULL,
   ...
 )
@@ -31,10 +32,12 @@ generate_fc_tbats(
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
+\item{preprocess_fct}{A custom preprocessing function to deal with missing values}
+
 \item{tbats_arg}{A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function}
 }
 \value{
-A list, forecast object for each forecasted period
+A list
 }
 \description{
 Function to apply the \code{\link[forecast]{tbats}} function from the \code{forecast} package on
