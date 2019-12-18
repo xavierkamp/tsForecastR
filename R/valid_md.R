@@ -89,7 +89,7 @@ valid_md_autml_h2o <- function(ts_data_xts, automl_h2o_arg) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   min_nb_obs <-
     (automl_h2o_arg$valid_set_size
-     + automl_h2o_arg$tmp_test_set_size)
+     + automl_h2o_arg$test_set_size)
   if (nrow(ts_data_xts) < min_nb_obs) {
     warning(paste("Not enough observations! To use 'automl_h2o', there must be more than ",
                   min_nb_obs, " observations available.",
