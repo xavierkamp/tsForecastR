@@ -11,6 +11,7 @@ generate_fc_bsts(
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
   bsts_arg = NULL,
+  time_id = base::Sys.time(),
   ...
 )
 }
@@ -35,6 +36,8 @@ generate_fc_bsts(
 \item{preprocess_fct}{A custom preprocessing function to deal with missing values}
 
 \item{bsts_arg}{A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function}
+
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 }
 \value{
 A list
@@ -44,6 +47,7 @@ Function to apply the \code{\link[bsts]{bsts}} function from the \code{bsts} pac
 time series data.
 }
 \examples{
+## Not run:
 library(datasets)
 
 # Generate forecasts on future dates
@@ -60,4 +64,5 @@ fc <- generate_fc_bsts(AirPassengers,
                        fc_horizon = 6,
                        backtesting_opt = list(use_bt = TRUE,
                                               nb_iters = 6))
+## End (Not run)
 }

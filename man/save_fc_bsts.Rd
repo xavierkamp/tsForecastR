@@ -10,6 +10,8 @@ save_fc_bsts(
   sample_split,
   save_fc_to_file,
   model_name,
+  time_id = base::Sys.time(),
+  period_iter = NULL,
   model_args = NULL,
   ...
 )
@@ -24,6 +26,10 @@ save_fc_bsts(
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
 \item{model_name}{A string, name of the forecasting model}
+
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+
+\item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
 
 \item{model_args}{A list, optional arguments to pass to the models}
 }

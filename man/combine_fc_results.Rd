@@ -5,16 +5,22 @@
 \title{Combine forecasting info}
 \usage{
 combine_fc_results(
+  ts_name,
   model_name,
   fc_formated,
   actual_formated,
   split_keys,
   model_descr = NULL,
   model_par = NULL,
-  model_args = NULL
+  model_args = NULL,
+  period_iter = NULL,
+  time_id = NULL,
+  ...
 )
 }
 \arguments{
+\item{ts_name}{A string}
+
 \item{model_name}{A string}
 
 \item{fc_formated}{A data.frame}
@@ -28,6 +34,10 @@ combine_fc_results(
 \item{model_par}{A string}
 
 \item{model_args}{A string}
+
+\item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
+
+\item{run_time}{A string}
 }
 \value{
 A data.frame object

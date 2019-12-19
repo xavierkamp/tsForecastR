@@ -17,15 +17,15 @@ analyze_fc <- function(fc,
                        Plot = TRUE) {
   `%>%` <- magrittr::`%>%`
   results <- NULL
-  for (ts_name in names(fc)) {
-    for (model in paste("fc$", ts_name, sep = "") %>%
-         parse(text = .) %>%
-         eval() %>%
-         names()) {
-      for (periods in paste("fc$", ts_name, "$", model, sep = "") %>%
-           parse(text = .) %>%
-           eval() %>%
-           names()) {
+  for (ts_name in base::names(fc)) {
+    for (model in base::paste("fc$", ts_name, sep = "") %>%
+         base::parse(text = .) %>%
+         base::eval() %>%
+         base::names()) {
+      for (periods in base::paste("fc$", ts_name, "$", model, sep = "") %>%
+           base::parse(text = .) %>%
+           base::eval() %>%
+           base::names()) {
         results <- dplyr::bind_rows(results, fc[[ts_name]][[model]][[periods]])
       }
     }

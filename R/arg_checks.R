@@ -49,11 +49,15 @@ check_backtesting_opt <- function(backtesting_opt) {
   }
   if ("nb_iters" %in% base::names(backtesting_opt)) {
     if (!is.numeric(backtesting_opt$nb_iters)) {
-      warning("The value of the number of backtesting operations to perform is invalid, setting to 1 as default")
+      warning(base::paste("The value of the number of backtesting operations to perform is invalid, ",
+                          "setting to 1 as default",
+                          sep = ""))
       backtesting_opt$nb_iters <- 1
     }
   } else {
-    warning("The value of the number of backtesting operations to perform is missing, setting to 1 as default")
+    warning(base::paste("The value of the number of backtesting operations to perform is missing, ",
+                        "setting to 1 as default",
+                        sep = ""))
     backtesting_opt$nb_iters <- 1
   }
   if ("method" %in% base::names(backtesting_opt)) {
@@ -76,7 +80,9 @@ check_backtesting_opt <- function(backtesting_opt) {
   }
   if (!backtesting_opt$use_bt) {
     if (backtesting_opt$nb_iters != 1) {
-      warning("As no backtesting is applied, there will be only one forecasting exercise for each time series!")
+      warning(base::paste("As no backtesting is applied, there will be only one ",
+                          "forecasting exercise for each time series!",
+                          sep = ""))
       backtesting_opt$nb_iters <- 1
     }
   }
@@ -107,7 +113,7 @@ check_fc_horizon <- function(fc_horizon) {
 check_valid_set_size <- function(valid_set_size) {
   if (!base::is.numeric(valid_set_size)) {
     stop("The validation set size must be an positive non-zero integer!")
-  } else if (valid_set_size != as.integer(valid_set_size) | valid_set_size < 0) {
+  } else if (valid_set_size != base::as.integer(valid_set_size) | valid_set_size < 0) {
     stop("The validation set size must be an positive non-zero integer!")
   }
   return(valid_set_size)
@@ -123,7 +129,7 @@ check_valid_set_size <- function(valid_set_size) {
 check_tmp_test_set_size <- function(tmp_test_set_size) {
   if (!base::is.numeric(tmp_test_set_size)) {
     stop("The second test set size must be an positive non-zero integer!")
-  } else if (tmp_test_set_size != as.integer(tmp_test_set_size) | tmp_test_set_size < 0) {
+  } else if (tmp_test_set_size != base::as.integer(tmp_test_set_size) | tmp_test_set_size < 0) {
     stop("The second test set size must be an positive non-zero integer!")
   }
   return(tmp_test_set_size)
@@ -243,9 +249,10 @@ check_models_args <- function(models_args, model_names = NULL) {
       stop("The models arguments must be passed as a list!")
     } else {
       model_names <- check_model_names(model_names)
-      valid_models_args <- (names(models_args) %in% base::paste(model_names, "_arg", sep = ""))
-      warning(base::paste("The following model arguments do not match the selected models and will be dropped: ",
-                          base::paste(names(models_args)[!valid_models_args],
+      valid_models_args <- (base::names(models_args) %in% base::paste(model_names, "_arg", sep = ""))
+      warning(base::paste("The following model arguments do not match the selected models ",
+                          "and will be dropped: ",
+                          base::paste(base::names(models_args)[!valid_models_args],
                                       collapse = ", "),
                           sep = ""))
     }
@@ -261,30 +268,30 @@ check_models_args <- function(models_args, model_names = NULL) {
 #' @return A numeric, the number of selected CPU cores
 check_nb_cores <- function(nb_cores) {
   nb_cores_available <- parallel::detectCores()
-  if (is.null(nb_cores)) {
-    warning(paste("The selected number of CPU cores is invalid, setting number to all ",
-                  "available cores (logical included): ",
-                  nb_cores_available,
-                  sep = ""))
+  if (base::is.null(nb_cores)) {
+    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+                        "available cores (logical included): ",
+                        nb_cores_available,
+                        sep = ""))
     nb_cores <- nb_cores_available
-  } else if (!is.numeric(nb_cores)) {
-    warning(paste("The selected number of CPU cores is invalid, setting number to all ",
-                  "available cores (logical included): ",
-                  nb_cores_available,
-                  sep = ""))
+  } else if (!base::is.numeric(nb_cores)) {
+    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+                        "available cores (logical included): ",
+                        nb_cores_available,
+                        sep = ""))
     nb_cores <- nb_cores_available
-  } else if (nb_cores != as.integer(nb_cores) | nb_cores < 1) {
-    warning(paste("The selected number of CPU cores is invalid, setting number to all ",
-                  "available cores (logical included): ",
-                  nb_cores_available,
-                  sep = ""))
+  } else if (nb_cores != base::as.integer(nb_cores) | nb_cores < 1) {
+    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+                        "available cores (logical included): ",
+                        nb_cores_available,
+                        sep = ""))
     nb_cores <- nb_cores_available
   }
   if (nb_cores > nb_cores_available) {
-    warning(paste("The selected number of CPU cores is invalid, setting number to all ",
-                  "available cores (logical included): ",
-                  nb_cores_available,
-                  sep = ""))
+    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+                        "available cores (logical included): ",
+                        nb_cores_available,
+                        sep = ""))
     nb_cores <- nb_cores_available
   }
   return(nb_cores)
@@ -296,11 +303,13 @@ check_nb_cores <- function(nb_cores) {
 #' @param fct A function, the custom preprocessing function to handle missing values in the data
 #' @return NULL (if no fct is specified) or fct (if fct is specified)
 check_preprocess_fct <- function(fct) {
-  if (!is.null(fct) & !is.function(fct)) {
-    if (is.list(fct)) {
+  if (!base::is.null(fct) & !base::is.function(fct)) {
+    if (base::is.list(fct)) {
       custom_fct <- fct[[1]]
-      if (!is.function(custom_fct)) {
-        warning("No custom preprocessing function has been found in list. Setting to default: NULL")
+      if (!base::is.function(custom_fct)) {
+        warning(base::paste("No custom preprocessing function has been found in list. ",
+                            "Setting to default: NULL",
+                            sep = ""))
         fct <- NULL
       }
     } else {
@@ -308,4 +317,57 @@ check_preprocess_fct <- function(fct) {
     }
   }
   return(fct)
+}
+
+#' Check the time identifier
+#' @description
+#' This function ensures that the user specifies a valid time identifier.
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @return A POSIXct, time identifier
+check_time_id <- function(time_id) {
+  if (base::is.null(time_id)) {
+    warning(base::paste("The value of the 'time_id' argument is missing. Generating a ",
+                        "unique 'time_id' with: base::Sys.time()",
+                        sep = ""))
+    valid_time_id <- base::Sys.time()
+    return(time_id)
+  } else if (base::class(time_id)[1] != "POSIXct") {
+    warning(base::paste("The value of the 'time_id' argument is invalid. Generating a ",
+                        "unique 'time_id' with: base::Sys.time()",
+                        sep = ""))
+    valid_time_id <- base::Sys.time()
+  } else if (base::length(time_id) > 1){
+    warning("Multiple values of the 'time_id' argument detected. Selecting only the first one.")
+    valid_time_id <- time_id[1]
+  } else if (base::length(time_id) < 1) {
+    warning(base::paste("No values of the 'time_id' argument detected. Generating a ",
+                        "unique 'time_id' with: base::Sys.time()",
+                        sep = ""))
+    valid_time_id <- base::Sys.time()
+  } else {
+    valid_time_id <- time_id
+  }
+  return(time_id)
+}
+
+#' Check the period identifier
+#' @description
+#' This function ensures that the user specifies a valid period identifier.
+#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
+#' @return A POSIXct, time identifier
+check_period_iter <- function(period_iter) {
+  if (!base::is.character(period_iter)) {
+    stop("The value of the 'period_iter' argument is invalid! The argument must be a character.")
+  } else if (base::length(period_iter) != 1) {
+    stop("The length of the period_iter argument is invalid! The argument must have one value.")
+  } else if (!stringr::str_detect(period_iter, pattern = "period_")) {
+    stop("The value of the 'period_iter' argument is invalid! Please check its format ('period' + '_' + iter).")
+  } else {
+    iter <- base::gsub("period_", "", period_iter)
+    if (base::is.na(base::as.numeric(iter))) {
+      stop("The value of the 'period_iter' argument is invalid! Please check its format ('period' + '_' + iter).")
+    } else {
+      return(period_iter)
+    }
+  }
 }

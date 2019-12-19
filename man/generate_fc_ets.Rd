@@ -11,6 +11,7 @@ generate_fc_ets(
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
   ets_arg = NULL,
+  time_id = base::Sys.time(),
   ...
 )
 }
@@ -35,6 +36,8 @@ generate_fc_ets(
 \item{preprocess_fct}{A custom preprocessing function to deal with missing values}
 
 \item{ets_arg}{A list, optional arguments to pass to the \code{\link[forecast]{ets}} function}
+
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 }
 \value{
 A list
@@ -44,6 +47,7 @@ Function to apply the \code{\link[forecast]{ets}} function from the \code{foreca
 time series data.
 }
 \examples{
+## Not run:
 library(datasets)
 
 # Generate forecasts on future dates
@@ -60,4 +64,5 @@ fc <- generate_fc_ets(AirPassengers,
                       fc_horizon = 6,
                       backtesting_opt = list(use_bt = TRUE,
                                              nb_iters = 6))
+## End (Not run)
 }

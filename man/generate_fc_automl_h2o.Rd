@@ -12,6 +12,7 @@ generate_fc_automl_h2o(
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
   automl_h2o_arg = NULL,
+  time_id = base::Sys.time(),
   nb_cores = 1,
   ...
 )
@@ -39,6 +40,10 @@ generate_fc_automl_h2o(
 \item{preprocess_fct}{A custom preprocessing function to deal with missing values}
 
 \item{automl_h2o_arg}{A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function}
+
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+
+\item{nb_cores}{A numeric, number of threads to use in parallel computed model selection process}
 }
 \value{
 A list, forecast object for each forecasted period
@@ -48,6 +53,7 @@ Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o}
 time series data.
 }
 \examples{
+## Not run:
 library(datasets)
 
 # Generate forecasts on future dates
@@ -64,4 +70,5 @@ fc <- generate_fc_automl_h2o(AirPassengers,
                              fc_horizon = 6,
                              backtesting_opt = list(use_bt = TRUE,
                                                     nb_iters = 6))
+## End (Not run)
 }

@@ -17,6 +17,8 @@ Uses \code{\link[forecast]{nsdiffs}} and \code{\link[forecast]{ndiffs}}
 to determine the number of differencing to obtain a stationary time series.
 }
 \examples{
+## Not run:
 library(datasets)
 nb_diffs(AirPassengers)
+## End (Not run)
 }

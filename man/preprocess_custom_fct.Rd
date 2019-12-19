@@ -16,10 +16,12 @@ An xts object
 The user can specify a custom preprocessing function to deal with missing values
 }
 \examples{
+## Not run:
 library(datasets)
 library(timeSeries)
 preprocessing(AirPassengers, timeSeries::na.contiguous)
 
 library(imputeTS)
 preprocessing(AirPassengers, imputeTS::na.mean)
+## End (Not run)
 }

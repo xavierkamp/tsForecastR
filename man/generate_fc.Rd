@@ -10,11 +10,12 @@ generate_fc(
   xreg_data = NULL,
   backtesting_opt = list(use_bt = FALSE, nb_iters = 1, method = c("rolling", "moving"),
     sample_size = c("expanding", "fixed")),
-  model_names = c("arima", "ets", "tbats", "snaive", "nnetar", "lstm_keras",
-    "automl_h2o"),
+  model_names = c("arima", "ets", "tbats", "bsts", "snaive", "nnetar", "stl",
+    "lstm_keras", "automl_h2o"),
   preprocess_fct = NULL,
   models_args = NULL,
   save_fc_to_file = NULL,
+  time_id = base::Sys.time(),
   nb_cores = 1,
   ...
 )
@@ -39,6 +40,8 @@ generate_fc(
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+
 \item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
 
 \item{model_args}{A list, optional arguments to pass to the models}
@@ -53,6 +56,7 @@ Function which enables the user to select different forecasting algorithms rangi
 traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
 }
 \examples{
+## Not run:
 library(datasets)
 
 # Generate forecasts on future dates
@@ -87,4 +91,5 @@ fc <- generate_fc(AirPassengers,
                   fc_horizon = 6,
                   backtesting_opt = list(use_bt = TRUE,
                                          nb_iters = 6))
+## End (Not run)
 }

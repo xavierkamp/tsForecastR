@@ -18,7 +18,9 @@
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -35,6 +37,7 @@
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
+#' ## End (Not)
 #' @return A list
 #' @export
 generate_fc_arima <- function(ts_data_xts,
@@ -44,6 +47,7 @@ generate_fc_arima <- function(ts_data_xts,
                               save_fc_to_file = NULL,
                               preprocess_fct = NULL,
                               arima_arg = NULL,
+                              time_id = base::Sys.time(),
                               ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -52,6 +56,7 @@ generate_fc_arima <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   md <- fc <- NULL
   model_name <- "arima"
@@ -63,6 +68,7 @@ generate_fc_arima <- function(ts_data_xts,
                      backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          bt_iter = bt_iter,
@@ -72,7 +78,7 @@ generate_fc_arima <- function(ts_data_xts,
     if (!is.null(xreg_xts)) {
       xreg_names <-
         ts_contiguous_data %>%
-        colnames(.)[!colnames(.) %in% colnames(ts_data_xts)]
+        base::colnames(.)[!base::colnames(.) %in% base::colnames(ts_data_xts)]
       xreg_train <- sample_split[["train"]][, xreg_names]
       xreg_test <- sample_split[["test"]][, xreg_names]
       arima_arg$xreg <- xreg_train
@@ -94,9 +100,11 @@ generate_fc_arima <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                time_id = time_id,
+                                period_iter = period_iter,
                                 model_args = arima_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -122,7 +130,9 @@ generate_fc_arima <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -139,6 +149,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc_ets <- function(ts_data_xts,
@@ -147,6 +158,7 @@ generate_fc_ets <- function(ts_data_xts,
                             save_fc_to_file = NULL,
                             preprocess_fct = NULL,
                             ets_arg = NULL,
+                            time_id = base::Sys.time(),
                             ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -154,6 +166,7 @@ generate_fc_ets <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
     stop("Model arguments must be of type list!")
   }
@@ -167,6 +180,7 @@ generate_fc_ets <- function(ts_data_xts,
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          bt_iter = bt_iter,
@@ -186,9 +200,11 @@ generate_fc_ets <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                time_id = time_id,
+                                period_iter = period_iter,
                                 model_args = ets_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -214,7 +230,9 @@ generate_fc_ets <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -231,6 +249,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
@@ -239,6 +258,7 @@ generate_fc_tbats <- function(ts_data_xts,
                               save_fc_to_file = NULL,
                               preprocess_fct = NULL,
                               tbats_arg = NULL,
+                              time_id = base::Sys.time(),
                               ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -246,6 +266,7 @@ generate_fc_tbats <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   md <- fc <- NULL
   model_name <- "tbats"
@@ -256,6 +277,7 @@ generate_fc_tbats <- function(ts_data_xts,
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -295,9 +317,11 @@ generate_fc_tbats <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                period_iter = period_iter,
+                                time_id = time_id,
                                 model_args = tbats_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -324,7 +348,9 @@ generate_fc_tbats <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future periods
@@ -341,6 +367,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'                          fc_horizon = 6,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
@@ -350,6 +377,7 @@ generate_fc_nnetar <- function(ts_data_xts,
                                save_fc_to_file = NULL,
                                preprocess_fct = NULL,
                                nnetar_arg = NULL,
+                               time_id = base::Sys.time(),
                                ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -358,6 +386,7 @@ generate_fc_nnetar <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   md <- fc <- NULL
   model_name <- "nnetar"
@@ -369,6 +398,7 @@ generate_fc_nnetar <- function(ts_data_xts,
                      backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -395,10 +425,12 @@ generate_fc_nnetar <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                time_id = time_id,
+                                period_iter = period_iter,
                                 exclude_PI = TRUE,
                                 model_args = nnetar_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -424,7 +456,9 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -441,6 +475,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc_stl <- function(ts_data_xts,
@@ -449,6 +484,7 @@ generate_fc_stl <- function(ts_data_xts,
                             save_fc_to_file = NULL,
                             preprocess_fct = NULL,
                             stl_arg = NULL,
+                            time_id = base::Sys.time(),
                             ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -456,6 +492,7 @@ generate_fc_stl <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   md <- fc <- NULL
   model_name <- "stl"
@@ -469,6 +506,7 @@ generate_fc_stl <- function(ts_data_xts,
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -488,9 +526,11 @@ generate_fc_stl <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                time_id = time_id,
+                                period_iter = period_iter,
                                 model_args = stl_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -516,7 +556,9 @@ generate_fc_stl <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -533,6 +575,7 @@ generate_fc_stl <- function(ts_data_xts,
 #'                          fc_horizon = 6,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
+#' ## End (Not run)
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_snaive <- function(ts_data_xts,
@@ -541,6 +584,7 @@ generate_fc_snaive <- function(ts_data_xts,
                                save_fc_to_file = NULL,
                                preprocess_fct = NULL,
                                snaive_arg = NULL,
+                               time_id = base::Sys.time(),
                                ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -548,6 +592,7 @@ generate_fc_snaive <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   md <- fc <- NULL
   model_name <- "snaive"
@@ -558,6 +603,7 @@ generate_fc_snaive <- function(ts_data_xts,
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -577,9 +623,11 @@ generate_fc_snaive <- function(ts_data_xts,
                                 raw_data = ts_data_xts,
                                 save_fc_to_file = save_fc_to_file,
                                 model_name = model_name,
+                                period_iter = period_iter,
+                                time_id = time_id,
                                 model_args = snaive_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -605,7 +653,9 @@ generate_fc_snaive <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -622,6 +672,7 @@ generate_fc_snaive <- function(ts_data_xts,
 #'                        fc_horizon = 6,
 #'                        backtesting_opt = list(use_bt = TRUE,
 #'                                               nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
@@ -630,6 +681,7 @@ generate_fc_bsts <- function(ts_data_xts,
                              save_fc_to_file = NULL,
                              preprocess_fct = NULL,
                              bsts_arg = NULL,
+                             time_id = base::Sys.time(),
                              ...){
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -637,14 +689,16 @@ generate_fc_bsts <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- ss <- base::list()
   md <- fc <- NULL
   model_name <- "bsts"
   print_model_name(model_name)
   if (stats::frequency(ts_data_xts) <= 1) {
-    warning("For 'bsts': as the data frequency is lower or equal to 1, the value of the
-            'seasonal' argument must be set to FALSE and the value of the 'linear_trend'
-            argument must be set to TRUE.")
+    warning(base::paste("For 'bsts': as the data frequency is lower or equal to 1, the value of the ",
+                        "'seasonal' argument must be set to FALSE and the value of the 'linear_trend' ",
+                        "argument must be set to TRUE.",
+                        sep = ""))
     bsts_arg$seasonal <- FALSE
     bsts_arg$linear_trend <- TRUE
   }
@@ -733,6 +787,7 @@ generate_fc_bsts <- function(ts_data_xts,
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -756,9 +811,11 @@ generate_fc_bsts <- function(ts_data_xts,
                             raw_data = ts_data_xts,
                             save_fc_to_file = save_fc_to_file,
                             model_name = model_name,
+                            period_iter = period_iter,
+                            time_id = time_id,
                             model_args = bsts_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -785,7 +842,9 @@ generate_fc_bsts <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -802,6 +861,7 @@ generate_fc_bsts <- function(ts_data_xts,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
+#' ## End (Not run)
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_lstm_keras <- function(ts_data_xts,
@@ -811,6 +871,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                    save_fc_to_file = NULL,
                                    preprocess_fct = NULL,
                                    lstm_keras_arg = NULL,
+                                   time_id = base::Sys.time(),
                                    ...) {
   `%>%` <- magrittr::`%>%`
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
@@ -818,6 +879,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   model_output <- base::list()
   model_name <- "lstm_keras"
   print_model_name(model_name)
@@ -834,35 +896,35 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                 lag_setting = stats::frequency(ts_data_xts) ,
                                 loss = "mean_absolute_error",
                                 lr = 0.001,
-                                momentum = 0.05,
-                                dropout = 0.2,
+                                momentum = 0.1,
+                                dropout = 0.3,
                                 recurrent_dropout = 0.2,
-                                nb_units = 100,
-                                nb_epochs = 60,
+                                nb_units = 50,
+                                nb_epochs = 70,
                                 nb_timesteps = stats::frequency(ts_data_xts),
                                 batch_size = 1,
                                 optimizer_type = "adam",
-                                patience = 15,
+                                patience = 20,
                                 verbose = TRUE,
                                 seed = NULL,
                                 time_features = c("month", "year"))
   } else {
     if ("valid_set_size" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$valid_set_size)) {
-        warning("The validation set size argument is invalid, setting to default: frequency of the data")
+        warning("The 'valid_set_size' argument is invalid, setting to default: frequency of the data")
         lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
       }
     } else {
-      warning("The validation set size argument is missing, setting to default: frequency of the data")
+      warning("The 'valid_set_size' argument is missing, setting to default: frequency of the data")
       lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
     }
     if ("stateful" %in% base::names(lstm_keras_arg)) {
       if (!base::is.logical(lstm_keras_arg$stateful)) {
-        warning("The value of the stateful argument is invalid, using FALSE as default.")
+        warning("The value of the 'stateful' argument is invalid, using FALSE as default.")
         lstm_keras_arg$stateful <- FALSE
       }
     } else {
-      warning("The value of the stateful argument is missing, using FALSE as default.")
+      warning("The value of the 'stateful' argument is missing, using FALSE as default.")
       lstm_keras_arg$stateful <- FALSE
     }
     if ("nb_stacked_layers" %in% base::names(lstm_keras_arg)) {
@@ -879,7 +941,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       lstm_keras_arg$lag_setting <- stats::frequency(ts_data_xts)
     }
     if (!"loss" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the loss function is missing, using 'mean_absolute_error' as default")
+      warning("The value of the 'loss' argument is missing, using 'mean_absolute_error' as default")
       lstm_keras_arg$loss <- "mean_absolute_error"
     }
     if (!"lr" %in% base::names(lstm_keras_arg)) {
@@ -887,24 +949,24 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       lstm_keras_arg$lr <- 0.001
     }
     if (!"momentum" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the momentumn is missing, using 0.05 as default")
-      lstm_keras_arg$momentum <- 0.05
+      warning("The value of the momentum is missing, using 0.05 as default")
+      lstm_keras_arg$momentum <- 0.1
     }
     if (!"dropout" %in% base::names(lstm_keras_arg)) {
       warning("The value of the dropout rate is missing, using 0.2 as default")
-      lstm_keras_arg$dropout <- 0.2
+      lstm_keras_arg$dropout <- 0.3
     }
     if (!"recurrent_dropout" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the recurrent dropout is missing, using 0.2 as default")
+      warning("The value of the recurrent dropout rate is missing, using 0.2 as default")
       lstm_keras_arg$recurrent_dropout <- 0.2
     }
     if (!"nb_units" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the number of units in LSTM cell is missing, using 100 as default")
-      lstm_keras_arg$nb_units <- 100
+      warning("The value of the number of units in the LSTM cell is missing, using 100 as default")
+      lstm_keras_arg$nb_units <- 50
     }
     if (!"nb_epochs" %in% base::names(lstm_keras_arg)) {
       warning("The value of the number of epochs is missing, using 50 as default")
-      lstm_keras_arg$nb_epochs <- 50
+      lstm_keras_arg$nb_epochs <- 70
     }
     if (!"nb_timesteps" %in% base::names(lstm_keras_arg)) {
       warning("The value of the number of time steps is missing, using the frequency of the data as default")
@@ -920,7 +982,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     }
     if (!"patience" %in% base::names(lstm_keras_arg)) {
       warning("The value of the loss function is missing, using 10 as default")
-      lstm_keras_arg$patience <- 10
+      lstm_keras_arg$patience <- 20
     }
     if (!"verbose" %in% base::names(lstm_keras_arg)) {
       warning("The value of verbose is missing, using TRUE as default")
@@ -928,17 +990,17 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     }
     if ("time_features" %in% base::names(lstm_keras_arg)) {
       if (sum(!lstm_keras_arg$time_features %in% all_time_features) > 0) {
-        warning(paste("The value of time features to select is invalid, setting to default: c('month', 'year'). ",
-                      "All available options are: c('",
-                      paste(all_time_features, collapse = "', '"), "')",
-                      sep = ""))
+        warning(base::paste("The value of time features to select is invalid, setting to default: ",
+                            "c('month', 'year'). All available options are: c('",
+                            base::paste(all_time_features, collapse = "', '"), "')",
+                            sep = ""))
         lstm_keras_arg$time_features <- c("month", "year")
       }
     } else {
-      warning(paste("The value of time features to select is missing, setting to default: c('month', 'year'). ",
-                    "All available options are: c('",
-                    paste(all_time_features, collapse = "', '"), "')",
-                    sep = ""))
+      warning(base::paste("The value of time features to select is missing, setting to default: ",
+                          "c('month', 'year'). All available options are: c('",
+                          base::paste(all_time_features, collapse = "', '"), "')",
+                          sep = ""))
       lstm_keras_arg$time_features <- c("month", "year")
     }
     if ("seed" %in% base::names(lstm_keras_arg)) {
@@ -970,6 +1032,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   ts_name <- base::colnames(ts_data_xts)
   ts_freq <- stats::frequency(ts_data_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
@@ -1171,9 +1234,11 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                           raw_data = ts_data_xts,
                           save_fc_to_file = save_fc_to_file,
                           model_name = model_name,
+                          time_id = time_id,
+                          period_iter = period_iter,
                           model_args = lstm_keras_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }
@@ -1200,7 +1265,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param preprocess_fct A custom preprocessing function to deal with missing values
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param nb_cores A numeric, number of threads to use in parallel computed model selection process
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -1217,6 +1285,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
+#' ## End (Not run)
 #' @return A list, forecast object for each forecasted period
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,
@@ -1226,6 +1295,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    save_fc_to_file = NULL,
                                    preprocess_fct = NULL,
                                    automl_h2o_arg = NULL,
+                                   time_id = base::Sys.time(),
                                    nb_cores = 1,
                                    ...) {
   `%>%` <- magrittr::`%>%`
@@ -1235,6 +1305,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  time_id <- check_time_id(time_id)
   nb_cores <- check_nb_cores(nb_cores)
   model_output <- list()
   model_name <- "automl_h2o"
@@ -1245,117 +1316,128 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                           zoo::index() %>%
                                           lubridate::as_date()) %>%
     colnames()
-  if (is.null(automl_h2o_arg)) {
+  if (base::is.null(automl_h2o_arg)) {
     automl_h2o_arg <-
-      list(max_models = 5,
-           max_runtime_secs = 3600,
-           max_runtime_secs_per_model = 30,
-           stopping_metric = "MAE",
-           seed = NULL,
-           exclude_algos = NULL,
-           time_features = all_time_features,
-           valid_set_size = stats::frequency(ts_data_xts),
-           test_set_size = stats::frequency(ts_data_xts))
+      base::list(max_models = 5,
+                 max_runtime_secs = 3600,
+                 max_runtime_secs_per_model = 30,
+                 stopping_metric = "MAE",
+                 seed = NULL,
+                 exclude_algos = NULL,
+                 time_features = all_time_features,
+                 valid_set_size = stats::frequency(ts_data_xts),
+                 test_set_size = stats::frequency(ts_data_xts))
   } else {
-    if (!is.list(automl_h2o_arg)) {
-      warning(paste("The model arguments must be passed as a list! Setting to defaults: ",
-                    "list(max_models = 5, max_runtime_secs = 3600, max_runtime_secs_per_model = 30, ",
-                    "stopping_metric = 'MAE', seed = NULL, exclude_algos = NULL, ",
-                    "valid_set_size = frequency(ts_data), ",
-                    "test_set_size = frequency(ts_data))",
-                    sep = ""))
+    if (!base::is.list(automl_h2o_arg)) {
+      warning(base::paste("The model arguments must be passed as a list! ",
+                          " Setting to defaults: ",
+                          "list(max_models = 5, max_runtime_secs = 3600, ",
+                          "max_runtime_secs_per_model = 30, ",
+                          "stopping_metric = 'MAE', seed = NULL, ",
+                          "exclude_algos = NULL, ",
+                          "valid_set_size = frequency(ts_data), ",
+                          "test_set_size = frequency(ts_data))",
+                          sep = ""))
       automl_h2o_arg <-
-        list(max_models = 5,
-             max_runtime_secs = 3600,
-             max_runtime_secs_per_model = 30,
-             stopping_metric = "MAE",
-             seed = NULL,
-             exclude_algos = NULL,
-             time_features = all_time_features,
-             valid_set_size = stats::frequency(ts_data_xts),
-             test_set_size = stats::frequency(ts_data_xts))
+        base::list(max_models = 5,
+                   max_runtime_secs = 3600,
+                   max_runtime_secs_per_model = 30,
+                   stopping_metric = "MAE",
+                   seed = NULL,
+                   exclude_algos = NULL,
+                   time_features = all_time_features,
+                   valid_set_size = stats::frequency(ts_data_xts),
+                   test_set_size = stats::frequency(ts_data_xts))
     }
-    if (!is.null(automl_h2o_arg$max_models)) {
-      if (!is.numeric(automl_h2o_arg$max_models)) {
-        warning("Value of max models is invalid. Setting to default: 10")
+    if (!base::is.null(automl_h2o_arg$max_models)) {
+      if (!base::is.numeric(automl_h2o_arg$max_models)) {
+        warning("The value of the 'max_models' argument is invalid. Setting to default: 10")
         automl_h2o_arg$max_models <- 5
       }
     } else {
-      warning("Value of max models is missing. Setting to default: 10")
+      warning("The value of the 'max_models' argument is missing. Setting to default: 10")
       automl_h2o_arg$max_models <- 5
     }
-    if ("max_runtime_secs" %in% names(automl_h2o_arg)) {
-      if (!is.numeric(automl_h2o_arg$max_runtime_secs)) {
-        warning("Value of maximum runtime seconds is invalid. Setting to default: 3600")
+    if ("max_runtime_secs" %in% base::names(automl_h2o_arg)) {
+      if (!base::is.numeric(automl_h2o_arg$max_runtime_secs)) {
+        warning("The value of the 'max_runtime_secs' argument is invalid. Setting to default: 3600")
         automl_h2o_arg$max_runtime_secs <- 3600
       }
     } else {
-      warning("Value of maximum runtime seconds is missing. Setting to default: 3600")
+      warning("The value of the 'max_runtime_secs' argument is missing. Setting to default: 3600")
       automl_h2o_arg$max_runtime_secs <- 3600
     }
-    if ("max_runtime_secs" %in% names(automl_h2o_arg)) {
+    if ("max_runtime_secs" %in% base::names(automl_h2o_arg)) {
       if (!is.numeric(automl_h2o_arg$max_runtime_secs_per_model)) {
-        warning("Value of maximum runtime seconds per model is invalid. Setting to default: 0 (to disable)")
+        warning(base::paste("The value of the 'max_runtime_secs_per_model' argument is invalid. ",
+                            "Setting to default: 0 (to disable)",
+                            sep = ""))
         automl_h2o_arg$max_runtime_secs_per_model <- 30
       }
     } else {
-      warning("Value of maximum runtime seconds per model is missing. Setting to default: 0 (to disable)")
+      warning(base::paste("The value of the 'max_runtime_secs_per_model' argument is missing. ",
+                          "Setting to default: 0 (to disable)",
+                          sep = ""))
       automl_h2o_arg$max_runtime_secs_per_model <- 30
     }
-    if ("stopping_metric" %in% names(automl_h2o_arg)) {
+    if ("stopping_metric" %in% base::names(automl_h2o_arg)) {
       if (!automl_h2o_arg$stopping_metric %in% c("AUTO", "deviance", "logloss",
                                                  "MSE", "RMSE", "MAE", "RMSLE")) {
-        warning("Value for stopping metric is invalid. Setting to default: 'MAE'")
+        warning("The value of the 'stopping_metric' argument is invalid. Setting to default: 'MAE'")
         automl_h2o_arg$stopping_metric <- 'MAE'
       }
     } else {
-      warning("Value for stopping metric is missing. Setting to default: 'MAE'")
+      warning("The value of the 'stopping_metric' argument is missing. Setting to default: 'MAE'")
       automl_h2o_arg$stopping_metric <- "MAE"
     }
-    if (!is.null(automl_h2o_arg$seed)) {
-      if (!is.numeric(automl_h2o_arg$seed)) {
-        warning("Value for seed is invalid. Setting to default: NULL")
+    if (!base::is.null(automl_h2o_arg$seed)) {
+      if (!base::is.numeric(automl_h2o_arg$seed)) {
+        warning("The value of the 'seed' argument is invalid. Setting to default: NULL")
         automl_h2o_arg$seed <- NULL
       }
     }
-    if (!is.null(automl_h2o_arg$exclude_algos)) {
-      if (!is.character(automl_h2o_arg$exclude_algos)) {
-        warning("Value for excluding algos is invalid. Setting to default: NULL")
+    if (!base::is.null(automl_h2o_arg$exclude_algos)) {
+      if (!base::is.character(automl_h2o_arg$exclude_algos)) {
+        warning("The value of the 'exclude_algos' argument is invalid. Setting to default: NULL")
         automl_h2o_arg$exclude_algos <- NULL
       }
     }
-    if ("time_features" %in% names(automl_h2o_arg)) {
-      if (sum(!automl_h2o_arg$time_features %in% all_time_features) > 0) {
-        warning(paste("These values for time_features are invalid: ",
-                      automl_h2o_arg$time_features %>%
-                        .[!. %in% all_time_features],
-                      ". ",
-                      "Setting to default: ",
-                      "c('",
-                      paste(all_time_features, collapse = "', '"),
-                      "')",
-                      sep = ""))
+    if ("time_features" %in% base::names(automl_h2o_arg)) {
+      if (base::sum(!automl_h2o_arg$time_features %in% all_time_features) > 0) {
+        warning(base::paste("These values of the 'time_features' argument are invalid: ",
+                            automl_h2o_arg$time_features %>%
+                              .[!. %in% all_time_features],
+                            ". ",
+                            "Setting to default: ",
+                            "c('",
+                            base::paste(all_time_features, collapse = "', '"),
+                            "')",
+                            sep = ""))
         automl_h2o_arg$time_features <- all_time_features
       }
     } else {
-      warning(paste("Value for time_features are missing. Setting to default: ",
-                    "c('",
-                    paste(all_time_features, collapse = "', '"),
-                    "')",
-                    sep = ""))
+      warning(base::paste("The value of the 'time_features' argument is missing. ",
+                          "Setting to default: c('",
+                          paste(all_time_features, collapse = "', '"),
+                          "')",
+                          sep = ""))
       automl_h2o_arg$time_features <- all_time_features
     }
-    if ("valid_set_size" %in% names(automl_h2o_arg)) {
-      if (!is.numeric(automl_h2o_arg$valid_set_size)) {
-        warning("Value for validation set size is invalid. Setting to default: frequency(ts_data)")
+    if ("valid_set_size" %in% base::names(automl_h2o_arg)) {
+      if (!base::is.numeric(automl_h2o_arg$valid_set_size)) {
+        warning(base::paste("The value of the 'valid_set_size' argument is invalid. ",
+                            "Setting to default: frequency(ts_data)",
+                            sep = ""))
         automl_h2o_arg$valid_set_size <- stats::frequency(ts_data_xts)
       }
     } else {
       automl_h2o_arg$valid_set_size <- stats::frequency(ts_data_xts)
     }
-    if ("test_set_size" %in% names(automl_h2o_arg)) {
-      if (!is.numeric(automl_h2o_arg$test_set_size)) {
-        warning("Value for test set size is invalid. Setting to default: frequency(ts_data)")
+    if ("test_set_size" %in% base::names(automl_h2o_arg)) {
+      if (!base::is.numeric(automl_h2o_arg$test_set_size)) {
+        warning(base::paste("The value of the 'test_set_size' argument is invalid. ",
+                            "Setting to default: frequency(ts_data)",
+                            sep = ""))
         automl_h2o_arg$test_set_size <- stats::frequency(ts_data_xts)
       }
     } else {
@@ -1369,6 +1451,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                      backtesting_opt = backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
+    period_iter <- base::paste("period_", bt_iter, sep = "")
     sample_split <- split_train_test_set(ts_contiguous_data,
                                          fc_horizon,
                                          bt_iter,
@@ -1434,7 +1517,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
       dplyr::mutate_if(base::is.ordered, ~base::as.character(.)
                        %>% base::as.factor()) %>%
       h2o::as.h2o()
-    y <- colnames(ts_data_xts)
+    y <- base::colnames(ts_data_xts)
     x <- dplyr::setdiff(base::names(train_h2o), y)
     automl_models_h2o <- h2o::h2o.automl(x = x,
                                          y = y,
@@ -1454,9 +1537,11 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                           raw_data = ts_data_xts,
                           save_fc_to_file= save_fc_to_file,
                           model_name = model_name,
+                          time_id = time_id,
+                          period_iter = period_iter,
                           model_args = automl_h2o_arg)
-    base::eval(base::parse(text = base::paste("model_output$period_",
-                                              bt_iter,
+    base::eval(base::parse(text = base::paste("model_output$",
+                                              period_iter,
                                               "$fc <- results",
                                               sep = "")))
   }

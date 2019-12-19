@@ -79,6 +79,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
                                  ...) {
   `%>%` <- magrittr::`%>%`
   split <- base::list()
+  x_train <- x_valid <- x_tmp_test <- x_test <- NULL
   input_data_xts <- check_data_sv_as_xts(input_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   valid_set_size <- check_valid_set_size(valid_set_size)
@@ -88,66 +89,73 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   backtesting_sample_size <- backtesting_opt$sample_size
   backtesting_method <- backtesting_opt$method
   nb_periods <- backtesting_opt$nb_iters
-  if (backtesting_opt$use_bt) {
-    if ((backtesting_sample_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
-      last_train_pos <-
-        (base::nrow(input_data_xts)
-         - fc_horizon
-         - nb_periods
-         + bt_iter
-         - valid_set_size
-         - tmp_test_set_size)
-      x_train <- input_data_xts[1:(last_train_pos), ]
-    } else if ((backtesting_sample_size[1] == 'expanding' & backtesting_method[1] == 'moving')) {
-      last_train_pos <-
-        (base::nrow(input_data_xts)
-         - fc_horizon * (nb_periods - bt_iter + 1)
-         - valid_set_size
-         - tmp_test_set_size)
-      x_train <- input_data_xts[1:(last_train_pos), ]
-    } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'rolling')) {
-      last_train_pos <-
-        (base::nrow(input_data_xts)
-         - fc_horizon
-         - nb_periods
-         + bt_iter
-         - valid_set_size
-         - tmp_test_set_size)
-      x_train <- input_data_xts[(1 + bt_iter - 1):(last_train_pos), ]
-    } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'moving')) {
-      last_train_pos <-
-        (base::nrow(input_data_xts)
-         - fc_horizon * (nb_periods - bt_iter + 1)
-         - valid_set_size
-         - tmp_test_set_size)
-      x_train <- input_data_xts[(1 + fc_horizon * (bt_iter - 1)):(last_train_pos), ]
+  tryCatch(
+    {
+      if (backtesting_opt$use_bt) {
+        if ((backtesting_sample_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
+          last_train_pos <-
+            (base::nrow(input_data_xts)
+             - fc_horizon
+             - nb_periods
+             + bt_iter
+             - valid_set_size
+             - tmp_test_set_size)
+          x_train <- input_data_xts[1:(last_train_pos), ]
+        } else if ((backtesting_sample_size[1] == 'expanding' & backtesting_method[1] == 'moving')) {
+          last_train_pos <-
+            (base::nrow(input_data_xts)
+             - fc_horizon * (nb_periods - bt_iter + 1)
+             - valid_set_size
+             - tmp_test_set_size)
+          x_train <- input_data_xts[1:(last_train_pos), ]
+        } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'rolling')) {
+          last_train_pos <-
+            (base::nrow(input_data_xts)
+             - fc_horizon
+             - nb_periods
+             + bt_iter
+             - valid_set_size
+             - tmp_test_set_size)
+          x_train <- input_data_xts[(1 + bt_iter - 1):(last_train_pos), ]
+        } else if ((backtesting_sample_size[1] == 'fixed' & backtesting_method[1] == 'moving')) {
+          last_train_pos <-
+            (base::nrow(input_data_xts)
+             - fc_horizon * (nb_periods - bt_iter + 1)
+             - valid_set_size
+             - tmp_test_set_size)
+          x_train <- input_data_xts[(1 + fc_horizon * (bt_iter - 1)):(last_train_pos), ]
+        }
+      } else {
+        last_train_pos <-
+          (base::nrow(input_data_xts)
+           - valid_set_size
+           - tmp_test_set_size
+           - fc_horizon)
+        x_train <- input_data_xts[1:(last_train_pos), ]
+      }
+      last_valid_pos <-
+        (last_train_pos
+         + valid_set_size)
+      last_tmp_test_pos <-
+        (last_valid_pos
+         + tmp_test_set_size)
+      if (valid_set_size == 0) {
+        x_valid <- NULL
+      } else {
+        x_valid <- input_data_xts[(last_train_pos + 1):(last_valid_pos), ]
+      }
+      if (tmp_test_set_size == 0) {
+        x_tmp_test <- NULL
+      } else {
+        x_tmp_test <- input_data_xts[(last_valid_pos + 1):(last_tmp_test_pos), ]
+      }
+      x_test <- input_data_xts[(last_tmp_test_pos + 1):(last_tmp_test_pos + fc_horizon), ]
+    },
+    error = function(e) {
+      warning(e)
     }
-  } else {
-    last_train_pos <-
-      (base::nrow(input_data_xts)
-       - valid_set_size
-       - tmp_test_set_size
-       - fc_horizon)
-    x_train <- input_data_xts[1:(last_train_pos), ]
-  }
-  last_valid_pos <-
-    (last_train_pos
-     + valid_set_size)
-  last_tmp_test_pos <-
-    (last_valid_pos
-     + tmp_test_set_size)
-  if (valid_set_size == 0) {
-    x_valid <- NULL
-  } else {
-    x_valid <- input_data_xts[(last_train_pos + 1):(last_valid_pos), ]
-  }
-  if (tmp_test_set_size == 0) {
-    x_tmp_test <- NULL
-  } else {
-    x_tmp_test <- input_data_xts[(last_valid_pos + 1):(last_tmp_test_pos), ]
-  }
-  x_test <- input_data_xts[(last_tmp_test_pos + 1):(last_tmp_test_pos + fc_horizon), ]
-  split <- list(x_train, x_valid, x_tmp_test, x_test)
+  )
+  split <- base::list(x_train, x_valid, x_tmp_test, x_test)
   base::names(split) <- c("train", "valid", "tmp_test", "test")
   return(split)
 }
@@ -157,15 +165,17 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' to determine the number of differencing to obtain a stationary time series.
 #' @param input_data A univariate or multivariate ts, mts or xts object
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #' nb_diffs(AirPassengers)
+#' ## End (Not run)
 #' @return A list, training, validation and test sets
 nb_diffs <- function(input_data, ...) {
   `%>%` <- magrittr::`%>%`
   input_data <-
     check_data_sv_as_xts(input_data) %>%
     timeSeries::na.contiguous()
-  ts_data <- input_data %>% as.ts()
+  ts_data <- input_data %>% stats::as.ts()
   ns_diffs <-
     tryCatch({
       forecast::nsdiffs(ts_data, ...)
@@ -178,8 +188,8 @@ nb_diffs <- function(input_data, ...) {
     }, error = function(e) {
       return(0)
     })
-  list_diffs <- list(ns_diffs, ndiffs)
-  names(list_diffs) <- c("ns_diffs", "ndiffs")
+  list_diffs <- base::list(ns_diffs, ndiffs)
+  base::names(list_diffs) <- c("ns_diffs", "ndiffs")
   return(list_diffs)
 }
 
@@ -187,33 +197,35 @@ nb_diffs <- function(input_data, ...) {
 #' @description The user can specify a custom preprocessing function to deal with missing values
 #' @param ts_data_xts A ts, mts or xts object
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #' library(timeSeries)
 #' preprocessing(AirPassengers, timeSeries::na.contiguous)
 #'
 #' library(imputeTS)
 #' preprocessing(AirPassengers, imputeTS::na.mean)
+#' ## End (Not run)
 #' @return An xts object
 preprocess_custom_fct <- function(input_data, fct = NULL) {
   `%>%` <- magrittr::`%>%`
   ts_data <- check_data_sv_as_xts(input_data)
   fct <- check_preprocess_fct(fct)
-  if (is.null(fct)) {
+  if (base::is.null(fct)) {
     transformed_data <- ts_data
-  } else if (is.function(fct)) {
+  } else if (base::is.function(fct)) {
     transformed_data <-
       ts_data %>%
       fct()
-  } else if (is.list(fct)) {
+  } else if (base::is.list(fct)) {
     custom_fct <- fct[[1]]
-    if (!is.function(custom_fct)) {
+    if (!base::is.function(custom_fct)) {
       warning("First argument in list must be a function! Using no transformation by default")
       transformed_data <- ts_data
     } else {
       fct_args <- fct[[-1]]
       transformed_data <-
         ts_data %>%
-        do.call(., custom_fct, c(fct_args))
+        base::do.call(., custom_fct, c(fct_args))
     }
   } else {
     warning("Arguments were invalid. No transformation will be applied!")
@@ -265,8 +277,8 @@ normalize_data <- function(data_df) {
                                                  }",
                                               sep = "")))
   }
-  normalized_data <- list(df, scalers)
-  names(normalized_data) <- c("data", "scalers")
+  normalized_data <- base::list(df, scalers)
+  base::names(normalized_data) <- c("data", "scalers")
   return(normalized_data)
 }
 

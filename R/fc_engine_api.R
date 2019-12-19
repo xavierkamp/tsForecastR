@@ -18,8 +18,10 @@
 #' @param model_names A list or character, names of models to apply
 #' @param model_args A list, optional arguments to pass to the models
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param use_parallel A boolean, apply parallel processing
 #' @examples
+#' ## Not run:
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -54,6 +56,7 @@
 #'                   fc_horizon = 6,
 #'                   backtesting_opt = list(use_bt = TRUE,
 #'                                          nb_iters = 6))
+#' ## End (Not run)
 #' @return A list
 #' @export
 generate_fc <- function(mts_data, fc_horizon = 12,
@@ -64,12 +67,13 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                           "moving"),
                                                sample_size = c("expanding",
                                                                "fixed")),
-                        model_names = c("arima", "ets", "tbats",
+                        model_names = c("arima", "ets", "tbats", "bsts",
                                         "snaive", "nnetar", "stl",
                                         "lstm_keras", "automl_h2o"),
                         preprocess_fct = NULL,
                         models_args = NULL,
                         save_fc_to_file = NULL,
+                        time_id = base::Sys.time(),
                         nb_cores = 1,
                         ...) {
   `%>%` <- magrittr::`%>%`
@@ -95,6 +99,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   nb_cores <- check_nb_cores(nb_cores)
+  time_id <- check_time_id(time_id)
   if (nb_cores > 1) {
     use_parallel <- TRUE
   } else {
@@ -123,6 +128,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
                                                   "preprocess_fct = preprocess_fct, ",
+                                                  "time_id = time_id, ",
                                                   model_name, "_arg = models_args$",
                                                   model_name, "_arg)",
                                                   sep = "")))
@@ -143,6 +149,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
                                                   "preprocess_fct = preprocess_fct, ",
+                                                  "time_id = time_id, ",
                                                   "nb_cores = nb_cores, ",
                                                   model_name, "_arg = models_args$",
                                                   model_name, "_arg)",
@@ -164,6 +171,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                   "backtesting_opt = backtesting_opt, ",
                                                   "save_fc_to_file = save_fc_to_file, ",
                                                   "preprocess_fct = preprocess_fct, ",
+                                                  "time_id = time_id, ",
                                                   "nb_cores = nb_cores, ",
                                                   model_name, "_arg = models_args$",
                                                   model_name, "_arg)",

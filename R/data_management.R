@@ -2,10 +2,10 @@
 #' @param model_name A string
 print_model_name <- function(model_name) {
   model_name <- check_model_names(model_name)
-  cat(paste("Currently forecasting with: ",
-            model_name,
-            "\n",
-            sep = ""))
+  cat(base::paste("Currently forecasting with: ",
+                  model_name,
+                  "\n",
+                  sep = ""))
 }
 
 #' Extract forecasts and prediction intervals from list
@@ -16,38 +16,40 @@ print_model_name <- function(model_name) {
 #' @return A data.frame
 get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
   `%>%` <- magrittr::`%>%`
-  if (!is.list(fc_obj)) {
-    stop(paste("Input data must be a list! To save forecasts, ",
-               "forecasts must be passed as a data.frame in a list under the keyword 'mean'!",
-               sep = ""))
+  if (!base::is.list(fc_obj)) {
+    stop(base::paste("Input data must be a list! To save forecasts, ",
+                     "forecasts must be passed as a data.frame in a list under the keyword 'mean'!",
+                     sep = ""))
   } else {
-    if (!"mean" %in% names(fc_obj)) {
+    if (!"mean" %in% base::names(fc_obj)) {
       stop("Keyword 'mean' not found in list!")
-    } else if (!is.data.frame(fc_obj$mean) & !is.ts(fc_obj$mean) & !is.numeric(fc_obj$mean)) {
+    } else if (!base::is.data.frame(fc_obj$mean)
+               & !stats::is.ts(fc_obj$mean)
+               & !base::is.numeric(fc_obj$mean)) {
       stop("Object stored as 'mean' in list is not a data.frame, ts obj or numeric!")
     }
   }
-  if (!is.logical(exclude_PI)) {
+  if (!base::is.logical(exclude_PI)) {
     warning("Argument to exclude prediction interval is invalid, using FALSE as default!")
     exclude_PI <- FALSE
   }
   if (exclude_PI) {
     fc <-
       fc_obj$mean %>%
-      as.data.frame() %>%
+      base::as.data.frame() %>%
       dplyr::mutate(key = "predict")
-    colnames(fc) <- c("values", "key")
+    base::colnames(fc) <- c("values", "key")
   } else {
     fc <-
       cbind(fc_obj$mean,
             fc_obj$lower,
             fc_obj$upper) %>%
-      as.data.frame() %>%
+      base::as.data.frame() %>%
       dplyr::mutate(key = "predict")
-    colnames(fc) <-
+    base::colnames(fc) <-
       c("values",
-        paste("lower", colnames(fc_obj$lower), sep = "_"),
-        paste("upper", colnames(fc_obj$upper), sep = "_"),
+        base::paste("lower", base::colnames(fc_obj$lower), sep = "_"),
+        base::paste("upper", base::colnames(fc_obj$upper), sep = "_"),
         "key")
   }
   return(fc)
@@ -64,7 +66,7 @@ collapse_model_par <- function(model_par_vector) {
   `%>%` <- magrittr::`%>%`
   model_par <-
     model_par_vector %>%
-    paste(names(.), ., collapse = ";")
+    base::paste(base::names(.), ., collapse = ";")
   return(model_par)
 }
 
@@ -78,8 +80,8 @@ format_historical_data <- function(data_xts) {
   `%>%` <- magrittr::`%>%`
   data_formated <-
     data_xts %>%
-    as.data.frame() %>%
-    dplyr::select("values" = colnames(.)) %>%
+    base::as.data.frame() %>%
+    dplyr::select("values" = base::colnames(.)) %>%
     dplyr::mutate(dates = zoo::index(data_xts) %>%
                     lubridate::as_date()) %>%
     dplyr::mutate(key = "actual")
@@ -89,6 +91,7 @@ format_historical_data <- function(data_xts) {
 #' Combine forecasting info
 #' @description
 #' This function combines every info which will be stored in a data table.
+#' @param ts_name A string
 #' @param model_name A string
 #' @param fc_formated A data.frame
 #' @param actual_formated A data.frame
@@ -96,14 +99,20 @@ format_historical_data <- function(data_xts) {
 #' @param model_descr A string
 #' @param model_par A string
 #' @param model_args A string
+#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
+#' @param run_time A string
 #' @return A data.frame object
-combine_fc_results <- function(model_name,
+combine_fc_results <- function(ts_name,
+                               model_name,
                                fc_formated,
                                actual_formated,
                                split_keys,
                                model_descr = NULL,
                                model_par = NULL,
-                               model_args = NULL) {
+                               model_args = NULL,
+                               period_iter = NULL,
+                               time_id = NULL,
+                               ...) {
   `%>%` <- magrittr::`%>%`
   data_join <-
     dplyr::bind_rows(actual_formated,
@@ -112,11 +121,14 @@ combine_fc_results <- function(model_name,
 
   results <-
     data_join %>%
-    dplyr::bind_cols(model = model_name %>% rep(., nrow(data_join)),
+    dplyr::bind_cols(ts_name = ts_name %>% base::rep(., base::nrow(data_join)),
+                     period = period_iter %>% base::rep(., base::nrow(data_join)),
+                     model = model_name %>% base::rep(., base::nrow(data_join)),
                      .,
-                     model_descr = model_descr %>% rep(., nrow(data_join)),
-                     model_par = model_par %>% rep(., nrow(data_join)),
-                     model_args = model_args %>% rep(., nrow(data_join)))
+                     model_descr = model_descr %>% base::rep(., base::nrow(data_join)),
+                     model_par = model_par %>% base::rep(., base::nrow(data_join)),
+                     model_args = model_args %>% base::rep(., base::nrow(data_join)),
+                     time_id = time_id %>% base::rep(., base::nrow(data_join)))
   return(results)
 }
 
@@ -135,7 +147,7 @@ get_split_keys <- function(sample_split) {
       dplyr::bind_rows(
         sample_split_df,
       sample_split[[split]] %>%
-        as.data.frame() %>%
+        base::as.data.frame() %>%
         dplyr::mutate(dates = sample_split[[split]] %>%
                         zoo::index() %>%
                         lubridate::as_date())%>%
@@ -158,24 +170,24 @@ extract_coef_arima <- function(fc_obj) {
   model_coef_1 <-
     fc_obj$model$coef %>%
     {
-      if (length(.) != 0) {
-        names(.) <- paste("coef.", names(.), sep = "")
+      if (base::length(.) != 0) {
+        base::names(.) <- base::paste("coef.", base::names(.), sep = "")
         .
       }
     }
   model_coef_2 <-
     fc_obj$model$var.coef %>%
     {
-      if (length(.) != 0) {
+      if (base::length(.) != 0) {
         var_name <- NULL
-        for (row_name in rownames(.)) {
-          for (col_name in colnames(.)) {
+        for (row_name in base::rownames(.)) {
+          for (col_name in base::colnames(.)) {
             var_name <- c(var_name,
-                          paste("var.",
-                                row_name,
-                                ".",
-                                col_name,
-                                sep = ""))
+                          base::paste("var.",
+                                      row_name,
+                                      ".",
+                                      col_name,
+                                      sep = ""))
           }
         }
         vectorized_data <- c(.)
@@ -223,9 +235,9 @@ extract_coef_nnetar <- function(fc_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef <-
     capture.output(fc_obj$model) %>%
-    paste(collapse = " ") %>%
+    base::paste(collapse = " ") %>%
     {
-      names(.) <- "msg"
+      base::names(.) <- "msg"
       .
     }
   return(model_coef)
@@ -242,107 +254,107 @@ extract_coef_tbats <- function(fc_obj) {
     c(
       fc_obj$model$lambda %>%
         {
-          if (!is.null(.)) {
+          if (!base::is.null(.)) {
           names(.) <- "lambda"
           }
           .
         },
       fc_obj$model$alpha %>%
         {
-          if (!is.null(.)) {
+          if (!base::is.null(.)) {
           names(.) <- "alpha"
           }
           .
         },
       fc_obj$model$beta %>%
         {
-          if (!is.null(.)) {
+          if (!base::is.null(.)) {
           names(.) <- "beta"
           }
           .
         },
       fc_obj$model$damping.parameter %>%
         {
-          if (!is.null(.)) {
+          if (!base::is.null(.)) {
           names(.) <- "damping.parameter"
           }
           .
         },
       fc_obj$model$gamma.one.values %>%
         {
-          if (!is.null(.)) {
-            names(.) <- paste("gamma.one.values",
-                              seq(nrow(.)),
-                              sep = "_")
+          if (!base::is.null(.)) {
+            base::names(.) <- base::paste("gamma.one.values",
+                                          base::seq(base::nrow(.)),
+                                          sep = "_")
           }
           .
         },
       fc_obj$model$gamma.two.values %>%
         {
-          if (!is.null(.)) {
-            names(.) <- paste("gamma.two.values",
-                              seq(nrow(.)),
-                              sep = "_")
+          if (!base::is.null(.)) {
+            base::names(.) <- base::paste("gamma.two.values",
+                                          base::seq(base::nrow(.)),
+                                          sep = "_")
           }
           .
         },
       fc_obj$model$ar.coefficients %>%
         {
-          if (!is.null(.)) {
-            names(.) <- paste("ar.coefficients",
-                              seq(nrow(.)),
-                              sep = "_")
+          if (!base::is.null(.)) {
+            base::names(.) <- base::paste("ar.coefficients",
+                                          base::seq(base::nrow(.)),
+                                          sep = "_")
           }
           .
         },
       fc_obj$model$ma.coefficients %>%
         {
-          if (!is.null(.)) {
-            names(.) <- paste("ma.coefficients",
-                              seq(nrow(.)),
-                              sep = "_")
+          if (!base::is.null(.)) {
+            base::names(.) <- base::paste("ma.coefficients",
+                                          base::seq(base::nrow(.)),
+                                          sep = "_")
           }
           .
         },
       fc_obj$model$optim.return.code %>%
         {
-          names(.) <- "optim.return.code"
+          base::names(.) <- "optim.return.code"
           .
         },
       fc_obj$model$seed.states %>%
         {
-          if (!is.null(.)) {
-            names(.) <- paste("seed.states",
-                              seq(nrow(.)),
-                              sep = "_")
+          if (!base::is.null(.)) {
+            base::names(.) <- base::paste("seed.states",
+                                          base::seq(base::nrow(.)),
+                                          sep = "_")
           }
           .
         },
       fc_obj$model$seasonal.periods %>%
         {
-          if (!is.null(.)) {
-          names(.) <- "seasonal.periods"
+          if (!base::is.null(.)) {
+            base::names(.) <- "seasonal.periods"
           }
           .
         },
       fc_obj$model$k.vector %>%
         {
-          if (!is.null(.)) {
-            names(.) <- "k.vector"
+          if (!base::is.null(.)) {
+            base::names(.) <- "k.vector"
           }
           .
         },
       fc_obj$model$p %>%
         {
-          if (!is.null(.)) {
-          names(.) <- "p"
+          if (!base::is.null(.)) {
+            base::names(.) <- "p"
           }
           .
         },
       fc_obj$model$q %>%
         {
-          if (!is.null(.)) {
-          names(.) <- "q"
+          if (!base::is.null(.)) {
+            base::names(.) <- "q"
           }
           .
         })
@@ -357,11 +369,15 @@ extract_coef_tbats <- function(fc_obj) {
 #' @param sample_split A list, the sample split
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
 #' @param exclude_PI A boolean, exclude prediction intervals in results
 #' @return A data frame
 save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                              save_fc_to_file, model_name,
+                             time_id = base::Sys.time(),
+                             period_iter = NULL,
                              model_args = NULL,
                              exclude_PI = FALSE, ...) {
   `%>%` <- magrittr::`%>%`
@@ -371,6 +387,8 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
   raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
+  time_id <- check_time_id(time_id)
+  period_iter <- check_period_iter(period_iter)
   pred_dates <-
     sample_split[["test"]] %>%
     zoo::index() %>%
@@ -388,17 +406,20 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
   model_descr <- fc_obj$method
   raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
-  results <- combine_fc_results(model_name,
-                                fc_formated,
-                                raw_data_formated,
-                                split_keys,
-                                model_descr,
-                                model_par,
-                                model_args)
-  if (!is.null(save_fc_to_file)) {
-    file_name <- paste(save_fc_to_file,
-                       colnames(ts_data_xts),
-                       sep = "/")
+  results <- combine_fc_results(ts_name = base::colnames(raw_data_xts),
+                                model_name = model_name,
+                                fc_formated = fc_formated,
+                                actual_formated = raw_data_formated,
+                                split_keys = split_keys,
+                                model_descr = model_descr,
+                                model_par = model_par,
+                                model_args = model_args,
+                                period_iter = period_iter,
+                                time_id = time_id)
+  if (!base::is.null(save_fc_to_file)) {
+    file_name <- base::paste(save_fc_to_file,
+                             base::colnames(ts_data_xts),
+                             sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
@@ -420,10 +441,14 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' @param sample_split A list, the sample split
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
 #' @return A data frame
 save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                          save_fc_to_file, model_name,
+                         time_id = base::Sys.time(),
+                         period_iter = NULL,
                          model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
@@ -433,6 +458,8 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
   raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
+  time_id <- check_time_id(time_id)
+  period_iter <- check_period_iter(period_iter)
   pred_dates <-
     sample_split[["test"]] %>%
     zoo::index() %>%
@@ -440,27 +467,30 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
   pred_int <-
     fc_obj$interval %>%
     {
-      rownames(.) <- c(paste("lower", rownames(.)[1], sep = "_"),
-                       paste("upper", rownames(.)[1], sep = "_"))
+      base::rownames(.) <- c(base::paste("lower", base::rownames(.)[1], sep = "_"),
+                             base::paste("upper", base::rownames(.)[1], sep = "_"))
       .
     } %>%
     t()
   fc_formated <-
     get_fc_with_PI(fc_obj, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates) %>%
-    cbind(., pred_int)
+    base::cbind(., pred_int)
   raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   model_args <- collapse_model_par(model_args)
-  results <- combine_fc_results(model_name = model_name,
+  results <- combine_fc_results(ts_name = base::colnames(raw_data_xts),
+                                model_name = model_name,
                                 fc_formated = fc_formated,
                                 actual_formated = raw_data_formated,
                                 split_keys = split_keys,
-                                model_args = model_args)
+                                model_args = model_args,
+                                period_iter = period_iter,
+                                time_id = time_id)
   if (!is.null(save_fc_to_file)) {
-    file_name <- paste(save_fc_to_file,
-                       colnames(ts_data_xts),
-                       sep = "/")
+    file_name <- base::paste(save_fc_to_file,
+                             base::colnames(ts_data_xts),
+                             sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
@@ -482,10 +512,14 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
 #' @param sample_split A list, the sample split
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
 #' @return A data frame
 save_fc_ml <- function(fc_obj, raw_data, sample_split,
                        save_fc_to_file, model_name,
+                       time_id = base::Sys.time(),
+                       period_iter = NULL,
                        model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
@@ -495,6 +529,8 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
   raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   model_name <- check_model_names(model_name)
+  time_id <- check_time_id(time_id)
+  period_iter <- check_period_iter(period_iter)
   pred_dates <-
     sample_split[["test"]] %>%
     zoo::index() %>%
@@ -507,15 +543,18 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
   raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   model_args <- collapse_model_par(model_args)
-  results <- combine_fc_results(model_name = model_name,
+  results <- combine_fc_results(ts_name = base::colnames(raw_data_xts),
+                                model_name = model_name,
                                 fc_formated = fc_formated,
                                 actual_formated = raw_data_formated,
                                 split_keys = split_keys,
-                                model_args = model_args)
-  if (!is.null(save_fc_to_file)) {
-    file_name <- paste(save_fc_to_file,
-                       colnames(ts_data_xts),
-                       sep = "/")
+                                model_args = model_args,
+                                period_iter = period_iter,
+                                time_id = time_id)
+  if (!base::is.null(save_fc_to_file)) {
+    file_name <- base::paste(save_fc_to_file,
+                             base::colnames(ts_data_xts),
+                             sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
