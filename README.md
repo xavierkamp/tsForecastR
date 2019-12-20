@@ -1,7 +1,5 @@
 # Time Series Forecasting
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-
 This project involves developing a forecasting engine which is capable of applying traditional time series and 
 machine learning models on individual and multiple time series (with or without a hierarchical structure). 
 The idea is to test and compare the forecasting accuracy of these methods through backtesting and identify 
