@@ -427,3 +427,83 @@ reshape_Y <- function(Y) {
   base::dim(Y) <- c(base::dim(Y)[1], 1)
   return(Y)
 }
+
+transform_data <- function(original_ts,
+                           transformed_ts = NULL,
+                           method = "diff",
+                           apply_transform = TRUE) {
+  original_ts <- check_data_sv_as_xts(original_ts)
+  transformed_ts <- check_data_sv_as_xts(transformed_ts)
+  if (!method %in% c("diff", "log", "sqrt")) {
+    warning("The value of the 'method' argument is invalid, using 'diff' as default!")
+    method <- "diff"
+  }
+  if (!base::is.logical(apply_transform)) {
+    warning("The value of the 'apply_transform' argument is invalid, using 'TRUE' as default!")
+    apply_transform <- TRUE
+  }
+  if (apply_transform) {
+    if (base::is.null(original_ts)) {
+      stop("To apply the transformation, data must be provided!")
+    }
+    if (method == "diff") {
+      transformed_ts <- base::diff(original_ts)
+    }
+    if (method == "log") {
+      y <-
+        (original_ts
+         + base::abs(base::min(base::min(original_ts,
+                                         na.rm = TRUE),
+                               0)))
+      transformed_ts <- base::log(y + 1)
+    }
+    if (method == "sqrt") {
+      y <-
+        (original_ts
+         + base::abs(base::min(base::min(original_ts,
+                                         na.rm = TRUE),
+                               0)))
+      transformed_ts <- base::sqrt(y)
+    }
+    return(transformed_ts)
+  } else {
+    if (base::is.null(transformed_ts)) {
+      stop("To undo the transformation, the transformed data must be provided!")
+    }
+    if (base::is.null(original_ts)) {
+      stop("To undo the transformation, the original untransformed data must be provided!")
+    }
+    if (method == "diff") {
+      sum_data <- original_ts[1]
+      theor_trans_ts <-
+        base::diff(original_ts) %>%
+        xts::merge.xts(., transformed_ts, join = "outer") %>%
+        .[, 1]
+      theor_trans_ts[zoo::index(theor_trans_ts) %in% zoo::index(transformed_ts)] <- transformed_ts
+      undo_theo_trans_ts <- theor_trans_ts
+      for (num in 1:base::nrow(theor_trans_ts)) {
+        sum_data <-
+          (base::as.numeric(sum_data)
+           + imputeTS::na.replace(theor_trans_ts[num]))
+        undo_theo_trans_ts[num] <- sum_data
+      }
+      undo_trans_ts <- undo_theo_trans_ts[zoo::index(undo_theo_trans_ts) %in% zoo::index(transformed_ts)]
+    }
+    if (method == "log") {
+      undo_trans_ts <-
+        (base::exp(transformed_ts)
+         - 1
+         - base::abs(base::min(base::min(original_ts,
+                                         na.rm = TRUE),
+                               0)))
+    }
+    if (method == "sqrt") {
+      undo_trans_ts <-
+        (transformed_ts^2
+         - base::abs(base::min(base::min(original_ts,
+                                         na.rm = TRUE),
+                               0)))
+    }
+    return(undo_trans_ts)
+  }
+}

@@ -467,11 +467,11 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
   pred_int <-
     fc_obj$interval %>%
     {
-      base::rownames(.) <- c(base::paste("lower", base::rownames(.)[1], sep = "_"),
-                             base::paste("upper", base::rownames(.)[1], sep = "_"))
+      base::colnames(.) <- c(base::paste("lower", base::colnames(.)[1], sep = "_"),
+                             base::paste("upper", base::colnames(.)[1], sep = "_"))
       .
     } %>%
-    t()
+    as.data.frame()
   fc_formated <-
     get_fc_with_PI(fc_obj, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates) %>%
@@ -523,8 +523,8 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                        model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
-  if (!is.data.frame(fc_obj)) {
-    stop("Forecasts must be passed as a data.frame object!")
+  if (!base::is.data.frame(fc_obj)) {
+    stop("Forecasts must be passed as an xts object!")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)

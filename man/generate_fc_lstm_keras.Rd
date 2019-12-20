@@ -11,6 +11,7 @@ generate_fc_lstm_keras(
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
+  data_transf_method = "diff",
   lstm_keras_arg = NULL,
   time_id = base::Sys.time(),
   ...

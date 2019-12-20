@@ -680,6 +680,7 @@ generate_fc_bsts <- function(ts_data_xts,
                              backtesting_opt = NULL,
                              save_fc_to_file = NULL,
                              preprocess_fct = NULL,
+                             data_transf_method = "diff",
                              bsts_arg = NULL,
                              time_id = base::Sys.time(),
                              ...){
@@ -781,14 +782,26 @@ generate_fc_bsts <- function(ts_data_xts,
   if (bsts_arg$seasonal) {
     ss <- bsts::AddSeasonal(ss, ts_data_xts, nseasons = stats::frequency(ts_data_xts))
   }
-  ts_contiguous_data <-
+  ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
-    add_placeholders(fc_horizon,
-                     backtesting_opt)
+                          preprocess_fct)
+  nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
+  if (nb_diffs > 0) {
+    ts_transformed_data <-
+      ts_preprocessed_data %>%
+      transform_data(., method = data_transf_method) %>%
+      timeSeries::na.contiguous() %>%
+      add_placeholders(fc_horizon,
+                       backtesting_opt)
+  } else {
+    ts_transformed_data <-
+      ts_preprocessed_data %>%
+      add_placeholders(fc_horizon,
+                       backtesting_opt)
+  }
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     period_iter <- base::paste("period_", bt_iter, sep = "")
-    sample_split <- split_train_test_set(ts_contiguous_data,
+    sample_split <- split_train_test_set(ts_transformed_data,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
                                          backtesting_opt = backtesting_opt)
@@ -806,6 +819,31 @@ generate_fc_bsts <- function(ts_data_xts,
     }
     fc <- stats::predict(md, horizon = fc_horizon,
                          quantiles = c(0.025, 0.975))
+    fc$mean <- fc$mean %>% xts::as.xts(order.by = zoo::index(x_test))
+    fc$median <- fc$median %>% xts::as.xts(order.by = zoo::index(x_test))
+    fc$interval <- t(fc$interval) %>% xts::as.xts(order.by = zoo::index(x_test))
+    if (nb_diffs > 0) {
+      fc$mean <-
+        fc$mean %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE)
+      fc$median <-
+        fc$median %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE)
+      fc$interval[,1] <-
+        fc$interval[, 1] %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE)
+      fc$interval[, 2] <-
+        fc$interval[, 2] %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE)
+    }
     results <- save_fc_bsts(fc_obj = fc,
                             sample_split = sample_split,
                             raw_data = ts_data_xts,
@@ -870,6 +908,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                    backtesting_opt = NULL,
                                    save_fc_to_file = NULL,
                                    preprocess_fct = NULL,
+                                   data_transf_method = "diff",
                                    lstm_keras_arg = NULL,
                                    time_id = base::Sys.time(),
                                    ...) {
@@ -887,8 +926,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     timetk::tk_get_timeseries_signature(ts_data_xts %>%
                                           zoo::index() %>%
                                           lubridate::as_date()) %>%
-    colnames()
-  nb_diffs <- nb_diffs(ts_data_xts)
+    base::colnames()
   if (base::is.null(lstm_keras_arg)) {
     lstm_keras_arg = base::list(valid_set_size = stats::frequency(ts_data_xts),
                                 stateful = FALSE,
@@ -906,7 +944,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                 optimizer_type = "adam",
                                 patience = 20,
                                 verbose = TRUE,
-                                seed = NULL,
+                                seed = 1234,
                                 time_features = c("month", "year"))
   } else {
     if ("valid_set_size" %in% base::names(lstm_keras_arg)) {
@@ -1005,12 +1043,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     }
     if ("seed" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$seed)) {
-        warning("The value of seed is invalid, using NULL as default")
-        lstm_keras_arg$seed <- NULL
+        warning("The value of seed is invalid, using 1234 as default")
+        lstm_keras_arg$seed <- 1234
       }
     } else {
-      warning("The value of seed is missing, using NULL as default")
-      lstm_keras_arg$seed <- NULL
+      warning("The value of seed is missing, using 1234 as default")
+      lstm_keras_arg$seed <- 1234
     }
   }
   if (is.null(lstm_keras_arg$seed)) {
@@ -1023,9 +1061,21 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                disable_gpu = TRUE,
                                disable_parallel_cpu = TRUE)
   callbacks <- base::list(keras::callback_early_stopping(patience = lstm_keras_arg$patience))
-  ts_contiguous_data <-
+  ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          preprocess_fct)
+  nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
+  if (nb_diffs > 0) {
+    ts_transformed_data <-
+      ts_preprocessed_data %>%
+      transform_data(., method = data_transf_method)
+  } else {
+    ts_transformed_data <-
+      ts_preprocessed_data
+  }
+  ts_features <-
+    ts_transformed_data %>%
+    timeSeries::na.contiguous() %>%
     add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
@@ -1033,7 +1083,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   ts_freq <- stats::frequency(ts_data_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     period_iter <- base::paste("period_", bt_iter, sep = "")
-    sample_split <- split_train_test_set(ts_contiguous_data,
+    sample_split <- split_train_test_set(ts_features,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
                                          valid_set_size = lstm_keras_arg$valid_set_size,
@@ -1062,7 +1112,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
       timetk::tk_augment_timeseries_signature()
     ts_data <-
       dplyr::bind_rows(ts_train, ts_valid, ts_test) %>%
-      dplyr::select(base::list(colnames(ts_contiguous_data),
+      dplyr::select(base::list(colnames(ts_features),
                                lstm_keras_arg$time_features,
                                "key") %>%
                       base::unlist())
@@ -1222,13 +1272,25 @@ generate_fc_lstm_keras <- function(ts_data_xts,
           utils::tail(pred_list, lstm_keras_arg$nb_timesteps)
       }
     }
-    fc <-
+    fc_transformed <-
       pred_list %>%
       base::matrix(., nrow = fc_horizon, ncol = 1) %>%
       {
          . * scale_history + mean_history
       } %>%
-      as.data.frame()
+      xts::as.xts(order.by = zoo::index(sample_split[["test"]]))
+    if (nb_diffs > 0) {
+      fc <-
+        fc_transformed %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE) %>%
+        as.data.frame()
+    } else {
+      fc <-
+        fc_transformed %>%
+        as.data.frame()
+    }
     results <- save_fc_ml(fc_obj = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
@@ -1294,6 +1356,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    backtesting_opt = NULL,
                                    save_fc_to_file = NULL,
                                    preprocess_fct = NULL,
+                                   data_transf_method = "diff",
                                    automl_h2o_arg = NULL,
                                    time_id = base::Sys.time(),
                                    nb_cores = 1,
@@ -1322,8 +1385,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                  max_runtime_secs = 3600,
                  max_runtime_secs_per_model = 30,
                  stopping_metric = "MAE",
-                 seed = NULL,
-                 exclude_algos = NULL,
+                 seed = 1234,
+                 algos_to_exclude = "StackedEnsemble",
                  time_features = all_time_features,
                  valid_set_size = stats::frequency(ts_data_xts),
                  test_set_size = stats::frequency(ts_data_xts))
@@ -1333,8 +1396,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                           " Setting to defaults: ",
                           "list(max_models = 5, max_runtime_secs = 3600, ",
                           "max_runtime_secs_per_model = 30, ",
-                          "stopping_metric = 'MAE', seed = NULL, ",
-                          "exclude_algos = NULL, ",
+                          "stopping_metric = 'MAE', seed = 1234, ",
+                          "algos_to_exclude = NULL, ",
                           "valid_set_size = frequency(ts_data), ",
                           "test_set_size = frequency(ts_data))",
                           sep = ""))
@@ -1343,8 +1406,8 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                    max_runtime_secs = 3600,
                    max_runtime_secs_per_model = 30,
                    stopping_metric = "MAE",
-                   seed = NULL,
-                   exclude_algos = NULL,
+                   seed = 1234,
+                   algos_to_exclude = "StackedEnsemble",
                    time_features = all_time_features,
                    valid_set_size = stats::frequency(ts_data_xts),
                    test_set_size = stats::frequency(ts_data_xts))
@@ -1392,15 +1455,18 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     }
     if (!base::is.null(automl_h2o_arg$seed)) {
       if (!base::is.numeric(automl_h2o_arg$seed)) {
-        warning("The value of the 'seed' argument is invalid. Setting to default: NULL")
-        automl_h2o_arg$seed <- NULL
+        warning("The value of the 'seed' argument is invalid. Setting to default: 1234")
+        automl_h2o_arg$seed <- 1234
       }
     }
-    if (!base::is.null(automl_h2o_arg$exclude_algos)) {
-      if (!base::is.character(automl_h2o_arg$exclude_algos)) {
-        warning("The value of the 'exclude_algos' argument is invalid. Setting to default: NULL")
-        automl_h2o_arg$exclude_algos <- NULL
+    if (!base::is.null(automl_h2o_arg$algos_to_exclude)) {
+      if (!base::is.character(automl_h2o_arg$algos_to_exclude)) {
+        warning("The value of the 'exclude_algos' argument is invalid. Setting to default: 'StackedEnsemble'")
+        automl_h2o_arg$algos_to_exclude <- "StackedEnsemble"
       }
+    } else {
+      warning("The value of the 'exclude_algos' argument is missing Setting to default: 'StackedEnsemble'")
+      automl_h2o_arg$algos_to_exclude <- "StackedEnsemble"
     }
     if ("time_features" %in% base::names(automl_h2o_arg)) {
       if (base::sum(!automl_h2o_arg$time_features %in% all_time_features) > 0) {
@@ -1444,15 +1510,27 @@ generate_fc_automl_h2o <- function(ts_data_xts,
       automl_h2o_arg$test_set_size <- stats::frequency(ts_data_xts)
     }
   }
-  ts_contiguous_data <-
+  ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
-    add_placeholders(fc_horizon = fc_horizon,
-                     backtesting_opt = backtesting_opt) %>%
+                          preprocess_fct)
+  nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
+  if (nb_diffs > 0) {
+    ts_transformed_data <-
+      ts_preprocessed_data %>%
+      transform_data(., method = data_transf_method)
+  } else {
+    ts_transformed_data <-
+      ts_preprocessed_data
+  }
+  ts_features <-
+    ts_transformed_data %>%
+    timeSeries::na.contiguous() %>%
+    add_placeholders(fc_horizon,
+                     backtesting_opt) %>%
     add_features(xreg_xts)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
     period_iter <- base::paste("period_", bt_iter, sep = "")
-    sample_split <- split_train_test_set(ts_contiguous_data,
+    sample_split <- split_train_test_set(ts_features,
                                          fc_horizon,
                                          bt_iter,
                                          automl_h2o_arg$valid_set_size,
@@ -1488,7 +1566,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
       timetk::tk_augment_timeseries_signature()
     ts_data <-
       dplyr::bind_rows(ts_train, ts_valid, ts_tmp_test, ts_test) %>%
-      dplyr::select(base::list(colnames(ts_contiguous_data),
+      dplyr::select(base::list(colnames(ts_features),
                                automl_h2o_arg$time_features,
                                "key") %>%
                       base::unlist())
@@ -1531,8 +1609,23 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                          seed = automl_h2o_arg$seed,
                                          exclude_algos = automl_h2o_arg$algos_to_exclude)
     h2o_model <- automl_models_h2o@leader
-    pred_h2o <- h2o::h2o.predict(h2o_model, test_h2o)
-    results <- save_fc_ml(fc_obj = pred_h2o %>% as.data.frame(),
+    pred_h2o <-
+      h2o::h2o.predict(h2o_model, test_h2o) %>%
+      base::as.data.frame() %>%
+      xts::as.xts(order.by = zoo::index(sample_split[["test"]]))
+    if (nb_diffs > 0) {
+      fc <-
+        pred_h2o %>%
+        transform_data(ts_preprocessed_data, .,
+                       method = data_transf_method,
+                       apply_transform = FALSE) %>%
+        as.data.frame()
+    } else {
+      fc <-
+        pred_h2o %>%
+        as.data.frame()
+    }
+    results <- save_fc_ml(fc_obj = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
                           save_fc_to_file= save_fc_to_file,

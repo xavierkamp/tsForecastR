@@ -10,6 +10,7 @@ generate_fc_bsts(
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
+  data_transf_method = "diff",
   bsts_arg = NULL,
   time_id = base::Sys.time(),
   ...

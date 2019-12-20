@@ -11,6 +11,7 @@ generate_fc_automl_h2o(
   backtesting_opt = NULL,
   save_fc_to_file = NULL,
   preprocess_fct = NULL,
+  data_transf_method = "diff",
   automl_h2o_arg = NULL,
   time_id = base::Sys.time(),
   nb_cores = 1,
