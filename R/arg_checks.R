@@ -63,20 +63,20 @@ check_backtesting_opt <- function(backtesting_opt) {
   if ("method" %in% base::names(backtesting_opt)) {
     if (!backtesting_opt$method[1] %in% c("rolling", "moving")) {
       warning("The value of the backtesting method is invalid, using 'rolling' as default")
-      backtesting_opt$method <- "rolling"
+      backtesting_opt$method <- c("rolling", "moving")
     }
   } else {
     warning("The value of the backtesting method is missing, using 'rolling' as default")
-    backtesting_opt$method <- "rolling"
+    backtesting_opt$method <- c("rolling", "moving")
   }
   if ("sample_size" %in% base::names(backtesting_opt)) {
     if (!backtesting_opt$sample_size[1] %in% c("expanding", "fixed")) {
       warning("The value of the sample size is invalid, using 'expanding' as default")
-      backtesting_opt$sample_size <- "expanding"
+      backtesting_opt$sample_size <- c("expanding", "fixed")
     }
   } else {
     warning("The value of the sample size is missing, using 'expanding' as default")
-    backtesting_opt$sample_size <- "expanding"
+    backtesting_opt$sample_size <- c("expanding", "fixed")
   }
   if (!backtesting_opt$use_bt) {
     if (backtesting_opt$nb_iters != 1) {
