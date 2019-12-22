@@ -1,4 +1,6 @@
 library(testthat)
 library(tsForecastR)
 
-test_check("tsForecastR")
+if (require(testthat)) {
+  test_check("tsForecastR")
+}

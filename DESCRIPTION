@@ -29,9 +29,9 @@ Imports:
     utils,
     xts,
     zoo
+Suggests: 
+    testthat (>= 2.1.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.1
-Suggests: 
-    testthat (>= 2.1.0)

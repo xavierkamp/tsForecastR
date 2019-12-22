@@ -10,11 +10,11 @@ if (require(testthat)) {
     bt_opt <- NULL
     expect_equal(check_backtesting_opt(bt_opt), default_bt_opt)
     bt_opt <- base::list(use_bt = FALSE, nb_iters = 1)
-    expect_equivalent(check_backtesting_opt(bt_opt), default_bt_opt)
+    expect_equal(check_backtesting_opt(bt_opt), default_bt_opt)
     bt_opt <- base::list(use_bt = FALSE, nb_iters = 3)
     expect_equivalent(check_backtesting_opt(bt_opt), default_bt_opt)
     bt_opt <- base::list(use_bt = TRUE, nb_iters = 3)
-    expect_more_than(check_backtesting_opt(bt_opt)[["nb_iters"]],
+    expect_gt(check_backtesting_opt(bt_opt)[["nb_iters"]],
                      default_bt_opt[["nb_iters"]])
     bt_opt <- base::list()
     expect_equivalent(check_backtesting_opt(bt_opt), default_bt_opt)
