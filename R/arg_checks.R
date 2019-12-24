@@ -201,12 +201,36 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 #' @param save_fc_to_file NULL or a valid filepath
 #' @return NULL or a valid filepath
 check_save_fc_to_file <- function(save_fc_to_file) {
-  if (!base::is.null(save_fc_to_file)) {
-    base::dir.create(file.path(save_fc_to_file),
-                     showWarnings = FALSE)
+  `%>%` <- magrittr::`%>%`
+  if (base::is.null(save_fc_to_file)) {
+    return(NULL)
+  } else if (!base::is.character(save_fc_to_file)) {
+    stop("The provided directory must be a string!")
+  } else if (!base::dir.exists(file.path(save_fc_to_file))) {
+    stop("The provided directory does not exist!")
+  } else {
+    dir_name <- base::dirname(file.path(save_fc_to_file))
+    folder_name <-
+      stringr::str_split(save_fc_to_file, pattern = "/") %>%
+      base::unlist() %>%
+      utils::tail(1)
+    # To test permissions: create a new file and delete it:
+    file_name <-
+      base::gsub(base::as.character(base::Sys.time()),
+                 pattern = "[^[:alnum:]_]",
+                 replacement = "")
+    file_path <- base::paste(dir_name, "/",
+                             folder_name, "/",
+                             file_name,
+                             sep = "")
+    unique_file_path <- file_path
+    while (base::file.exists(file_path)) {
+      unique_file_path <- base::paste(unique_file_path, "1", sep = "")
+    }
+    utils::write.table("test", unique_file_path)
+    base::file.remove(unique_file_path)
     return(save_fc_to_file)
   }
-  return(save_fc_to_file)
 }
 
 #' Check model names
@@ -244,20 +268,24 @@ check_model_names <- function(model_names) {
 #' @param models_args A list
 #' @return models_args: A list
 check_models_args <- function(models_args, model_names = NULL) {
-  if (!base::is.null(models_args)){
-    if (!base::is.list(models_args)) {
-      stop("The models arguments must be passed as a list!")
-    } else {
-      model_names <- check_model_names(model_names)
-      valid_models_args <- (base::names(models_args) %in% base::paste(model_names, "_arg", sep = ""))
+  if (base::is.null(models_args)){
+    return(base::list())
+  } else if (!is.list(models_args)) {
+    stop("The models arguments must be passed as a list!")
+  } else if (base::is.null(base::names(models_args))) {
+    return(base::list())
+  } else {
+    model_names <- check_model_names(model_names)
+    valid_models_args <- (base::names(models_args) %in% base::paste(model_names, "_arg", sep = ""))
+    if (sum(valid_models_args) < length(names(models_args))) {
       warning(base::paste("The following model arguments do not match the selected models ",
                           "and will be dropped: ",
                           base::paste(base::names(models_args)[!valid_models_args],
                                       collapse = ", "),
                           sep = ""))
     }
+    return(models_args[valid_models_args])
   }
-  return(models_args)
 }
 
 #' Check the number of selected CPU cores
@@ -303,20 +331,29 @@ check_nb_cores <- function(nb_cores) {
 #' @param fct A function, the custom preprocessing function to handle missing values in the data
 #' @return NULL (if no fct is specified) or fct (if fct is specified)
 check_preprocess_fct <- function(fct) {
-  if (!base::is.null(fct) & !base::is.function(fct)) {
-    if (base::is.list(fct)) {
+  if (base::is.null(fct)) {
+    return(NULL)
+  } else if (base::is.character(fct)) {
+    return(NULL)
+  } else if (base::is.function(fct)) {
+    return(fct)
+  } else if (base::is.list(fct)) {
+    if (base::length(fct) == 0) {
+      return(NULL)
+    } else {
       custom_fct <- fct[[1]]
       if (!base::is.function(custom_fct)) {
         warning(base::paste("No custom preprocessing function has been found in list. ",
                             "Setting to default: NULL",
                             sep = ""))
-        fct <- NULL
+        return(NULL)
+      } else {
+        return(fct)
       }
-    } else {
-      fct <- NULL
     }
+  } else {
+    return(NULL)
   }
-  return(fct)
 }
 
 #' Check the time identifier
@@ -330,7 +367,7 @@ check_time_id <- function(time_id) {
                         "unique 'time_id' with: base::Sys.time()",
                         sep = ""))
     valid_time_id <- base::Sys.time()
-    return(time_id)
+    return(valid_time_id)
   } else if (base::class(time_id)[1] != "POSIXct") {
     warning(base::paste("The value of the 'time_id' argument is invalid. Generating a ",
                         "unique 'time_id' with: base::Sys.time()",
@@ -347,7 +384,7 @@ check_time_id <- function(time_id) {
   } else {
     valid_time_id <- time_id
   }
-  return(time_id)
+  return(valid_time_id)
 }
 
 #' Check the period identifier
@@ -367,7 +404,7 @@ check_period_iter <- function(period_iter) {
     if (base::is.na(base::as.numeric(iter))) {
       stop("The value of the 'period_iter' argument is invalid! Please check its format ('period' + '_' + iter).")
     } else {
-      return(period_iter)
+      return(base::paste("period_", iter, sep = ""))
     }
   }
 }

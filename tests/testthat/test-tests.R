@@ -70,17 +70,17 @@ if (require(testthat)) {
     expect_equal(xts::is.xts(check_data_sv_as_xts(data_ts)), TRUE)
     data_mts <- cbind(data_ts, data_ts)
     expect_equal(xts::is.xts(check_data_sv_as_xts(data_mts)), TRUE)
-    data_xts <- xts::as.xts(data_valid)
+    data_xts <- xts::as.xts(data_ts)
     expect_equivalent(check_data_sv_as_xts(data_xts), data_xts)
     expect_equivalent(colnames(check_data_sv_as_xts(data_xts)), "time_series_1")
     colnames(data_xts) <- "ts.testN@me"
     expect_equivalent(colnames(check_data_sv_as_xts(data_xts)), "tstestNme")
   })
   test_that("check_save_fc_to_file_works", {
-    expect_equal(check_save_fc_to_file("2"), "2")
+    expect_equal(check_save_fc_to_file(getwd()), getwd())
     expect_equal(check_save_fc_to_file(NULL), NULL)
-    current_wd <- getwd()
-    expect_equal(check_save_fc_to_file(current_wd), current_wd)
+    expect_error(check_save_fc_to_file("This_Is_not_a_v@lid_directory"))
+    expect_error(check_save_fc_to_file(list("This_Is_not_a_v@lid_directory")))
   })
   test_that("check_model_names_works", {
     available_models <-
@@ -92,5 +92,66 @@ if (require(testthat)) {
     expect_error(check_model_names("arfima"))
     expect_error(check_model_names(c("arima", "arfima")))
   })
+  test_that("check_models_args_works", {
+    model_names = NULL
+    model_args = base::list()
+    expect_identical(check_models_args(model_args, model_names), base::list())
+    model_args = NULL
+    expect_identical(check_models_args(model_args, model_names), base::list())
+    model_args = "arima_arg"
+    expect_error(check_models_args(model_args, model_names))
+    model_args = base::list(arima_arg = NULL)
+    expect_identical(check_models_args(model_args, model_names), model_args)
+    model_args = base::list("arima_arg")
+    expect_identical(check_models_args(model_args, model_names), base::list())
+    model_args = base::list(arima_arg = base::list())
+    expect_identical(check_models_args(model_args, model_names), model_args)
+    model_args = base::list(arima_arg = base::list(P = 1), bsts = NULL)
+    expect_identical(check_models_args(model_args, model_names),
+                     base::list(arima_arg = base::list(P = 1)))
+    model_args = base::list(arima_arg = base::list(P = 1), bsts_arg = NULL,
+                            arlima_arg = NULL)
+    expect_identical(check_models_args(model_args, model_names),
+                     base::list(arima_arg = base::list(P = 1), bsts_arg = NULL))
+    model_args = base::list(arima_arg = NULL, arima_arg = NULL)
+    expect_identical(check_models_args(model_args, model_names), model_args)
+  })
+  test_that("check_nb_cores_works", {
+    expect_equal(check_nb_cores(1), 1)
+    nb_cores_available <- parallel::detectCores()
+    expect_equal(check_nb_cores(nb_cores_available), nb_cores_available)
+    expect_equal(check_nb_cores(nb_cores_available + 1), nb_cores_available)
+    expect_equal(check_nb_cores("1"), nb_cores_available)
+    expect_equal(check_nb_cores(base::list()), nb_cores_available)
+  })
+  test_that("check_preprocessing_fct_works", {
+    expect_equal(check_preprocess_fct(NULL), NULL)
+    expect_equal(check_preprocess_fct(imputeTS::na.mean), imputeTS::na.mean)
+    expect_equal(check_preprocess_fct("sum"), NULL)
+    expect_equal(check_preprocess_fct(base::list()), NULL)
+    expect_equal(check_preprocess_fct(base::list(fct = base::sum, xreg = seq(1:10))),
+                 base::list(fct = base::sum, xreg = seq(1:10)))
+  })
+  test_that("check_time_id_works", {
+    expect_equal(class(check_time_id(NULL))[1], "POSIXct")
+    expect_equal(class(check_time_id("2010-10-10"))[1], "POSIXct")
+    expect_equal(class(check_time_id(base::list()))[1], "POSIXct")
+    expect_equal(class(check_time_id(as.character(base::Sys.time())))[1], "POSIXct")
+    unique_time <- base::Sys.time()
+    expect_equal(check_time_id(unique_time), unique_time)
+  })
+  test_that("check_period_iter_works", {
+    expect_error(check_period_iter("1"))
+    expect_error(check_period_iter("priod_1"))
+    expect_error(check_period_iter(base::list("period_1")))
+    expect_error(check_period_iter(base::list()))
+    expect_error(check_period_iter("period_per_1"))
+    expect_error(check_period_iter("period__1"))
+    expect_error(check_period_iter("1_this.Is@_test_%period_1"))
+    expect_error(check_period_iter("1thisIs_test_period_1"))
+    expect_error(check_period_iter("Period_1"))
+    expect_error(check_period_iter("period1"))
+    expect_equal(check_period_iter("period_1"), "period_1")
+    expect_equal(check_period_iter("period_period_1"), "period_1")
+  })
 }
-
