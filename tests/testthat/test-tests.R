@@ -154,4 +154,22 @@ if (require(testthat)) {
     expect_equal(check_period_iter("period_1"), "period_1")
     expect_equal(check_period_iter("period_period_1"), "period_1")
   })
+
+  context("Test fc generating functions")
+  # test_that("generate_fc_works", {
+  #   data <- seq(1:100)
+  #   data <- c(seq(1:100), NA, seq(2,3))
+  #   model_names <- "arima"
+  #   fc_horizon
+  #   xreg_data
+  #   backtesting_opt
+  #   preprocess_fct
+  #   models_args
+  #   save_fc_to_file
+  #   time_id
+  #   nb_cores <- 1
+  #   expect_equal()
+  #
+  # })
+
 }
