@@ -432,6 +432,7 @@ transform_data <- function(original_ts,
                            transformed_ts = NULL,
                            method = "diff",
                            apply_transform = TRUE) {
+  `%>%` <- magrittr::`%>%`
   original_ts <- check_data_sv_as_xts(original_ts)
   transformed_ts <- check_data_sv_as_xts(transformed_ts)
   if (!method %in% c("diff", "log", "sqrt")) {
@@ -506,4 +507,19 @@ transform_data <- function(original_ts,
     }
     return(undo_trans_ts)
   }
+}
+
+univariate_xts <- function(mts_data_xts, ind = 1) {
+  ts_data_xts <- NULL
+  if (!xts::is.xts(mts_data_xts)) {
+    stop("The data must be an xts object!")
+  } else if (!is.numeric(ind)) {
+    stop("The index number must be a numeric!")
+  } else {
+    ts_data_xts <-
+      xts::xts(mts_data_xts[, ind],
+               frequency = stats::frequency(mts_data_xts),
+               order.by = zoo::index(mts_data_xts))
+  }
+  return(ts_data_xts)
 }

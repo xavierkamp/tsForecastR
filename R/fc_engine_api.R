@@ -109,35 +109,43 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   if (use_parallel) {
     cl <- parallel::makeCluster(nb_cores)
     doParallel::registerDoParallel(cl)
-    foreach::foreach(ind = ind_seq) %dopar% {
-      source("./R/fc_models.R")
-      source("./R/arg_checks.R")
-      source("./R/data_management.R")
-      source("./R/preprocessing.R")
-      source("./R/valid_md.R")
-      model_names_parall_proc <- model_names[model_names != "automl_h2o"]
-      ts_data_xts <- mts_data_xts[, ind]
-      ts_colname <- base::colnames(ts_data_xts)
-      for (model_name in model_names_parall_proc) {
-        base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
-                                                  model_name, " <- ",
-                                                  "generate_fc_", model_name, "(",
-                                                  "ts_data_xts = ts_data_xts, ",
-                                                  "xreg_xts = xreg_data_xts, ",
-                                                  "fc_horizon = fc_horizon, ",
-                                                  "backtesting_opt = backtesting_opt, ",
-                                                  "save_fc_to_file = save_fc_to_file, ",
-                                                  "preprocess_fct = preprocess_fct, ",
-                                                  "time_id = time_id, ",
-                                                  model_name, "_arg = models_args$",
-                                                  model_name, "_arg)",
-                                                  sep = "")))
-      }
+    model_output_ls <-
+      foreach::foreach(ind = ind_seq,
+                       .export = c("mts_data_xts",
+                                   "xreg_data_xts",
+                                   "fc_horizon",
+                                   "backtesting_opt",
+                                   "save_fc_to_file",
+                                   "preprocess_fct",
+                                   "time_id",
+                                   "models_args")) %dopar% {
+        library(tsForecastR)
+        model_names_parall_proc <- model_names[model_names != "automl_h2o"]
+        ts_data_xts <- univariate_xts(mts_data_xts, ind)
+        ts_colname <- base::colnames(ts_data_xts)
+        model_output_cores <- base::list()
+        for (model_name in model_names_parall_proc) {
+          base::eval(base::parse(text = base::paste("model_output_cores$", ts_colname, "$",
+                                                    model_name, " <- ",
+                                                    "generate_fc_", model_name, "(",
+                                                    "ts_data_xts = ts_data_xts, ",
+                                                    "xreg_xts = xreg_data_xts, ",
+                                                    "fc_horizon = fc_horizon, ",
+                                                    "backtesting_opt = backtesting_opt, ",
+                                                    "save_fc_to_file = save_fc_to_file, ",
+                                                    "preprocess_fct = preprocess_fct, ",
+                                                    "time_id = time_id, ",
+                                                    model_name, "_arg = models_args$",
+                                                    model_name, "_arg)",
+                                                    sep = "")))
+        }
+        return(model_output_cores)
     }
+    model_output <- model_output_ls[[1]]
     parallel::stopCluster(cl)
     foreach::foreach(ind = ind_seq) %do% {
       model_names_parall_proc <- model_names[model_names == "automl_h2o"]
-      ts_data_xts <- mts_data_xts[, ind]
+      ts_data_xts <- univariate_xts(mts_data_xts, ind)
       ts_colname <- base::colnames(ts_data_xts)
       for (model_name in model_names_parall_proc) {
         base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
@@ -159,7 +167,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   } else {
     foreach::foreach(ind = ind_seq) %do% {
       model_names_parall_proc <- model_names
-      ts_data_xts <- mts_data_xts[,ind]
+      ts_data_xts <- univariate_xts(mts_data_xts, ind)
       ts_colname <- base::colnames(ts_data_xts)
       for (model_name in model_names_parall_proc) {
         base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
