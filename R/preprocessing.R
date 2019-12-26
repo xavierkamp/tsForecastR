@@ -428,6 +428,7 @@ reshape_Y <- function(Y) {
   return(Y)
 }
 
+#' Apply a transformation on the data
 transform_data <- function(original_ts,
                            transformed_ts = NULL,
                            method = "diff",
@@ -509,6 +510,10 @@ transform_data <- function(original_ts,
   }
 }
 
+#' Extract a univariate xts object from a mutivariate xts object
+#' @param mts_data_xts a univariate or multivariate xts object
+#' @param ind a numeric, the column index of the desired univariate xts object
+#' @export
 univariate_xts <- function(mts_data_xts, ind = 1) {
   ts_data_xts <- NULL
   if (!xts::is.xts(mts_data_xts)) {
