@@ -21,6 +21,7 @@ Imports:
     lubridate,
     magrittr,
     parallel,
+    plotly,
     purrr,
     stats,
     stringr,
@@ -28,8 +29,7 @@ Imports:
     timetk,
     utils,
     xts,
-    zoo,
-    plotly
+    zoo
 Suggests: 
     testthat (>= 2.1.0)
 License: GPL-3
