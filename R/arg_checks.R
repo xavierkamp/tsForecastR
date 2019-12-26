@@ -15,6 +15,7 @@
 #'  fixed across backtesting operations
 #'
 #' @return A list of backtesting options
+#' @export
 check_backtesting_opt <- function(backtesting_opt) {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(backtesting_opt) & !base::is.list(backtesting_opt)) {
@@ -110,6 +111,7 @@ check_fc_horizon <- function(fc_horizon) {
 #' If not, the function throws an error.
 #' @param valid_set_size An integer
 #' @return valid_set_size: An integer
+#' @export
 check_valid_set_size <- function(valid_set_size) {
   if (!base::is.numeric(valid_set_size)) {
     stop("The validation set size must be an positive non-zero integer!")
@@ -126,6 +128,7 @@ check_valid_set_size <- function(valid_set_size) {
 #' h2o.automl procedure. If the argument is invalid, the function throws an error.
 #' @param tmp_test_set_size A positive integer
 #' @return tmp_test_set_size: a positive integer
+#' @export
 check_tmp_test_set_size <- function(tmp_test_set_size) {
   if (!base::is.numeric(tmp_test_set_size)) {
     stop("The second test set size must be an positive non-zero integer!")
@@ -142,6 +145,7 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 #' @param bt_iter A positive integer which is smaller or equal to the
 #' number of backtesting operations to perform.
 #' @return bt_iter: a positive integer
+#' @export
 check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   if (!base::is.numeric(bt_iter)) {
@@ -162,6 +166,7 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
 #' avoid errors when converting between different data types.
 #' @param input_data ts, mts or xts object
 #' @return xts object with punctuations dropped in colnames
+#' @export
 check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(input_data)) {
@@ -200,6 +205,7 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 #' If not the argument is invalid, the function throws an error.
 #' @param save_fc_to_file NULL or a valid filepath
 #' @return NULL or a valid filepath
+#' @export
 check_save_fc_to_file <- function(save_fc_to_file) {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(save_fc_to_file)) {
@@ -239,6 +245,7 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 #' If not, the function throws an error.
 #' @param model_names A list or vector of strings
 #' @return model_names: vector of strings
+#' @export
 check_model_names <- function(model_names) {
   `%>%` <- magrittr::`%>%`
   available_models <- c("arima", "ets", "tbats", "bsts",
@@ -267,6 +274,7 @@ check_model_names <- function(model_names) {
 #' will be dropped.
 #' @param models_args A list
 #' @return models_args: A list
+#' @export
 check_models_args <- function(models_args, model_names = NULL) {
   if (base::is.null(models_args)){
     return(base::list())
@@ -294,6 +302,7 @@ check_models_args <- function(models_args, model_names = NULL) {
 #' If the number of cores is invalid, then use the total number of available cores as default.
 #' @param nb_cores A numeric, the number of selected CPU cores
 #' @return A numeric, the number of selected CPU cores
+#' @export
 check_nb_cores <- function(nb_cores) {
   nb_cores_available <- parallel::detectCores()
   if (base::is.null(nb_cores)) {
@@ -330,6 +339,7 @@ check_nb_cores <- function(nb_cores) {
 #' This function checks whether the specified function is indeed a function
 #' @param fct A function, the custom preprocessing function to handle missing values in the data
 #' @return NULL (if no fct is specified) or fct (if fct is specified)
+#' @export
 check_preprocess_fct <- function(fct) {
   if (base::is.null(fct)) {
     return(NULL)
@@ -361,6 +371,7 @@ check_preprocess_fct <- function(fct) {
 #' This function ensures that the user specifies a valid time identifier.
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @return A POSIXct, time identifier
+#' @export
 check_time_id <- function(time_id) {
   if (base::is.null(time_id)) {
     warning(base::paste("The value of the 'time_id' argument is missing. Generating a ",
@@ -392,6 +403,7 @@ check_time_id <- function(time_id) {
 #' This function ensures that the user specifies a valid period identifier.
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @return A POSIXct, time identifier
+#' @export
 check_period_iter <- function(period_iter) {
   if (!base::is.character(period_iter)) {
     stop("The value of the 'period_iter' argument is invalid! The argument must be a character.")
