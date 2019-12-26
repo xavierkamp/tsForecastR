@@ -96,6 +96,7 @@ check_backtesting_opt <- function(backtesting_opt) {
 #' If not, the function throws an error.
 #' @param fc_horizon A positive integer
 #' @return fc_horizon: A positive integer
+#' @export
 check_fc_horizon <- function(fc_horizon) {
   if (!base::is.numeric(fc_horizon)) {
     stop("The forecasting horizon must be an positive non-zero integer!")
