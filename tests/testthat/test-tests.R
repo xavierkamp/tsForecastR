@@ -156,20 +156,24 @@ if (require(testthat)) {
   })
 
   context("Test fc generating functions")
-  # test_that("generate_fc_works", {
-  #   data <- seq(1:100)
-  #   data <- c(seq(1:100), NA, seq(2,3))
-  #   model_names <- "arima"
-  #   fc_horizon
-  #   xreg_data
-  #   backtesting_opt
-  #   preprocess_fct
-  #   models_args
-  #   save_fc_to_file
-  #   time_id
-  #   nb_cores <- 1
-  #   expect_equal()
-  #
-  # })
+  test_that("generate_fc_works", {
+    data <- seq(1:144)
+    model_names <- c("arima", "ets", "snaive", "bsts", "nnetar", "stl")
 
+    ts_data <- stats::ts(data, frequency = 12, start = c(1, 1))
+    fc <- generate_fc(ts_data, model_names = model_names)
+    expect_equal(is.list(fc), TRUE)
+    expect_equal(names(fc), "time_series_1")
+
+    mts_data <- base::cbind(ts_data, 2*ts_data)
+    colnames(mts_data) <- NULL
+    fc <- generate_fc(mts_data, model_names = model_names)
+    expect_equal(is.list(fc), TRUE)
+    expect_equal(names(fc), c("time_series_1", "time_series_2"))
+
+    xts_data <- xts::as.xts(mts_data)
+    fc <- generate_fc(xts_data, model_names = model_names)
+    expect_equal(is.list(fc), TRUE)
+    expect_equal(names(fc), c("time_series_1", "time_series_2"))
+  })
 }
