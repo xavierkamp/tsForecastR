@@ -175,6 +175,15 @@ if (require(testthat)) {
     fc <- generate_fc(xts_data, model_names = model_names)
     expect_equal(is.list(fc), TRUE)
     expect_equal(names(fc), c("time_series_1", "time_series_2"))
+
+    xts_na_data <-
+      c(data, rep(NA, 2), data) %>%
+      stats::ts(., frequency = 12, start = c(1, 1)) %>%
+      xts::as.xts()
+    expect_error(generate_fc(xts_na_data, model_names = model_names))
+    expect_equal(is.list(generate_fc(xts_na_data, model_names = model_names,
+                                     preprocess_fct = timeSeries::na.contiguous)),
+                 TRUE)
   })
   test_that("generate_fc_arima_works", {
     data <- seq(1:144)
