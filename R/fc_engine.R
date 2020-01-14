@@ -17,6 +17,9 @@
 #'
 #' @param model_names A list or character, names of models to apply
 #' @param model_args A list, optional arguments to pass to the models
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -77,7 +80,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   `%>%` <- magrittr::`%>%`
   `%do%` <- foreach::`%do%`
   `%dopar%` <- foreach::`%dopar%`
-  model_output <- base::list()
+  model_output <- ini_model_output()
   mts_data_xts <- check_data_sv_as_xts(mts_data, default_colname = "time_series")
   xreg_data_xts <- check_data_sv_as_xts(xreg_data, default_colname = "feature")
   if (!base::is.null(xreg_data_xts)) {
@@ -96,6 +99,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   models_args <- check_models_args(models_args, model_names)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  preprocess_fct <- check_preprocess_fct(preprocess_fct)
   nb_cores <- check_nb_cores(nb_cores)
   time_id <- check_time_id(time_id)
   ind_seq <- base::seq(base::ncol(mts_data_xts))

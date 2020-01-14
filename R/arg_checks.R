@@ -343,27 +343,36 @@ check_nb_cores <- function(nb_cores) {
 #' @export
 check_preprocess_fct <- function(fct) {
   if (base::is.null(fct)) {
-    return(NULL)
+    warning(base::paste("No custom preprocessing function has been specified! ",
+                        "Setting to default: default_prepro_fct",
+                        sep = ""))
+    return(default_prepro_fct)
   } else if (base::is.character(fct)) {
-    return(NULL)
+    warning(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
+                        "Setting to default: default_prepro_fct",
+                        sep = ""))
+    return(default_prepro_fct)
   } else if (base::is.function(fct)) {
     return(fct)
   } else if (base::is.list(fct)) {
     if (base::length(fct) == 0) {
-      return(NULL)
+      warning(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
+                          "Setting to default: default_prepro_fct",
+                          sep = ""))
+      return(default_prepro_fct)
     } else {
       custom_fct <- fct[[1]]
       if (!base::is.function(custom_fct)) {
-        warning(base::paste("No custom preprocessing function has been found in list. ",
-                            "Setting to default: NULL",
+        warning(base::paste("No custom preprocessing function has been found in list. Argument must be a function. ",
+                            "Setting to default: default_prepro_fct",
                             sep = ""))
-        return(NULL)
+        return(default_prepro_fct)
       } else {
         return(fct)
       }
     }
   } else {
-    return(NULL)
+    return(default_prepro_fct)
   }
 }
 
@@ -420,4 +429,12 @@ check_period_iter <- function(period_iter) {
       return(base::paste("period_", iter, sep = ""))
     }
   }
+}
+
+#' Initialize the model output
+#' @description
+#' Generate an empty list with a tsForecastR class attribute
+ini_model_output <- function() {
+  return(structure(base::list(),
+                   class = "tsForecastR"))
 }

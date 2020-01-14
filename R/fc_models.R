@@ -16,7 +16,9 @@
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -38,7 +40,7 @@
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
 #' ## End (Not)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_arima <- function(ts_data_xts,
                               fc_horizon = 12,
@@ -57,7 +59,7 @@ generate_fc_arima <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "arima"
   print_model_name(model_name)
@@ -128,7 +130,9 @@ generate_fc_arima <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -150,7 +154,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
 #' ## End (Not run)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_ets <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -170,7 +174,7 @@ generate_fc_ets <- function(ts_data_xts,
   if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
     stop("Model arguments must be of type list!")
   }
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "ets"
   print_model_name(model_name)
@@ -228,7 +232,9 @@ generate_fc_ets <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -250,7 +256,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
 #' ## End (Not run)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
                               fc_horizon = 12,
@@ -267,7 +273,7 @@ generate_fc_tbats <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "tbats"
   print_model_name(model_name)
@@ -346,7 +352,9 @@ generate_fc_tbats <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -368,7 +376,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
 #' ## End (Not run)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
                                fc_horizon = 12,
@@ -387,7 +395,7 @@ generate_fc_nnetar <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "nnetar"
   print_model_name(model_name)
@@ -454,7 +462,9 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -476,7 +486,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
 #' ## End (Not run)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_stl <- function(ts_data_xts,
                             fc_horizon = 12,
@@ -493,7 +503,7 @@ generate_fc_stl <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "stl"
   print_model_name(model_name)
@@ -554,7 +564,9 @@ generate_fc_stl <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -576,7 +588,7 @@ generate_fc_stl <- function(ts_data_xts,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
 #' ## End (Not run)
-#' @return A list, forecast object for each forecasted period
+#' @return A tsForecastR object
 #' @export
 generate_fc_snaive <- function(ts_data_xts,
                                fc_horizon = 12,
@@ -593,7 +605,7 @@ generate_fc_snaive <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   md <- fc <- NULL
   model_name <- "snaive"
   print_model_name(model_name)
@@ -651,7 +663,9 @@ generate_fc_snaive <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -673,7 +687,7 @@ generate_fc_snaive <- function(ts_data_xts,
 #'                        backtesting_opt = list(use_bt = TRUE,
 #'                                               nb_iters = 6))
 #' ## End (Not run)
-#' @return A list
+#' @return A tsForecastR object
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
                              fc_horizon = 12,
@@ -691,7 +705,8 @@ generate_fc_bsts <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- ss <- base::list()
+  model_output <- ini_model_output()
+  ss <- base::list()
   md <- fc <- NULL
   model_name <- "bsts"
   print_model_name(model_name)
@@ -878,7 +893,9 @@ generate_fc_bsts <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @examples
@@ -900,7 +917,7 @@ generate_fc_bsts <- function(ts_data_xts,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
 #' ## End (Not run)
-#' @return A list, forecast object for each forecasted period
+#' @return A tsForecastR object
 #' @export
 generate_fc_lstm_keras <- function(ts_data_xts,
                                    fc_horizon = 12,
@@ -919,7 +936,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
-  model_output <- base::list()
+  model_output <- ini_model_output()
   model_name <- "lstm_keras"
   print_model_name(model_name)
   all_time_features <-
@@ -1325,7 +1342,9 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'  remain fixed across backtesting operations
 #'
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
-#' @param preprocess_fct A custom preprocessing function to deal with missing values
+#' @param preprocess_fct A function, a custom function to handle missing values in the data.
+#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param nb_cores A numeric, number of threads to use in parallel computed model selection process
@@ -1348,7 +1367,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
 #' ## End (Not run)
-#' @return A list, forecast object for each forecasted period
+#' @return A tsForecastR object
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,
                                    xreg_xts = NULL,
@@ -1370,7 +1389,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   nb_cores <- check_nb_cores(nb_cores)
-  model_output <- list()
+  model_output <- ini_model_output()
   model_name <- "automl_h2o"
   print_model_name(model_name)
   h2o::h2o.init(port = 54321, nthreads = nb_cores)

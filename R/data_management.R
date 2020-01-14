@@ -417,15 +417,22 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!base::is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
                 eol = "\r\n",
                 sep = "\t",
-                col.names = TRUE,
+                col.names = append_colnames,
                 row.names = FALSE)
     return(base::data.frame())
   } else {
@@ -488,17 +495,24 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
                 eol = "\r\n",
                 sep = "\t",
-                col.names = TRUE,
+                col.names = append_colnames,
                 row.names = FALSE)
-    return(base::data.base())
+    return(base::data.frame())
   } else {
     return(results)
   }
@@ -552,17 +566,24 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!base::is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
                 eol = "\r\n",
                 sep = "\t",
-                col.names = TRUE,
+                col.names = append_colnames,
                 row.names = FALSE)
-    return(base::data.base())
+    return(base::data.frame())
   } else {
     return(results)
   }
