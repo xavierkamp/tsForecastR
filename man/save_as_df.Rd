@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_management.R
 \name{save_as_df}
 \alias{save_as_df}
-\title{Read the results}
+\title{Read forecasts from tsForecastR object}
 \usage{
 save_as_df(
   fc = NULL,
@@ -26,5 +26,14 @@ results from}
 A data frame
 }
 \description{
-This function transforms the tsForecastR object into a data.frame object
+This function transforms a tsForecastR object into a data.frame object
+}
+\examples{
+## Not run:
+library(datasets)
+
+fc <- generate_fc(AirPassengers)
+df <- save_as_df(fc)
+print(df)
+## End (Not run)
 }

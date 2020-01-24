@@ -34,6 +34,7 @@
 #' fc <- generate_fc(AirPassengers,
 #'                   fc_horizon = 6,
 #'                   model_names = c("arima", "ets",
+#'                                   "lstm_keras",
 #'                                   "automl_h2o"))
 #' fc <- generate_fc(AirPassengers,
 #'                   fc_horizon = 6,
@@ -168,7 +169,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
-#' ## End (Not)
+#' ## End (Not run)
 #' @return A tsForecastR object
 #' @export
 generate_fc_arima <- function(ts_data_xts,
