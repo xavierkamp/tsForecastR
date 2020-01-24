@@ -26,7 +26,7 @@ library("devtools")
 devtools::install_github("xavierkamp/tsForecastR")
 ```
 
-__Note:__ 
+Note:
 
 When installing this package, in order to use the LSTM model, you will be required to have Python and Tensorflow (version <= 1.14) installed on your machine. Note that the current forecasting procedure does not support Tensorflow 2.0.
 
