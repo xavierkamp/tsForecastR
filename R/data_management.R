@@ -656,7 +656,7 @@ read_fc_from_file <- function(data_colnames, save_fc_to_file, model_names) {
 #' @param save_fc_to_file A string, directory to which results can be saved as text files.
 #' @param data_colnames A vector of strings, the names of the time series objects to read the
 #' results from
-#' @param model_names A vector of strings
+#' @param model_names A vector of strings, the models to read the results from
 #' @return A data frame
 #' @export
 save_as_df <- function(fc = NULL,
