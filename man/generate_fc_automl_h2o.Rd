@@ -38,7 +38,9 @@ generate_fc_automl_h2o(
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
-\item{preprocess_fct}{A custom preprocessing function to deal with missing values}
+\item{preprocess_fct}{A function, a custom function to handle missing values in the data.
+(e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+interval of non-missing values is selected and the most recent dates are then attributed to these values.}
 
 \item{automl_h2o_arg}{A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function}
 
@@ -47,7 +49,7 @@ generate_fc_automl_h2o(
 \item{nb_cores}{A numeric, number of threads to use in parallel computed model selection process}
 }
 \value{
-A list, forecast object for each forecasted period
+A tsForecastR object
 }
 \description{
 Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o} package on

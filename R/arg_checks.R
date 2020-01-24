@@ -159,6 +159,43 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
   return(bt_iter)
 }
 
+#' Drop punctuations in colnames
+#' @description
+#' Punctuations in colnames will dropped in order to
+#' avoid errors when converting between different data types.
+#' @param colnames_vec a vector of strings, colnames to be cleaned
+#' @param default_colname a string,
+#' @return colnames_vec
+#' @export
+check_colnames <- function(data_colnames,
+                           default_colname = "time_series",
+                           nb_colnames = 1) {
+  `%>%` <- magrittr::`%>%`
+  if (base::is.null(data_colnames)) {
+    warning(base::paste("Missing or invalid colnames. Setting to default: '",
+                        default_colname,
+                        "_'+'nb'",
+                        sep = ""))
+    data_colnames <-
+      base::paste(default_colname,
+                  base::seq(1:nb_colnames),
+                  sep = "_")
+  }
+  if (!base::is.character(data_colnames)) {
+    stop("Invalid value for colnames argument! Colnames must be passed as a vector of strings")
+  }
+  if (data_colnames %>%
+      stringr::str_detect(pattern = "[^[:alnum:]_]") %>%
+      base::sum() > 0) {
+    data_colnames <-
+      data_colnames %>%
+      base::gsub(pattern = "[^[:alnum:]_]",
+                 replacement = "")
+    warning("Punctuation and whitespaces in colnames are dropped.")
+  }
+  return(data_colnames)
+}
+
 #' Check the time series data and convert to xts
 #' @description
 #' This function ensures that the input data is of type xts, ts or mts and
@@ -182,21 +219,10 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
   if (!base::is.character(default_colname)) {
     stop("The default colname must be a string!")
   }
-  if (base::is.null(base::colnames(input_data_xts))) {
-    base::colnames(input_data_xts) <-
-      base::paste(default_colname,
-                  base::seq(1:base::ncol(input_data_xts)),
-                  sep = "_")
-  }
-  if (base::colnames(input_data_xts) %>%
-      stringr::str_detect(pattern = "[^[:alnum:]_]") %>%
-      base::sum() > 0) {
-    base::colnames(input_data_xts) <-
-      base::colnames(input_data_xts) %>%
-      base::gsub(pattern = "[^[:alnum:]_]",
-                 replacement = "")
-    warning("Punctuation and whitespaces in colnames are dropped.")
-  }
+  base::colnames(input_data_xts) <-
+    check_colnames(base::colnames(input_data_xts),
+                   default_colname = default_colname,
+                   nb_colnames = base::ncol(input_data_xts))
   return(input_data_xts)
 }
 
@@ -251,7 +277,7 @@ check_model_names <- function(model_names) {
   `%>%` <- magrittr::`%>%`
   available_models <- c("arima", "ets", "tbats", "bsts",
                         "stl", "snaive", "nnetar", "automl_h2o",
-                        "lstm_keras", "hybrid")
+                        "lstm_keras")
   if (base::is.null(model_names)) {
     model_names <- available_models
   } else if (!base::is.list(model_names) & !base::is.character(model_names)) {
@@ -383,29 +409,22 @@ check_preprocess_fct <- function(fct) {
 #' @return A POSIXct, time identifier
 #' @export
 check_time_id <- function(time_id) {
-  if (base::is.null(time_id)) {
-    warning(base::paste("The value of the 'time_id' argument is missing. Generating a ",
-                        "unique 'time_id' with: base::Sys.time()",
-                        sep = ""))
-    valid_time_id <- base::Sys.time()
-    return(valid_time_id)
-  } else if (base::class(time_id)[1] != "POSIXct") {
-    warning(base::paste("The value of the 'time_id' argument is invalid. Generating a ",
-                        "unique 'time_id' with: base::Sys.time()",
-                        sep = ""))
-    valid_time_id <- base::Sys.time()
-  } else if (base::length(time_id) > 1){
-    warning("Multiple values of the 'time_id' argument detected. Selecting only the first one.")
-    valid_time_id <- time_id[1]
-  } else if (base::length(time_id) < 1) {
-    warning(base::paste("No values of the 'time_id' argument detected. Generating a ",
-                        "unique 'time_id' with: base::Sys.time()",
-                        sep = ""))
-    valid_time_id <- base::Sys.time()
+  if (!base::is.null(time_id)) {
+    if (base::class(time_id)[1] != "POSIXct") {
+      warning("The value of the 'time_id' argument is invalid. Using NULL as default.")
+      return(NULL)
+    } else if (base::length(time_id) > 1) {
+      warning("Multiple values of the 'time_id' argument detected. Selecting only the first one.")
+      return(time_id[1])
+    } else if (base::length(time_id) < 1) {
+      warning("No values of the 'time_id' argument detected. Using NULL as default.")
+      return(NULL)
+    } else {
+      return(time_id)
+    }
   } else {
-    valid_time_id <- time_id
+    return(NULL)
   }
-  return(valid_time_id)
 }
 
 #' Check the period identifier
@@ -431,10 +450,113 @@ check_period_iter <- function(period_iter) {
   }
 }
 
-#' Initialize the model output
-#' @description
-#' Generate an empty list with a tsForecastR class attribute
-ini_model_output <- function() {
-  return(structure(base::list(),
-                   class = "tsForecastR"))
+valid_md_arima <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (base::nrow(ts_data_xts) < stats::frequency(ts_data_xts) + 1) {
+    warning(base::paste("Not enough observations! To use 'arima', there must be more than ",
+                        stats::frequency(ts_data_xts)," observations available.",
+                        sep = ""))
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_ets <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (base::nrow(ts_data_xts) < 2) {
+    warning("Not enough observations! To use 'ets', there must be more than 2 observations available.")
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_snaive <- function(ts_data_xts, fc_horizon) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  fc_horizon <- check_fc_horizon(fc_horizon)
+  if (fc_horizon > 2 * stats::frequency(ts_data_xts)) {
+    warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_stl <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (stats::frequency(ts_data_xts) <= 1) {
+    warning("The data is not a seasonal object! To use 'stl', the data frequency must be higher than 1.
+            Otherwise, the seasonal component cannot be estimated.")
+    return(FALSE)
+  } else if (base::nrow(ts_data_xts) < 2*stats::frequency(ts_data_xts) + 1) {
+    warning(base::paste("Not enough observations! To use 'stl', there must be more than ",
+                        stats::frequency(ts_data_xts)," observations available.",
+                        sep = ""))
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_tbats <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (base::nrow(ts_data_xts) < 2) {
+    warning("Not enough observations! To use 'tbats', there must be more than 2 observations available.")
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_nnetar <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (base::nrow(ts_data_xts) < 3) {
+    warning("Not enough observations! To use 'nnetar', there must be more than 3 observations available.")
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_bsts <- function(ts_data_xts) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  if (base::nrow(ts_data_xts) < 3) {
+    warning("Not enough observations! To use 'bsts', there must be more than 3 observations available.")
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_lstm_keras <- function(ts_data_xts, lstm_keras_arg) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  min_nb_obs <-
+    (base::max(lstm_keras_arg$lag_setting, lstm_keras_arg$nb_timesteps)
+     + lstm_keras_arg$valid_set_size
+     + 1)
+  if (base::nrow(ts_data_xts) < min_nb_obs) {
+    warning(base::paste("Not enough observations! To use 'lstm_keras', there must be more than ",
+                        min_nb_obs, " observations available.",
+                        sep = ""))
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+valid_md_autml_h2o <- function(ts_data_xts, automl_h2o_arg) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  min_nb_obs <-
+    (automl_h2o_arg$valid_set_size
+     + automl_h2o_arg$test_set_size)
+  if (base::nrow(ts_data_xts) < min_nb_obs) {
+    warning(base::paste("Not enough observations! To use 'automl_h2o', ",
+                        "there must be more than ",
+                        min_nb_obs, " observations available.",
+                        sep = ""))
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
 }
