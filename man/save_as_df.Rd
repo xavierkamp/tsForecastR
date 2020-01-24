@@ -20,7 +20,7 @@ save_as_df(
 \item{data_colnames}{A vector of strings, the names of the time series objects to read the
 results from}
 
-\item{model_names}{A vector of strings}
+\item{model_names}{A vector of strings, the models to read the results from}
 }
 \value{
 A data frame
