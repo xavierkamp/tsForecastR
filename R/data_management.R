@@ -8,6 +8,14 @@ print_model_name <- function(model_name) {
                   sep = ""))
 }
 
+#' Initialize the model output
+#' @description
+#' Generate an empty list with a tsForecastR class attribute
+ini_model_output <- function() {
+  return(structure(base::list(),
+                   class = "tsForecastR"))
+}
+
 #' Extract forecasts and prediction intervals from list
 #' @description
 #' This function extracts the forecasts and prediction intervals from a list.
@@ -417,15 +425,22 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!base::is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
                 eol = "\r\n",
                 sep = "\t",
-                col.names = TRUE,
+                col.names = append_colnames,
                 row.names = FALSE)
     return(base::data.frame())
   } else {
@@ -488,17 +503,24 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
     write.table(results,
                 file = file_name,
                 append = TRUE,
                 eol = "\r\n",
                 sep = "\t",
-                col.names = TRUE,
+                col.names = append_colnames,
                 row.names = FALSE)
-    return(base::data.base())
+    return(base::data.frame())
   } else {
     return(results)
   }
@@ -552,18 +574,133 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                                 period_iter = period_iter,
                                 time_id = time_id)
   if (!base::is.null(save_fc_to_file)) {
+    if (period_iter == "period_1") {
+      append_colnames <- TRUE
+    } else {
+      append_colnames <- FALSE
+    }
     file_name <- base::paste(save_fc_to_file,
-                             base::colnames(ts_data_xts),
+                             base::paste(base::colnames(raw_data_xts),
+                                         model_name,
+                                         sep = "_"),
                              sep = "/")
-    write.table(results,
-                file = file_name,
-                append = TRUE,
-                eol = "\r\n",
-                sep = "\t",
-                col.names = TRUE,
-                row.names = FALSE)
-    return(base::data.base())
+    utils::write.table(results,
+                       file = file_name,
+                       append = TRUE,
+                       eol = "\r\n",
+                       sep = "\t",
+                       col.names = append_colnames,
+                       row.names = FALSE)
+    return(base::data.frame())
   } else {
     return(results)
   }
+}
+
+#' Recursive function to read results from tsForecastR object
+#' @param fc A tsForecastR object
+#' @return A data frame
+read_tsForecastR <- function(fc) {
+  `%>%` <- magrittr::`%>%`
+  df <- base::data.frame()
+  if (base::is.data.frame(fc)) {
+    return(fc)
+  } else if (!is.null(base::names(fc))) {
+    for (i in base::names(fc)) {
+      df <-
+        dplyr::bind_rows(df,
+                         base::paste("fc[['",
+                                     i,
+                                     "']]",
+                                     sep = "") %>%
+                           base::parse(text = .) %>%
+                           base::eval(.) %>%
+                           read_tsForecastR(.))
+    }
+  }
+  return(df)
+}
+
+#' Read results from files
+#' @param save_fc_to_file A directory
+#' @return A data frame
+read_fc_from_file <- function(data_colnames, save_fc_to_file, model_names) {
+  `%>%` <- magrittr::`%>%`
+  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_colnames <- check_colnames(data_colnames)
+  df <- base::data.frame()
+  for (ts_name in data_colnames) {
+    for (method in model_names) {
+      base::tryCatch({
+        file_name <- base::paste(save_fc_to_file,
+                                 base::paste(ts_name, method, sep = "_"),
+                                 sep = "/")
+        file_data <-
+          read.table(file_name,
+                     header = TRUE,
+                     sep = "\t") %>%
+          dplyr::filter(ts_name %in% data_colnames)
+        df <- dplyr::bind_rows(df, file_data)
+      }, error = function(e) {
+        warning(base::paste("File named '", file_name, "' not found",
+                            sep = ""))
+      })
+    }
+  }
+  return(df)
+}
+
+#' Read the results
+#' @description This function transforms the tsForecastR object into a data.frame object
+#' @param fc A tsForecastR object
+#' @param save_fc_to_file A string, directory to which results can be saved as text files.
+#' @param data_colnames A vector of strings, the names of the time series objects to read the
+#' results from
+#' @param model_names A vector of strings
+#' @return A data frame
+#' @export
+save_as_df <- function(fc = NULL,
+                       save_fc_to_file = NULL,
+                       data_colnames = NULL,
+                       model_names = NULL,
+                       ...) {
+  `%>%` <- magrittr::`%>%`
+  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  model_names <- check_model_names(model_names)
+  if (base::is.null(save_fc_to_file)) {
+    if (base::is.null(fc)) {
+      stop(base::paste("No data found! Please specify a valid data directory and time series' ",
+                       "names or specify a valid tsForecastR object.",
+                       sep = ""))
+    } else if (class(fc) != "tsForecastR") {
+      stop("The value of the fc argument is invalid! Please specify a valid tsForecastR object.")
+    }
+  } else {
+    if (base::is.null(data_colnames)) {
+      warning(base::paste("No time series' names found! When reading files from a data directory, ",
+                          "the time series' names must be provided. Otherwise, no file can be read ",
+                          "from the directory and save_fc_to_file will be set to NULL as default.",
+                          sep = ""))
+      save_fc_to_file <- NULL
+      if (base::is.null(fc)) {
+        stop(base::paste("No data found! Please specify a valid data directory and time series' ",
+                         "names or specify a valid tsForecastR object.",
+                         sep = ""))
+      } else if (class(fc) != "tsForecastR") {
+        stop(base::paste("No data found! Please specify a valid data directory and time series' ",
+                         "names or specify a valid tsForecastR object.",
+                         sep = ""))
+      }
+    } else {
+      data_colnames <- check_colnames(data_colnames)
+    }
+  }
+  if (base::is.null(save_fc_to_file)) {
+    results_df <- read_tsForecastR(fc)
+  } else {
+    results_df <- read_fc_from_file(save_fc_to_file = save_fc_to_file,
+                                    data_colnames = data_colnames,
+                                    model_names = model_names)
+  }
+  return(results_df)
 }

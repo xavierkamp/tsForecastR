@@ -37,14 +37,16 @@ generate_fc_lstm_keras(
 
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
-\item{preprocess_fct}{A custom preprocessing function to deal with missing values}
+\item{preprocess_fct}{A function, a custom function to handle missing values in the data.
+(e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
+interval of non-missing values is selected and the most recent dates are then attributed to these values.}
 
 \item{lstm_keras_arg}{A list, optional arguments to pass to the lstm network}
 
 \item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 }
 \value{
-A list, forecast object for each forecasted period
+A tsForecastR object
 }
 \description{
 Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{keras} package on

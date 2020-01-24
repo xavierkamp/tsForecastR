@@ -481,12 +481,13 @@ transform_data <- function(original_ts,
         base::diff(original_ts) %>%
         xts::merge.xts(., transformed_ts, join = "outer") %>%
         .[, 1]
-      theor_trans_ts[zoo::index(theor_trans_ts) %in% zoo::index(transformed_ts)] <- transformed_ts
-      undo_theo_trans_ts <- theor_trans_ts
-      for (num in 1:base::nrow(theor_trans_ts)) {
+      filled_trans_ts <- theor_trans_ts
+      filled_trans_ts[zoo::index(filled_trans_ts) %in% zoo::index(transformed_ts)] <- transformed_ts
+      undo_theo_trans_ts <- filled_trans_ts
+      for (num in 1:base::nrow(filled_trans_ts)) {
         sum_data <-
           (base::as.numeric(sum_data)
-           + imputeTS::na.replace(theor_trans_ts[num]))
+           + if (is.na(filled_trans_ts[num])) 0 else filled_trans_ts[num])
         undo_theo_trans_ts[num] <- sum_data
       }
       undo_trans_ts <- undo_theo_trans_ts[zoo::index(undo_theo_trans_ts) %in% zoo::index(transformed_ts)]
@@ -527,4 +528,26 @@ univariate_xts <- function(mts_data_xts, ind = 1) {
                order.by = zoo::index(mts_data_xts))
   }
   return(ts_data_xts)
+}
+
+#' Default preprocessing function
+#' @description
+#' Default preprocessing function to handle missing values in the data. This function selects the
+#' largest interval of non-missing values and attributes the most recent dates to these values.
+#' @param ts_data A ts or xts object
+#' @export
+default_prepro_fct <- function(ts_data) {
+  `%>%` <- magrittr::`%>%`
+  if (!class(ts_data)[1] %in% c("ts", "xts")) {
+    stop("The input data must be of class ts or xts!")
+  }
+  xts_data <- check_data_sv_as_xts(ts_data)
+  contiguous_data <-
+    xts_data %>%
+    timeSeries::na.contiguous()
+  zoo::index(contiguous_data) <-
+    zoo::index(xts_data)[(length(xts_data)
+                          - length(contiguous_data)
+                          + 1):length(xts_data)]
+  return(contiguous_data)
 }
