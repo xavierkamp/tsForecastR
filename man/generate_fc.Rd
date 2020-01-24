@@ -70,6 +70,7 @@ fc <- generate_fc(AirPassengers,
 fc <- generate_fc(AirPassengers,
                   fc_horizon = 6,
                   model_names = c("arima", "ets",
+                                  "lstm_keras",
                                   "automl_h2o"))
 fc <- generate_fc(AirPassengers,
                   fc_horizon = 6,

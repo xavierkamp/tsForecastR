@@ -69,5 +69,5 @@ fc <- generate_fc_arima(AirPassengers,
                         fc_horizon = 6,
                         backtesting_opt = list(use_bt = TRUE,
                                                nb_iters = 6))
-## End (Not)
+## End (Not run)
 }
