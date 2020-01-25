@@ -9,3 +9,8 @@ r:
 os:
  linux
  osx
+
+addons:
+  apt:
+    packages:
+    - python3.6
