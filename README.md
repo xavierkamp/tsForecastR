@@ -4,12 +4,12 @@
 # __Time Series Forecasting__
 This project involves developing a forecasting engine which is capable of applying traditional time series and 
 machine learning models on univariate and multivariate time series. 
-The idea is to facilitate forecasting accuracy testing and comparison of these methods through backtesting approaches. The procedure is meant to handle different case studies such as demand forecasting, inventory projections and financial forecasting. As the forecasting procedure is based on 'xts' data types, it can handle a variety of data frequency (e.g. yearly, monthly, daily).
+The idea is to facilitate forecasting accuracy testing of these methods through backtesting approaches. The procedure is meant to handle different case studies such as demand forecasting, inventory projections and financial forecasting. As the forecasting procedure is based on 'xts' data types, it can handle a variety of data frequencies (e.g. yearly, monthly, daily).
 
 All codes are written in R.
 
 ## __Acknowledgements__
-The main source of inspiration of this project is the TSstudio package which presents excellent powerful tools for dealing with time series data, Nevertheless, at the time of this writing (24/01/2020), TSstudio does not provide a framework to include newer types of machine learning algorithms such as AutoML from the h2o package and Long Short-term Memory networks. This led to the search of a methodology which would enable a possible extension to these newer frameworks which this project hopes to achieve.
+The main source of inspiration of this project is the TSstudio package which presents excellent powerful tools for dealing with time series data. Nevertheless, at the time of this writing (24/01/2020), TSstudio does not provide a framework to include newer types of machine learning algorithms such as AutoML from the h2o package and Long Short-term Memory Networks. This led to the need for a framework which would enable a possible extension to these newer models which this package hopes to provide.
 
 ## __Getting Started__
 
@@ -29,7 +29,7 @@ library("devtools")
 devtools::install_github("xavierkamp/tsForecastR")
 ```
 
-__Note:__ 
+Note:
 
 When installing this package, in order to use the LSTM model, you will be required to have Python and Tensorflow (version <= 1.14) installed on your machine. Note that the current forecasting procedure does not support Tensorflow 2.0.
 
@@ -45,7 +45,7 @@ When installing packages, you may be required to restart the R session and repea
 
 ### Dependencies
 
-List of main dependencies of this package:
+List of the main dependencies of this package:
 
 - bsts
 - doParallel
@@ -90,7 +90,7 @@ List of main functions:
 
 Note:
 
-The above listed functions are all based on a sequential processing approach. To use parallel processing, see also the [parTsForecastR](https://github.com/xavierkamp/parTsForecastR) package which is an extension of this package.
+The above listed functions are all based on a sequential processing approach. To use parallel processing, please also inspect the [parTsForecastR](https://github.com/xavierkamp/parTsForecastR) package which is built on top of this package.
 
 Example:
 ``` r
