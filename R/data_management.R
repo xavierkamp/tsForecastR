@@ -38,7 +38,7 @@ get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
     }
   }
   if (!base::is.logical(exclude_PI)) {
-    warning("Argument to exclude prediction interval is invalid, using FALSE as default!")
+    message("Argument to exclude prediction interval is invalid, using FALSE as default!")
     exclude_PI <- FALSE
   }
   if (exclude_PI) {
@@ -435,13 +435,13 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    write.table(results,
-                file = file_name,
-                append = TRUE,
-                eol = "\r\n",
-                sep = "\t",
-                col.names = append_colnames,
-                row.names = FALSE)
+    suppressWarnings(write.table(results,
+                                 file = file_name,
+                                 append = TRUE,
+                                 eol = "\r\n",
+                                 sep = "\t",
+                                 col.names = append_colnames,
+                                 row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -513,13 +513,13 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    write.table(results,
-                file = file_name,
-                append = TRUE,
-                eol = "\r\n",
-                sep = "\t",
-                col.names = append_colnames,
-                row.names = FALSE)
+    suppressWarnings(write.table(results,
+                                 file = file_name,
+                                 append = TRUE,
+                                 eol = "\r\n",
+                                 sep = "\t",
+                                 col.names = append_colnames,
+                                 row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -584,13 +584,13 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    utils::write.table(results,
-                       file = file_name,
-                       append = TRUE,
-                       eol = "\r\n",
-                       sep = "\t",
-                       col.names = append_colnames,
-                       row.names = FALSE)
+    suppressWarnings(utils::write.table(results,
+                                        file = file_name,
+                                        append = TRUE,
+                                        eol = "\r\n",
+                                        sep = "\t",
+                                        col.names = append_colnames,
+                                        row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -631,20 +631,21 @@ read_fc_from_file <- function(data_colnames, save_fc_to_file, model_names) {
   df <- base::data.frame()
   for (ts_name in data_colnames) {
     for (method in model_names) {
-      base::tryCatch({
-        file_name <- base::paste(save_fc_to_file,
-                                 base::paste(ts_name, method, sep = "_"),
-                                 sep = "/")
-        file_data <-
-          read.table(file_name,
-                     header = TRUE,
-                     sep = "\t") %>%
-          dplyr::filter(ts_name %in% data_colnames)
-        df <- dplyr::bind_rows(df, file_data)
-      }, error = function(e) {
-        warning(base::paste("File named '", file_name, "' not found",
-                            sep = ""))
-      })
+      suppressWarnings(
+        base::tryCatch({
+          file_name <- base::paste(save_fc_to_file,
+                                   base::paste(ts_name, method, sep = "_"),
+                                   sep = "/")
+          file_data <-
+            read.table(file_name,
+                       header = TRUE,
+                       sep = "\t") %>%
+            dplyr::filter(ts_name %in% data_colnames)
+          df <- dplyr::bind_rows(df, file_data)
+        }, error = function(e) {
+          message(base::paste("File named '", file_name, "' not found",
+                              sep = ""))
+        }))
     }
   }
   return(df)
@@ -685,7 +686,7 @@ save_as_df <- function(fc = NULL,
     }
   } else {
     if (base::is.null(data_colnames)) {
-      warning(base::paste("No time series' names found! When reading files from a data directory, ",
+      message(base::paste("No time series' names found! When reading files from a data directory, ",
                           "the time series' names must be provided. Otherwise, no file can be read ",
                           "from the directory and save_fc_to_file will be set to NULL as default.",
                           sep = ""))

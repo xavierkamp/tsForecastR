@@ -152,7 +152,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
       x_test <- input_data_xts[(last_tmp_test_pos + 1):(last_tmp_test_pos + fc_horizon), ]
     },
     error = function(e) {
-      warning(e)
+      message(e)
     }
   )
   split <- base::list(x_train, x_valid, x_tmp_test, x_test)
@@ -219,7 +219,7 @@ preprocess_custom_fct <- function(input_data, fct = NULL) {
   } else if (base::is.list(fct)) {
     custom_fct <- fct[[1]]
     if (!base::is.function(custom_fct)) {
-      warning("First argument in list must be a function! Using no transformation by default")
+      message("First argument in list must be a function! Using no transformation by default")
       transformed_data <- ts_data
     } else {
       fct_args <- fct[[-1]]
@@ -228,7 +228,7 @@ preprocess_custom_fct <- function(input_data, fct = NULL) {
         base::do.call(., custom_fct, c(fct_args))
     }
   } else {
-    warning("Arguments were invalid. No transformation will be applied!")
+    message("Arguments were invalid. No transformation will be applied!")
     transformed_data <- ts_data
   }
   return(transformed_data)
@@ -437,11 +437,11 @@ transform_data <- function(original_ts,
   original_ts <- check_data_sv_as_xts(original_ts)
   transformed_ts <- check_data_sv_as_xts(transformed_ts)
   if (!method %in% c("diff", "log", "sqrt")) {
-    warning("The value of the 'method' argument is invalid, using 'diff' as default!")
+    message("The value of the 'method' argument is invalid, using 'diff' as default!")
     method <- "diff"
   }
   if (!base::is.logical(apply_transform)) {
-    warning("The value of the 'apply_transform' argument is invalid, using 'TRUE' as default!")
+    message("The value of the 'apply_transform' argument is invalid, using 'TRUE' as default!")
     apply_transform <- TRUE
   }
   if (apply_transform) {

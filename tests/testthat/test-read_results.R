@@ -23,6 +23,7 @@ if (require(testthat)) {
     dir.create(save_fc_to_file)
     # generate forecasts and save in files
     fc <- generate_fc(ts_data,
+                      model_names = model_names,
                       save_fc_to_file = save_fc_to_file)
     # check if files are properly named
     for (ts_name in base::names(fc)) {
@@ -32,14 +33,14 @@ if (require(testthat)) {
                                              i,
                                              sep = "_"),
                                  sep = "/")
-        expect_equal(file.exists(file_name), TRUE)
+        expect_equal(base::file.exists(file_name), TRUE)
       }
     }
     expect_error(generate_fc(ts_data, model_names = model_names,
                              save_fc_to_file = "1234"))
     # read files
     df <-
-      read_fc_from_file(colnames(ts_data),
+      read_fc_from_file(base::colnames(ts_data),
                         save_fc_to_file = save_fc_to_file,
                         model_names = model_names)
     expect_equal(base::nrow(df), base::length(model_names)*156)

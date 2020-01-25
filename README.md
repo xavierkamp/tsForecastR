@@ -1,3 +1,6 @@
+[![Travis build status](https://travis-ci.org/xavierkamp/tsForecastR.svg?branch=master)](https://travis-ci.org/xavierkamp/tsForecastR)
+
+
 # __Time Series Forecasting__
 This project involves developing a forecasting engine which is capable of applying traditional time series and 
 machine learning models on univariate and multivariate time series. 
@@ -40,7 +43,7 @@ tensorflow::install_tensorflow(version = 1.14)
 ```
 When installing packages, it may be that you will sometimes be required to restart the R session and repeat the installation in order to succesfully install or update packages.
 
-### __Dependencies__
+### Dependencies
 
 List of main dependencies of this package:
 

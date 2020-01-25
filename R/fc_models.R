@@ -841,7 +841,7 @@ generate_fc_bsts <- function(ts_data_xts,
   model_name <- "bsts"
   print_model_name(model_name)
   if (stats::frequency(ts_data_xts) <= 1) {
-    warning(base::paste("For 'bsts': as the data frequency is lower or equal to 1, the value of the ",
+    message(base::paste("For 'bsts': as the data frequency is lower or equal to 1, the value of the ",
                         "'seasonal' argument must be set to FALSE and the value of the 'linear_trend' ",
                         "argument must be set to TRUE.",
                         sep = ""))
@@ -858,66 +858,66 @@ generate_fc_bsts <- function(ts_data_xts,
   } else {
     if ("linear_trend" %in% base::names(bsts_arg)) {
       if (!bsts_arg$linear_trend %in% c(TRUE, FALSE)) {
-        warning("The value of the 'linear_trend' argument of the bsts model is invalid, using default (TRUE)")
+        message("The value of the 'linear_trend' argument of the bsts model is invalid, using default (TRUE)")
         bsts_arg$linear_trend <- TRUE
       }
     } else {
-      warning("The 'linear_trend' was not defined, using TRUE as default")
+      message("The 'linear_trend' was not defined, using TRUE as default")
       bsts_arg$linear_trend <- TRUE
     }
     if ("seasonal" %in% base::names(bsts_arg)) {
       if (!bsts_arg$seasonal %in% c(TRUE, FALSE)) {
-        warning("The value of the 'seasonal' argument of the bsts model is invalid, using TRUE as default")
+        message("The value of the 'seasonal' argument of the bsts model is invalid, using TRUE as default")
         bsts_arg$seasonal <- TRUE
       }
     } else {
-      warning("The 'seasonal' argument was not defined, using TRUE as default")
+      message("The 'seasonal' argument was not defined, using TRUE as default")
       bsts_arg$seasonal <- TRUE
     }
     if ("niter" %in% base::names(bsts_arg)) {
       if (!base::is.numeric(bsts_arg$niter)) {
-        warning("The value of the 'niter' argument of the bsts model is invalid, setting the argument to 1000")
+        message("The value of the 'niter' argument of the bsts model is invalid, setting the argument to 1000")
         bsts_arg$niter <- 1000
       } else if (bsts_arg$niter%%1 != 0) {
-        warning("The value of the 'niter' argument of the bsts model is not integer, setting the argument to 1000")
+        message("The value of the 'niter' argument of the bsts model is not integer, setting the argument to 1000")
         bsts_arg$niter <- 1000
       }
     } else {
-      warning("The 'niter' argument was not defined, setting the argument to 1000")
+      message("The 'niter' argument was not defined, setting the argument to 1000")
       bsts_arg$niter <- 1000
     }
     if ("ping" %in% base::names(bsts_arg)) {
       if (!base::is.numeric(bsts_arg$ping)) {
-        warning("The value of the 'ping' argument of the bsts model is invalid, setting the argument to 100")
+        message("The value of the 'ping' argument of the bsts model is invalid, setting the argument to 100")
         bsts_arg$ping <- 100
       } else if (bsts_arg$ping%%1 != 0) {
-        warning("The value of the 'ping' argument of the bsts model is not integer, setting the argument to 100")
+        message("The value of the 'ping' argument of the bsts model is not integer, setting the argument to 100")
         bsts_arg$ping <- 1000
       }
     } else {
-      warning("The 'ping' argument was not defined, setting the argument to 100")
+      message("The 'ping' argument was not defined, setting the argument to 100")
       bsts_arg$ping <- 100
     }
     if ("seed" %in% base::names(bsts_arg)) {
       if (!base::is.numeric(bsts_arg$seed)) {
-        warning("The value of the 'seed' argument of the bsts model is invalid, setting the argument to 1234")
+        message("The value of the 'seed' argument of the bsts model is invalid, setting the argument to 1234")
         bsts_arg$seed <- 1234
       } else if (bsts_arg$seed%%1 != 0) {
-        warning("The value of the 'seed' argument of the bsts model is not integer, setting the argument to 1234")
+        message("The value of the 'seed' argument of the bsts model is not integer, setting the argument to 1234")
         bsts_arg$seed <- 1234
       }
     } else {
-      warning("The 'seed' argument was not defined, setting the argument to 1234")
+      message("The 'seed' argument was not defined, setting the argument to 1234")
       bsts_arg$seed <- 1234
     }
     if ("family" %in% base::names(bsts_arg)) {
       if (!bsts_arg$family %in% c("gaussian", "logit",
                                   "poisson", "student")) {
-        warning("The value of the 'family' argument of the bsts model is invalid, using 'gaussian' as default")
+        message("The value of the 'family' argument of the bsts model is invalid, using 'gaussian' as default")
         bsts_arg$family <- "gaussian"
       }
     } else {
-      warning("The value of the 'family' argument is missing, using 'gaussian' as default")
+      message("The value of the 'family' argument is missing, using 'gaussian' as default")
       bsts_arg$family <- "gaussian"
     }
   }
@@ -1096,93 +1096,93 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   } else {
     if ("valid_set_size" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$valid_set_size)) {
-        warning("The 'valid_set_size' argument is invalid, setting to default: frequency of the data")
+        message("The 'valid_set_size' argument is invalid, setting to default: frequency of the data")
         lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
       }
     } else {
-      warning("The 'valid_set_size' argument is missing, setting to default: frequency of the data")
+      message("The 'valid_set_size' argument is missing, setting to default: frequency of the data")
       lstm_keras_arg$valid_set_size <- stats::frequency(ts_data_xts)
     }
     if ("stateful" %in% base::names(lstm_keras_arg)) {
       if (!base::is.logical(lstm_keras_arg$stateful)) {
-        warning("The value of the 'stateful' argument is invalid, using FALSE as default.")
+        message("The value of the 'stateful' argument is invalid, using FALSE as default.")
         lstm_keras_arg$stateful <- FALSE
       }
     } else {
-      warning("The value of the 'stateful' argument is missing, using FALSE as default.")
+      message("The value of the 'stateful' argument is missing, using FALSE as default.")
       lstm_keras_arg$stateful <- FALSE
     }
     if ("nb_stacked_layers" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$nb_stacked_layers)) {
-        warning("The value of the number of stacked layers is invalid, using 0 as default")
+        message("The value of the number of stacked layers is invalid, using 0 as default")
         lstm_keras_arg$nb_stacked_layers <- 0
       }
     } else {
-      warning("The value of the number of stacked layers is missing, using 0 as default")
+      message("The value of the number of stacked layers is missing, using 0 as default")
       lstm_keras_arg$nb_stacked_layers <- 0
     }
     if (!"lag_setting" %in% base::names(lstm_keras_arg)) {
-      warning("The number of lags is missing, using the frequency of the data as default")
+      message("The number of lags is missing, using the frequency of the data as default")
       lstm_keras_arg$lag_setting <- stats::frequency(ts_data_xts)
     }
     if (!"loss" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the 'loss' argument is missing, using 'mean_absolute_error' as default")
+      message("The value of the 'loss' argument is missing, using 'mean_absolute_error' as default")
       lstm_keras_arg$loss <- "mean_absolute_error"
     }
     if (!"lr" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the learning rate is missing, using 0.001 as default")
+      message("The value of the learning rate is missing, using 0.001 as default")
       lstm_keras_arg$lr <- 0.001
     }
     if (!"momentum" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the momentum is missing, using 0.05 as default")
+      message("The value of the momentum is missing, using 0.05 as default")
       lstm_keras_arg$momentum <- 0.1
     }
     if (!"dropout" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the dropout rate is missing, using 0.2 as default")
+      message("The value of the dropout rate is missing, using 0.2 as default")
       lstm_keras_arg$dropout <- 0.3
     }
     if (!"recurrent_dropout" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the recurrent dropout rate is missing, using 0.2 as default")
+      message("The value of the recurrent dropout rate is missing, using 0.2 as default")
       lstm_keras_arg$recurrent_dropout <- 0.2
     }
     if (!"nb_units" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the number of units in the LSTM cell is missing, using 100 as default")
+      message("The value of the number of units in the LSTM cell is missing, using 100 as default")
       lstm_keras_arg$nb_units <- 50
     }
     if (!"nb_epochs" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the number of epochs is missing, using 50 as default")
+      message("The value of the number of epochs is missing, using 50 as default")
       lstm_keras_arg$nb_epochs <- 70
     }
     if (!"nb_timesteps" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the number of time steps is missing, using the frequency of the data as default")
+      message("The value of the number of time steps is missing, using the frequency of the data as default")
       lstm_keras_arg$nb_timesteps <- stats::frequency(ts_data_xts)
     }
     if (!"batch_size" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the batch size is missing, using 1 as default")
+      message("The value of the batch size is missing, using 1 as default")
       lstm_keras_arg$batch_size <- 1
     }
     if (!"optimizer_type" %in% base::names(lstm_keras_arg)) {
-      warning("The type of optimizer to apply is missing, using 'adam' as default")
+      message("The type of optimizer to apply is missing, using 'adam' as default")
       lstm_keras_arg$optimizer_type <- "adam"
     }
     if (!"patience" %in% base::names(lstm_keras_arg)) {
-      warning("The value of the loss function is missing, using 10 as default")
+      message("The value of the loss function is missing, using 10 as default")
       lstm_keras_arg$patience <- 20
     }
     if (!"verbose" %in% base::names(lstm_keras_arg)) {
-      warning("The value of verbose is missing, using TRUE as default")
+      message("The value of verbose is missing, using TRUE as default")
       lstm_keras_arg$verbose <- TRUE
     }
     if ("time_features" %in% base::names(lstm_keras_arg)) {
       if (sum(!lstm_keras_arg$time_features %in% all_time_features) > 0) {
-        warning(base::paste("The value of time features to select is invalid, setting to default: ",
+        message(base::paste("The value of time features to select is invalid, setting to default: ",
                             "c('month', 'year'). All available options are: c('",
                             base::paste(all_time_features, collapse = "', '"), "')",
                             sep = ""))
         lstm_keras_arg$time_features <- c("month", "year")
       }
     } else {
-      warning(base::paste("The value of time features to select is missing, setting to default: ",
+      message(base::paste("The value of time features to select is missing, setting to default: ",
                           "c('month', 'year'). All available options are: c('",
                           base::paste(all_time_features, collapse = "', '"), "')",
                           sep = ""))
@@ -1190,11 +1190,11 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     }
     if ("seed" %in% base::names(lstm_keras_arg)) {
       if (!base::is.numeric(lstm_keras_arg$seed)) {
-        warning("The value of seed is invalid, using 1234 as default")
+        message("The value of seed is invalid, using 1234 as default")
         lstm_keras_arg$seed <- 1234
       }
     } else {
-      warning("The value of seed is missing, using 1234 as default")
+      message("The value of seed is missing, using 1234 as default")
       lstm_keras_arg$seed <- 1234
     }
   }
@@ -1541,7 +1541,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                  test_set_size = stats::frequency(ts_data_xts))
   } else {
     if (!base::is.list(automl_h2o_arg)) {
-      warning(base::paste("The model arguments must be passed as a list! ",
+      message(base::paste("The model arguments must be passed as a list! ",
                           " Setting to defaults: ",
                           "list(max_models = 5, max_runtime_secs = 3600, ",
                           "max_runtime_secs_per_model = 30, ",
@@ -1563,31 +1563,31 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     }
     if (!base::is.null(automl_h2o_arg$max_models)) {
       if (!base::is.numeric(automl_h2o_arg$max_models)) {
-        warning("The value of the 'max_models' argument is invalid. Setting to default: 10")
+        message("The value of the 'max_models' argument is invalid. Setting to default: 10")
         automl_h2o_arg$max_models <- 5
       }
     } else {
-      warning("The value of the 'max_models' argument is missing. Setting to default: 10")
+      message("The value of the 'max_models' argument is missing. Setting to default: 10")
       automl_h2o_arg$max_models <- 5
     }
     if ("max_runtime_secs" %in% base::names(automl_h2o_arg)) {
       if (!base::is.numeric(automl_h2o_arg$max_runtime_secs)) {
-        warning("The value of the 'max_runtime_secs' argument is invalid. Setting to default: 3600")
+        message("The value of the 'max_runtime_secs' argument is invalid. Setting to default: 3600")
         automl_h2o_arg$max_runtime_secs <- 3600
       }
     } else {
-      warning("The value of the 'max_runtime_secs' argument is missing. Setting to default: 3600")
+      message("The value of the 'max_runtime_secs' argument is missing. Setting to default: 3600")
       automl_h2o_arg$max_runtime_secs <- 3600
     }
     if ("max_runtime_secs" %in% base::names(automl_h2o_arg)) {
       if (!is.numeric(automl_h2o_arg$max_runtime_secs_per_model)) {
-        warning(base::paste("The value of the 'max_runtime_secs_per_model' argument is invalid. ",
+        message(base::paste("The value of the 'max_runtime_secs_per_model' argument is invalid. ",
                             "Setting to default: 0 (to disable)",
                             sep = ""))
         automl_h2o_arg$max_runtime_secs_per_model <- 30
       }
     } else {
-      warning(base::paste("The value of the 'max_runtime_secs_per_model' argument is missing. ",
+      message(base::paste("The value of the 'max_runtime_secs_per_model' argument is missing. ",
                           "Setting to default: 0 (to disable)",
                           sep = ""))
       automl_h2o_arg$max_runtime_secs_per_model <- 30
@@ -1595,31 +1595,31 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     if ("stopping_metric" %in% base::names(automl_h2o_arg)) {
       if (!automl_h2o_arg$stopping_metric %in% c("AUTO", "deviance", "logloss",
                                                  "MSE", "RMSE", "MAE", "RMSLE")) {
-        warning("The value of the 'stopping_metric' argument is invalid. Setting to default: 'MAE'")
+        message("The value of the 'stopping_metric' argument is invalid. Setting to default: 'MAE'")
         automl_h2o_arg$stopping_metric <- 'MAE'
       }
     } else {
-      warning("The value of the 'stopping_metric' argument is missing. Setting to default: 'MAE'")
+      message("The value of the 'stopping_metric' argument is missing. Setting to default: 'MAE'")
       automl_h2o_arg$stopping_metric <- "MAE"
     }
     if (!base::is.null(automl_h2o_arg$seed)) {
       if (!base::is.numeric(automl_h2o_arg$seed)) {
-        warning("The value of the 'seed' argument is invalid. Setting to default: 1234")
+        message("The value of the 'seed' argument is invalid. Setting to default: 1234")
         automl_h2o_arg$seed <- 1234
       }
     }
     if (!base::is.null(automl_h2o_arg$algos_to_exclude)) {
       if (!base::is.character(automl_h2o_arg$algos_to_exclude)) {
-        warning("The value of the 'exclude_algos' argument is invalid. Setting to default: 'StackedEnsemble'")
+        message("The value of the 'exclude_algos' argument is invalid. Setting to default: 'StackedEnsemble'")
         automl_h2o_arg$algos_to_exclude <- "StackedEnsemble"
       }
     } else {
-      warning("The value of the 'exclude_algos' argument is missing Setting to default: 'StackedEnsemble'")
+      message("The value of the 'exclude_algos' argument is missing Setting to default: 'StackedEnsemble'")
       automl_h2o_arg$algos_to_exclude <- "StackedEnsemble"
     }
     if ("time_features" %in% base::names(automl_h2o_arg)) {
       if (base::sum(!automl_h2o_arg$time_features %in% all_time_features) > 0) {
-        warning(base::paste("These values of the 'time_features' argument are invalid: ",
+        message(base::paste("These values of the 'time_features' argument are invalid: ",
                             automl_h2o_arg$time_features %>%
                               .[!. %in% all_time_features],
                             ". ",
@@ -1631,7 +1631,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
         automl_h2o_arg$time_features <- all_time_features
       }
     } else {
-      warning(base::paste("The value of the 'time_features' argument is missing. ",
+      message(base::paste("The value of the 'time_features' argument is missing. ",
                           "Setting to default: c('",
                           paste(all_time_features, collapse = "', '"),
                           "')",
@@ -1640,7 +1640,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     }
     if ("valid_set_size" %in% base::names(automl_h2o_arg)) {
       if (!base::is.numeric(automl_h2o_arg$valid_set_size)) {
-        warning(base::paste("The value of the 'valid_set_size' argument is invalid. ",
+        message(base::paste("The value of the 'valid_set_size' argument is invalid. ",
                             "Setting to default: frequency(ts_data)",
                             sep = ""))
         automl_h2o_arg$valid_set_size <- stats::frequency(ts_data_xts)
@@ -1650,7 +1650,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     }
     if ("test_set_size" %in% base::names(automl_h2o_arg)) {
       if (!base::is.numeric(automl_h2o_arg$test_set_size)) {
-        warning(base::paste("The value of the 'test_set_size' argument is invalid. ",
+        message(base::paste("The value of the 'test_set_size' argument is invalid. ",
                             "Setting to default: frequency(ts_data)",
                             sep = ""))
         automl_h2o_arg$test_set_size <- stats::frequency(ts_data_xts)
