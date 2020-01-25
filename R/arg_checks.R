@@ -310,13 +310,13 @@ check_tensorflow <- function(model_names) {
     tf_configuration <- tensorflow::tf_config()
     if (tf_configuration$version > '1.14') {
       message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
-      model_names_unlist <-
-        model_names_unlist[model_names_unlist != "lstm_keras"]
+      model_names <-
+        model_names[model_names != "lstm_keras"]
     }
-    return(model_names_unlist)
+    return(model_names)
   }, error = function(e) {
     message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
-    return(model_names_unlist[model_names_unlist != "lstm_keras"])
+    return(model_names[model_names != "lstm_keras"])
   })
 }
 

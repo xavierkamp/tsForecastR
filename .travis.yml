@@ -3,14 +3,11 @@
 language: R
 cache: packages
 
+install:
+  - sudo apt-get install -y python3.6
+
 r:
- - oldrel
  - release
 os:
  - linux
  - osx
-
-addons:
-  apt:
-    packages:
-    - python3.6
