@@ -4,7 +4,7 @@ language: R
 cache: packages
 
 install:
-  - sudo apt-get install -y python3.6
+  - sudo apt-get install python3.6
 
 r:
  - release
