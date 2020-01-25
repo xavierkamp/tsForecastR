@@ -315,7 +315,7 @@ check_tensorflow <- function(model_names) {
     }
     return(model_names)
   }, error = function(e) {
-    message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
+    message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file for more details.")
     return(model_names[model_names != "lstm_keras"])
   })
 }
