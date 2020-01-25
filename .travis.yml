@@ -2,5 +2,10 @@
 
 language: R
 cache: packages
+
+r:
+ - oldrel
+ - release
 os:
  linux
+ osx

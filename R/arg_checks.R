@@ -291,7 +291,33 @@ check_model_names <- function(model_names) {
     stop(base::paste("Invalid model selected! List of models allowed:",
                      base::paste(available_models, collapse = ", ")))
   }
+  if ("lstm_keras" %in% model_names_unlist) {
+    model_names_unlist <- check_tensorflow(model_names)
+  }
   return(model_names_unlist)
+}
+
+#' Check if tensorflow is properly installed
+#' @description
+#' This function ensures that the user has Python and Tensorflow (version <= 1.14) installed.
+#' If these criteria are violated, then the user cannot use the 'lstm_keras' model.
+#' @param model_names A list or vector of strings
+#' @return model_names: vector of strings
+#' @export
+check_tensorflow <- function(model_names) {
+  base::tryCatch({
+    tensorflow::tf$constant("Test")
+    tf_configuration <- tensorflow::tf_config()
+    if (tf_configuration$version > '1.14') {
+      message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
+      model_names_unlist <-
+        model_names_unlist[model_names_unlist != "lstm_keras"]
+    }
+    return(model_names_unlist)
+  }, error = function(e) {
+    message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
+    return(model_names_unlist[model_names_unlist != "lstm_keras"])
+  })
 }
 
 #' Check models' arguments

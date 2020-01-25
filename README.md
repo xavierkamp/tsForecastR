@@ -1,5 +1,5 @@
 [![Travis build status](https://travis-ci.org/xavierkamp/tsForecastR.svg?branch=master)](https://travis-ci.org/xavierkamp/tsForecastR)
-
+[![Codecov test coverage](https://codecov.io/gh/xavierkamp/tsForecastR/branch/master/graph/badge.svg)](https://codecov.io/gh/xavierkamp/tsForecastR?branch=master)
 
 # __Time Series Forecasting__
 This project involves developing a forecasting engine which is capable of applying traditional time series and 
@@ -41,7 +41,7 @@ To install tensorflow:
 ``` r
 tensorflow::install_tensorflow(version = 1.14)
 ```
-When installing packages, it may be that you will sometimes be required to restart the R session and repeat the installation in order to succesfully install or update packages.
+When installing packages, you may be required to restart the R session and repeat the installation process in order to successfully install or update packages.
 
 ### Dependencies
 
