@@ -7,8 +7,8 @@ r:
  - oldrel
  - release
 os:
- linux
- osx
+ - linux
+ - osx
 
 addons:
   apt:
