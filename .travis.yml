@@ -2,9 +2,12 @@
 
 language: R
 cache: packages
-before_install:
- - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then brew install python3           ; fi
- - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y python3; fi
+apt_packages:
+ - python3
+brew_packages:
+ - python3
+script:
+ - travis_wait R -e 'devtools::test()'
 r:
  - release
 os:
