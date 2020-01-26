@@ -23,6 +23,8 @@ add_timesteps(
 \item{tsteps}{An integer, the number of time steps}
 
 \item{lag_setting}{An integer, lag to apply on regressors}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A data.frame object

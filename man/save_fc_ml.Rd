@@ -32,6 +32,8 @@ save_fc_ml(
 \item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
 
 \item{model_args}{A list, optional arguments to pass to the models}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A data frame

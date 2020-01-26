@@ -42,11 +42,16 @@ generate_fc_automl_h2o(
 (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 interval of non-missing values is selected and the most recent dates are then attributed to these values.}
 
+\item{data_transf_method}{A string, the data transformation technique to be passed to the function.
+(options: 'diff', 'log', 'sqrt')}
+
 \item{automl_h2o_arg}{A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function}
 
 \item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 
 \item{nb_cores}{A numeric, number of threads to use in parallel computed model selection process}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A tsForecastR object
@@ -56,7 +61,7 @@ Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o}
 time series data.
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 
 # Generate forecasts on future dates
@@ -73,5 +78,5 @@ fc <- generate_fc_automl_h2o(AirPassengers,
                              fc_horizon = 6,
                              backtesting_opt = list(use_bt = TRUE,
                                                     nb_iters = 6))
-## End (Not run)
+}
 }

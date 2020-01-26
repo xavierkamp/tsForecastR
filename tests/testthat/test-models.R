@@ -155,14 +155,19 @@ if (require(testthat)) {
   test_that("generate_fc_lstm_keras_works", {
     data <- seq(1:144)
     ts_data <- stats::ts(data, frequency = 12, start = c(1, 1))
-    fc <- generate_fc_lstm_keras(ts_data, model_names = model_names)
-    expect_equal(class(fc)[1], "tsForecastR")
-    expect_equal(names(fc), "period_1")
+    model_name <- check_tensorflow("lstm_keras")
+    if (base::length(model_name) > 0) {
+      fc <- generate_fc_lstm_keras(ts_data)
+      expect_equal(class(fc)[1], "tsForecastR")
+      expect_equal(names(fc), "period_1")
 
-    xts_data <- xts::as.xts(ts_data)
-    fc <- generate_fc_lstm_keras(xts_data, model_names = model_names)
-    expect_equal(class(fc)[1], "tsForecastR")
-    expect_equal(names(fc), "period_1")
+      xts_data <- xts::as.xts(ts_data)
+      fc <- generate_fc_lstm_keras(xts_data)
+      expect_equal(class(fc)[1], "tsForecastR")
+      expect_equal(names(fc), "period_1")
+    } else {
+      warning("LSTM model could not be tested! To use the LSTM model, Python and Tensorflow (version <= 1.14) must be installed.")
+    }
   })
   test_that("generate_fc_automl_h2o_works", {
     data <- seq(1:144)

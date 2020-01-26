@@ -34,6 +34,8 @@ split_train_test_set(
  method - A string, to determine whether to use a rolling or a moving forecasting window
 
  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A list, training, validation and test sets

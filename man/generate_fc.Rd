@@ -25,6 +25,8 @@ generate_fc(
 
 \item{fc_horizon}{An integer, the forcasting horizon}
 
+\item{xreg_data}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+
 \item{backtesting_opt}{A list, options for the backtesting program:
 
  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
@@ -42,15 +44,15 @@ generate_fc(
 (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 interval of non-missing values is selected and the most recent dates are then attributed to these values.}
 
+\item{models_args}{A list, optional arguments to pass to the models}
+
 \item{save_fc_to_file}{A string, directory to which results can be saved as text files}
 
 \item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 
 \item{nb_cores}{An integer, the number of threads to use for automl_h2o}
 
-\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
-
-\item{model_args}{A list, optional arguments to pass to the models}
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A list
@@ -60,7 +62,7 @@ Function which enables the user to select different forecasting algorithms rangi
 traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 
 # Generate forecasts on future dates
@@ -94,5 +96,5 @@ fc <- generate_fc(AirPassengers,
                   fc_horizon = 6,
                   backtesting_opt = list(use_bt = TRUE,
                                          nb_iters = 6))
-## End (Not run)
+}
 }

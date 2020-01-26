@@ -38,7 +38,7 @@ get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
     }
   }
   if (!base::is.logical(exclude_PI)) {
-    warning("Argument to exclude prediction interval is invalid, using FALSE as default!")
+    message("Argument to exclude prediction interval is invalid, using FALSE as default!")
     exclude_PI <- FALSE
   }
   if (exclude_PI) {
@@ -108,7 +108,8 @@ format_historical_data <- function(data_xts) {
 #' @param model_par A string
 #' @param model_args A string
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
-#' @param run_time A string
+#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @return A data.frame object
 combine_fc_results <- function(ts_name,
                                model_name,
@@ -381,6 +382,7 @@ extract_coef_tbats <- function(fc_obj) {
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
 #' @param exclude_PI A boolean, exclude prediction intervals in results
+#' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                              save_fc_to_file, model_name,
@@ -435,13 +437,13 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    write.table(results,
-                file = file_name,
-                append = TRUE,
-                eol = "\r\n",
-                sep = "\t",
-                col.names = append_colnames,
-                row.names = FALSE)
+    suppressWarnings(write.table(results,
+                                 file = file_name,
+                                 append = TRUE,
+                                 eol = "\r\n",
+                                 sep = "\t",
+                                 col.names = append_colnames,
+                                 row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -459,6 +461,7 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
+#' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                          save_fc_to_file, model_name,
@@ -513,13 +516,13 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    write.table(results,
-                file = file_name,
-                append = TRUE,
-                eol = "\r\n",
-                sep = "\t",
-                col.names = append_colnames,
-                row.names = FALSE)
+    suppressWarnings(write.table(results,
+                                 file = file_name,
+                                 append = TRUE,
+                                 eol = "\r\n",
+                                 sep = "\t",
+                                 col.names = append_colnames,
+                                 row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -537,6 +540,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
 #' @param model_args A list, optional arguments to pass to the models
+#' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_ml <- function(fc_obj, raw_data, sample_split,
                        save_fc_to_file, model_name,
@@ -584,13 +588,13 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                                          model_name,
                                          sep = "_"),
                              sep = "/")
-    utils::write.table(results,
-                       file = file_name,
-                       append = TRUE,
-                       eol = "\r\n",
-                       sep = "\t",
-                       col.names = append_colnames,
-                       row.names = FALSE)
+    suppressWarnings(utils::write.table(results,
+                                        file = file_name,
+                                        append = TRUE,
+                                        eol = "\r\n",
+                                        sep = "\t",
+                                        col.names = append_colnames,
+                                        row.names = FALSE))
     return(base::data.frame())
   } else {
     return(results)
@@ -622,29 +626,34 @@ read_tsForecastR <- function(fc) {
 }
 
 #' Read results from files
-#' @param save_fc_to_file A directory
+#' @param data_colnames a vector of strings, colnames to be cleaned
+#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param model_names A list or vector of strings representing the model names to be used
 #' @return A data frame
-read_fc_from_file <- function(data_colnames, save_fc_to_file, model_names) {
+read_fc_from_file <- function(data_colnames,
+                              save_fc_to_file,
+                              model_names) {
   `%>%` <- magrittr::`%>%`
   save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
   data_colnames <- check_colnames(data_colnames)
   df <- base::data.frame()
   for (ts_name in data_colnames) {
     for (method in model_names) {
-      base::tryCatch({
-        file_name <- base::paste(save_fc_to_file,
-                                 base::paste(ts_name, method, sep = "_"),
-                                 sep = "/")
-        file_data <-
-          read.table(file_name,
-                     header = TRUE,
-                     sep = "\t") %>%
-          dplyr::filter(ts_name %in% data_colnames)
-        df <- dplyr::bind_rows(df, file_data)
-      }, error = function(e) {
-        warning(base::paste("File named '", file_name, "' not found",
-                            sep = ""))
-      })
+      suppressWarnings(
+        base::tryCatch({
+          file_name <- base::paste(save_fc_to_file,
+                                   base::paste(ts_name, method, sep = "_"),
+                                   sep = "/")
+          file_data <-
+            read.table(file_name,
+                       header = TRUE,
+                       sep = "\t") %>%
+            dplyr::filter(ts_name %in% data_colnames)
+          df <- dplyr::bind_rows(df, file_data)
+        }, error = function(e) {
+          message(base::paste("File named '", file_name, "' not found",
+                              sep = ""))
+        }))
     }
   }
   return(df)
@@ -657,15 +666,16 @@ read_fc_from_file <- function(data_colnames, save_fc_to_file, model_names) {
 #' @param data_colnames A vector of strings, the names of the time series objects to read the
 #' results from
 #' @param model_names A vector of strings, the models to read the results from
+#' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' fc <- generate_fc(AirPassengers)
 #' df <- save_as_df(fc)
 #' print(df)
-#' ## End (Not run)
+#' }
 #' @export
 save_as_df <- function(fc = NULL,
                        save_fc_to_file = NULL,
@@ -685,7 +695,7 @@ save_as_df <- function(fc = NULL,
     }
   } else {
     if (base::is.null(data_colnames)) {
-      warning(base::paste("No time series' names found! When reading files from a data directory, ",
+      message(base::paste("No time series' names found! When reading files from a data directory, ",
                           "the time series' names must be provided. Otherwise, no file can be read ",
                           "from the directory and save_fc_to_file will be set to NULL as default.",
                           sep = ""))

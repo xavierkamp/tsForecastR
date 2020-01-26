@@ -19,7 +19,7 @@
 check_backtesting_opt <- function(backtesting_opt) {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(backtesting_opt) & !base::is.list(backtesting_opt)) {
-    warning("No backtesting plan has been specified, setting use_bt to FALSE by default")
+    message("No backtesting plan has been specified, setting use_bt to FALSE by default")
     backtesting_opt <-
       base::list(use_bt = FALSE,
                  nb_iters = 1,
@@ -29,7 +29,7 @@ check_backtesting_opt <- function(backtesting_opt) {
                                  "fixed"))
   }
   if (!base::is.list(backtesting_opt)) {
-    warning("No backtesting plan has been specified, setting use_bt to FALSE by default")
+    message("No backtesting plan has been specified, setting use_bt to FALSE by default")
     backtesting_opt <-
       base::list(use_bt = FALSE,
                  nb_iters = 1,
@@ -40,48 +40,47 @@ check_backtesting_opt <- function(backtesting_opt) {
   }
   if ("use_bt" %in% base::names(backtesting_opt)) {
     if (!base::is.logical(backtesting_opt$use_bt)) {
-
-      warning("The value of the backtesting plan is invalid, using FALSE as default")
+      message("The value of the backtesting plan is invalid, using FALSE as default")
       backtesting_opt$use_bt <- FALSE
     }
   } else {
-    warning("The value of the backtesting plan is missing, using FALSE as default")
+    message("The value of the backtesting plan is missing, using FALSE as default")
     backtesting_opt$use_bt <- FALSE
   }
   if ("nb_iters" %in% base::names(backtesting_opt)) {
     if (!is.numeric(backtesting_opt$nb_iters)) {
-      warning(base::paste("The value of the number of backtesting operations to perform is invalid, ",
+      message(base::paste("The value of the number of backtesting operations to perform is invalid, ",
                           "setting to 1 as default",
                           sep = ""))
       backtesting_opt$nb_iters <- 1
     }
   } else {
-    warning(base::paste("The value of the number of backtesting operations to perform is missing, ",
+    message(base::paste("The value of the number of backtesting operations to perform is missing, ",
                         "setting to 1 as default",
                         sep = ""))
     backtesting_opt$nb_iters <- 1
   }
   if ("method" %in% base::names(backtesting_opt)) {
     if (!backtesting_opt$method[1] %in% c("rolling", "moving")) {
-      warning("The value of the backtesting method is invalid, using 'rolling' as default")
+      message("The value of the backtesting method is invalid, using 'rolling' as default")
       backtesting_opt$method <- c("rolling", "moving")
     }
   } else {
-    warning("The value of the backtesting method is missing, using 'rolling' as default")
+    message("The value of the backtesting method is missing, using 'rolling' as default")
     backtesting_opt$method <- c("rolling", "moving")
   }
   if ("sample_size" %in% base::names(backtesting_opt)) {
     if (!backtesting_opt$sample_size[1] %in% c("expanding", "fixed")) {
-      warning("The value of the sample size is invalid, using 'expanding' as default")
+      message("The value of the sample size is invalid, using 'expanding' as default")
       backtesting_opt$sample_size <- c("expanding", "fixed")
     }
   } else {
-    warning("The value of the sample size is missing, using 'expanding' as default")
+    message("The value of the sample size is missing, using 'expanding' as default")
     backtesting_opt$sample_size <- c("expanding", "fixed")
   }
   if (!backtesting_opt$use_bt) {
     if (backtesting_opt$nb_iters != 1) {
-      warning(base::paste("As no backtesting is applied, there will be only one ",
+      message(base::paste("As no backtesting is applied, there will be only one ",
                           "forecasting exercise for each time series!",
                           sep = ""))
       backtesting_opt$nb_iters <- 1
@@ -145,6 +144,17 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 #' If not, the function throws an error.
 #' @param bt_iter A positive integer which is smaller or equal to the
 #' number of backtesting operations to perform.
+#' @param backtesting_opt A list, options for the backtesting program:
+#'
+#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'
+#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'
+#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
+#'
 #' @return bt_iter: a positive integer
 #' @export
 check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
@@ -163,16 +173,17 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
 #' @description
 #' Punctuations in colnames will dropped in order to
 #' avoid errors when converting between different data types.
-#' @param colnames_vec a vector of strings, colnames to be cleaned
-#' @param default_colname a string,
-#' @return colnames_vec
+#' @param data_colnames a vector of strings, colnames to be cleaned
+#' @param default_colname a string, default colname assigned when no colnames are defined
+#' @param nb_colnames an integer, number of colnames to check
+#' @return data_colnames: A vector of strings, where special symbols are dropped
 #' @export
 check_colnames <- function(data_colnames,
                            default_colname = "time_series",
                            nb_colnames = 1) {
   `%>%` <- magrittr::`%>%`
   if (base::is.null(data_colnames)) {
-    warning(base::paste("Missing or invalid colnames. Setting to default: '",
+    message(base::paste("Missing or invalid colnames. Setting to default: '",
                         default_colname,
                         "_'+'nb'",
                         sep = ""))
@@ -191,7 +202,7 @@ check_colnames <- function(data_colnames,
       data_colnames %>%
       base::gsub(pattern = "[^[:alnum:]_]",
                  replacement = "")
-    warning("Punctuation and whitespaces in colnames are dropped.")
+    message("Punctuation and whitespaces in colnames are dropped.")
   }
   return(data_colnames)
 }
@@ -203,6 +214,7 @@ check_colnames <- function(data_colnames,
 #' colnames will be applied. Moreover, punctuations in colnames will dropped to
 #' avoid errors when converting between different data types.
 #' @param input_data ts, mts or xts object
+#' @param default_colname a string, default colname assigned when no colnames are defined
 #' @return xts object with punctuations dropped in colnames
 #' @export
 check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
@@ -270,8 +282,8 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 #' @description
 #' This function ensures that the selected model names are valid.
 #' If not, the function throws an error.
-#' @param model_names A list or vector of strings
-#' @return model_names: vector of strings
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return model_names: vector of strings the input model_names without 'lstm_keras' depending on that algorithms prerequisites.
 #' @export
 check_model_names <- function(model_names) {
   `%>%` <- magrittr::`%>%`
@@ -291,7 +303,33 @@ check_model_names <- function(model_names) {
     stop(base::paste("Invalid model selected! List of models allowed:",
                      base::paste(available_models, collapse = ", ")))
   }
+  if ("lstm_keras" %in% model_names_unlist) {
+    model_names_unlist <- check_tensorflow(model_names)
+  }
   return(model_names_unlist)
+}
+
+#' Check if tensorflow is properly installed
+#' @description
+#' This function ensures that the user has Python and Tensorflow (version <= 1.14) installed.
+#' If these criteria are violated, then the user cannot use the 'lstm_keras' model.
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return model_names: vector of strings the input model_names without 'lstm_keras' depending on that algorithms prerequisites.
+#' @export
+check_tensorflow <- function(model_names) {
+  base::tryCatch({
+    tensorflow::tf$constant("Test")
+    tf_configuration <- tensorflow::tf_config()
+    if (tf_configuration$version > '1.14') {
+      message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file to see more details.")
+      model_names <-
+        model_names[model_names != "lstm_keras"]
+    }
+    return(model_names)
+  }, error = function(e) {
+    message("To use the lstm_keras model, Python and Tensorflow (version <= 1.14) must be installed. Please refer to the readme file for more details.")
+    return(model_names[model_names != "lstm_keras"])
+  })
 }
 
 #' Check models' arguments
@@ -299,8 +337,9 @@ check_model_names <- function(model_names) {
 #' This function ensures that the models' arguments are a list. Furthermore, the
 #' function checks if these arguments match the selected model names, otherwise they
 #' will be dropped.
-#' @param models_args A list
-#' @return models_args: A list
+#' @param models_args A list, parameters to be passed to the model
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return models_args: A list, parameters to be passed to the models where unused parameters are dropped
 #' @export
 check_models_args <- function(models_args, model_names = NULL) {
   if (base::is.null(models_args)){
@@ -313,7 +352,7 @@ check_models_args <- function(models_args, model_names = NULL) {
     model_names <- check_model_names(model_names)
     valid_models_args <- (base::names(models_args) %in% base::paste(model_names, "_arg", sep = ""))
     if (sum(valid_models_args) < length(names(models_args))) {
-      warning(base::paste("The following model arguments do not match the selected models ",
+      message(base::paste("The following model arguments do not match the selected models ",
                           "and will be dropped: ",
                           base::paste(base::names(models_args)[!valid_models_args],
                                       collapse = ", "),
@@ -333,26 +372,26 @@ check_models_args <- function(models_args, model_names = NULL) {
 check_nb_cores <- function(nb_cores) {
   nb_cores_available <- parallel::detectCores()
   if (base::is.null(nb_cores)) {
-    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+    message(base::paste("The selected number of CPU cores is invalid, setting number to all ",
                         "available cores (logical included): ",
                         nb_cores_available,
                         sep = ""))
     nb_cores <- nb_cores_available
   } else if (!base::is.numeric(nb_cores)) {
-    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+    message(base::paste("The selected number of CPU cores is invalid, setting number to all ",
                         "available cores (logical included): ",
                         nb_cores_available,
                         sep = ""))
     nb_cores <- nb_cores_available
   } else if (nb_cores != base::as.integer(nb_cores) | nb_cores < 1) {
-    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+    message(base::paste("The selected number of CPU cores is invalid, setting number to all ",
                         "available cores (logical included): ",
                         nb_cores_available,
                         sep = ""))
     nb_cores <- nb_cores_available
   }
   if (nb_cores > nb_cores_available) {
-    warning(base::paste("The selected number of CPU cores is invalid, setting number to all ",
+    message(base::paste("The selected number of CPU cores is invalid, setting number to all ",
                         "available cores (logical included): ",
                         nb_cores_available,
                         sep = ""))
@@ -369,12 +408,12 @@ check_nb_cores <- function(nb_cores) {
 #' @export
 check_preprocess_fct <- function(fct) {
   if (base::is.null(fct)) {
-    warning(base::paste("No custom preprocessing function has been specified! ",
+    message(base::paste("No custom preprocessing function has been specified! ",
                         "Setting to default: default_prepro_fct",
                         sep = ""))
     return(default_prepro_fct)
   } else if (base::is.character(fct)) {
-    warning(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
+    message(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
                         "Setting to default: default_prepro_fct",
                         sep = ""))
     return(default_prepro_fct)
@@ -382,14 +421,14 @@ check_preprocess_fct <- function(fct) {
     return(fct)
   } else if (base::is.list(fct)) {
     if (base::length(fct) == 0) {
-      warning(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
+      message(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
                           "Setting to default: default_prepro_fct",
                           sep = ""))
       return(default_prepro_fct)
     } else {
       custom_fct <- fct[[1]]
       if (!base::is.function(custom_fct)) {
-        warning(base::paste("No custom preprocessing function has been found in list. Argument must be a function. ",
+        message(base::paste("No custom preprocessing function has been found in list. Argument must be a function. ",
                             "Setting to default: default_prepro_fct",
                             sep = ""))
         return(default_prepro_fct)
@@ -411,13 +450,13 @@ check_preprocess_fct <- function(fct) {
 check_time_id <- function(time_id) {
   if (!base::is.null(time_id)) {
     if (base::class(time_id)[1] != "POSIXct") {
-      warning("The value of the 'time_id' argument is invalid. Using NULL as default.")
+      message("The value of the 'time_id' argument is invalid. Using NULL as default.")
       return(NULL)
     } else if (base::length(time_id) > 1) {
-      warning("Multiple values of the 'time_id' argument detected. Selecting only the first one.")
+      message("Multiple values of the 'time_id' argument detected. Selecting only the first one.")
       return(time_id[1])
     } else if (base::length(time_id) < 1) {
-      warning("No values of the 'time_id' argument detected. Using NULL as default.")
+      message("No values of the 'time_id' argument detected. Using NULL as default.")
       return(NULL)
     } else {
       return(time_id)
@@ -442,7 +481,7 @@ check_period_iter <- function(period_iter) {
     stop("The value of the 'period_iter' argument is invalid! Please check its format ('period' + '_' + iter).")
   } else {
     iter <- base::gsub("period_", "", period_iter)
-    if (base::is.na(base::as.numeric(iter))) {
+    if (base::is.na(suppressWarnings(base::as.numeric(iter)))) {
       stop("The value of the 'period_iter' argument is invalid! Please check its format ('period' + '_' + iter).")
     } else {
       return(base::paste("period_", iter, sep = ""))
@@ -453,7 +492,7 @@ check_period_iter <- function(period_iter) {
 valid_md_arima <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (base::nrow(ts_data_xts) < stats::frequency(ts_data_xts) + 1) {
-    warning(base::paste("Not enough observations! To use 'arima', there must be more than ",
+    message(base::paste("Not enough observations! To use 'arima', there must be more than ",
                         stats::frequency(ts_data_xts)," observations available.",
                         sep = ""))
     return(FALSE)
@@ -465,7 +504,7 @@ valid_md_arima <- function(ts_data_xts) {
 valid_md_ets <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (base::nrow(ts_data_xts) < 2) {
-    warning("Not enough observations! To use 'ets', there must be more than 2 observations available.")
+    message("Not enough observations! To use 'ets', there must be more than 2 observations available.")
     return(FALSE)
   } else {
     return(TRUE)
@@ -476,7 +515,7 @@ valid_md_snaive <- function(ts_data_xts, fc_horizon) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   if (fc_horizon > 2 * stats::frequency(ts_data_xts)) {
-    warning("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
+    message("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
     return(FALSE)
   } else {
     return(TRUE)
@@ -486,11 +525,11 @@ valid_md_snaive <- function(ts_data_xts, fc_horizon) {
 valid_md_stl <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (stats::frequency(ts_data_xts) <= 1) {
-    warning("The data is not a seasonal object! To use 'stl', the data frequency must be higher than 1.
+    message("The data is not a seasonal object! To use 'stl', the data frequency must be higher than 1.
             Otherwise, the seasonal component cannot be estimated.")
     return(FALSE)
   } else if (base::nrow(ts_data_xts) < 2*stats::frequency(ts_data_xts) + 1) {
-    warning(base::paste("Not enough observations! To use 'stl', there must be more than ",
+    message(base::paste("Not enough observations! To use 'stl', there must be more than ",
                         stats::frequency(ts_data_xts)," observations available.",
                         sep = ""))
     return(FALSE)
@@ -502,7 +541,7 @@ valid_md_stl <- function(ts_data_xts) {
 valid_md_tbats <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (base::nrow(ts_data_xts) < 2) {
-    warning("Not enough observations! To use 'tbats', there must be more than 2 observations available.")
+    message("Not enough observations! To use 'tbats', there must be more than 2 observations available.")
     return(FALSE)
   } else {
     return(TRUE)
@@ -512,7 +551,7 @@ valid_md_tbats <- function(ts_data_xts) {
 valid_md_nnetar <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (base::nrow(ts_data_xts) < 3) {
-    warning("Not enough observations! To use 'nnetar', there must be more than 3 observations available.")
+    message("Not enough observations! To use 'nnetar', there must be more than 3 observations available.")
     return(FALSE)
   } else {
     return(TRUE)
@@ -522,7 +561,7 @@ valid_md_nnetar <- function(ts_data_xts) {
 valid_md_bsts <- function(ts_data_xts) {
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   if (base::nrow(ts_data_xts) < 3) {
-    warning("Not enough observations! To use 'bsts', there must be more than 3 observations available.")
+    message("Not enough observations! To use 'bsts', there must be more than 3 observations available.")
     return(FALSE)
   } else {
     return(TRUE)
@@ -536,7 +575,7 @@ valid_md_lstm_keras <- function(ts_data_xts, lstm_keras_arg) {
      + lstm_keras_arg$valid_set_size
      + 1)
   if (base::nrow(ts_data_xts) < min_nb_obs) {
-    warning(base::paste("Not enough observations! To use 'lstm_keras', there must be more than ",
+    message(base::paste("Not enough observations! To use 'lstm_keras', there must be more than ",
                         min_nb_obs, " observations available.",
                         sep = ""))
     return(FALSE)
@@ -551,7 +590,7 @@ valid_md_autml_h2o <- function(ts_data_xts, automl_h2o_arg) {
     (automl_h2o_arg$valid_set_size
      + automl_h2o_arg$test_set_size)
   if (base::nrow(ts_data_xts) < min_nb_obs) {
-    warning(base::paste("Not enough observations! To use 'automl_h2o', ",
+    message(base::paste("Not enough observations! To use 'automl_h2o', ",
                         "there must be more than ",
                         min_nb_obs, " observations available.",
                         sep = ""))

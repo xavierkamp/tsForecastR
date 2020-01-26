@@ -23,6 +23,7 @@ if (require(testthat)) {
     dir.create(save_fc_to_file)
     # generate forecasts and save in files
     fc <- generate_fc(ts_data,
+                      model_names = model_names,
                       save_fc_to_file = save_fc_to_file)
     # check if files are properly named
     for (ts_name in base::names(fc)) {
@@ -32,18 +33,17 @@ if (require(testthat)) {
                                              i,
                                              sep = "_"),
                                  sep = "/")
-        expect_equal(file.exists(file_name), TRUE)
+        expect_equal(base::file.exists(file_name), TRUE)
       }
     }
     expect_error(generate_fc(ts_data, model_names = model_names,
                              save_fc_to_file = "1234"))
     # read files
     df <-
-      read_fc_from_file(colnames(ts_data),
+      read_fc_from_file(base::colnames(ts_data),
                         save_fc_to_file = save_fc_to_file,
                         model_names = model_names)
     expect_equal(base::nrow(df), base::length(model_names)*156)
-    expect_equal(base::ncol(df), 17)
     # delete tmp dir with files
     base::unlink(save_fc_to_file, recursive = TRUE)
   })
@@ -58,7 +58,6 @@ if (require(testthat)) {
     while (base::dir.exists(save_fc_to_file)) {
       save_fc_to_file <- base::paste(save_fc_to_file, "1", sep = "")
     }
-    model_names <- check_model_names(NULL)
     base::dir.create(save_fc_to_file)
     # generate forecasts and save in files
     fc <- generate_fc_arima(ts_data,
@@ -67,7 +66,7 @@ if (require(testthat)) {
     df <-
       save_as_df(data_colnames = "time_series_1",
                  save_fc_to_file = save_fc_to_file,
-                 model_names = model_names)
+                 model_names = "arima")
     expect_equal(base::nrow(df), 156)
     expect_equal(base::ncol(df), 15)
     expect_equal(base::is.data.frame(df), TRUE)

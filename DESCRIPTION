@@ -33,7 +33,9 @@ Imports:
     zoo
 Suggests: 
     keras,
-    testthat (>= 2.1.0)
+    tensorflow,
+    testthat (>= 2.1.0),
+    covr
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
