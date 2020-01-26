@@ -3,6 +3,7 @@
 language: R
 cache: packages
 before_install:
+ - env
  - sudo apt-get -y install python3
 r:
  - release
