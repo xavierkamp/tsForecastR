@@ -88,7 +88,8 @@ if (require(testthat)) {
         "stl", "snaive", "nnetar", "automl_h2o",
         "lstm_keras")
     expect_equal(check_model_names("arima"), "arima")
-    expect_equal(check_model_names(NULL), available_models)
+    valid_models <- check_tensorflow(available_models)
+    expect_equal(check_model_names(NULL), valid_models)
     expect_equal(check_model_names(list("arima", "ets")), c("arima", "ets"))
     expect_error(check_model_names("arfima"))
     expect_error(check_model_names(c("arima", "arfima")))

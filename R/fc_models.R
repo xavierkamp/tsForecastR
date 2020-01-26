@@ -1017,7 +1017,8 @@ generate_fc_bsts <- function(ts_data_xts,
 
 #' Long-Short Term Memory Network
 #' @description Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{keras} package on
-#' time series data.
+#' time series data. In order to use the LSTM model, Python and Tensorflow (version <= 1.14) must be installed on the machine.
+#' Please check the README file for more information.
 #' @param ts_data_xts A univariate ts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
 #' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
@@ -1082,6 +1083,10 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   model_output <- ini_model_output()
   model_name <- "lstm_keras"
   print_model_name(model_name)
+  model_name <- check_model_names(model_name)
+  if (base::length(model_name) == 0) {
+    stop("LSTM Model not found! Please check model requirements in README file.")
+  }
   all_time_features <-
     timetk::tk_get_timeseries_signature(ts_data_xts %>%
                                           zoo::index() %>%

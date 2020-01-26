@@ -55,7 +55,8 @@ A tsForecastR object
 }
 \description{
 Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{keras} package on
-time series data.
+time series data. In order to use the LSTM model, Python and Tensorflow (version <= 1.14) must be installed on the machine.
+Please check the README file for more information.
 }
 \examples{
 \dontrun{
