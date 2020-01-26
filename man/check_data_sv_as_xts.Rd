@@ -8,6 +8,8 @@ check_data_sv_as_xts(input_data, default_colname = "time_series")
 }
 \arguments{
 \item{input_data}{ts, mts or xts object}
+
+\item{default_colname}{a string, default colname assigned when no colnames are defined}
 }
 \value{
 xts object with punctuations dropped in colnames

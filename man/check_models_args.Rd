@@ -7,10 +7,12 @@
 check_models_args(models_args, model_names = NULL)
 }
 \arguments{
-\item{models_args}{A list}
+\item{models_args}{A list, parameters to be passed to the model}
+
+\item{model_names}{A list or vector of strings representing the model names to be used}
 }
 \value{
-models_args: A list
+models_args: A list, parameters to be passed to the models where unused parameters are dropped
 }
 \description{
 This function ensures that the models' arguments are a list. Furthermore, the

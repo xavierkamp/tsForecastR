@@ -72,6 +72,7 @@ add_features <- function(input_data, xreg_data = NULL) {
 #'
 #'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
 #'
+#' @param ... Additional arguments to be passed to the function
 #' @return A list, training, validation and test sets
 split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
                                  valid_set_size = 0, tmp_test_set_size = 0,
@@ -89,7 +90,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
   backtesting_sample_size <- backtesting_opt$sample_size
   backtesting_method <- backtesting_opt$method
   nb_periods <- backtesting_opt$nb_iters
-  tryCatch(
+  base::tryCatch(
     {
       if (backtesting_opt$use_bt) {
         if ((backtesting_sample_size[1] == 'expanding') & (backtesting_method[1] == 'rolling')) {
@@ -164,11 +165,12 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' @description Uses \code{\link[forecast]{nsdiffs}} and \code{\link[forecast]{ndiffs}}
 #' to determine the number of differencing to obtain a stationary time series.
 #' @param input_data A univariate or multivariate ts, mts or xts object
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #' nb_diffs(AirPassengers)
-#' ## End (Not run)
+#' }
 #' @return A list, training, validation and test sets
 nb_diffs <- function(input_data, ...) {
   `%>%` <- magrittr::`%>%`
@@ -195,17 +197,18 @@ nb_diffs <- function(input_data, ...) {
 
 #' Customized preprocessing function
 #' @description The user can specify a custom preprocessing function to deal with missing values
-#' @param ts_data_xts A ts, mts or xts object
+#' @param input_data A ts, mts or xts object
+#' @param fct A function, function which transforms the data
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #' library(timeSeries)
 #' preprocessing(AirPassengers, timeSeries::na.contiguous)
 #'
 #' library(imputeTS)
 #' preprocessing(AirPassengers, imputeTS::na.mean)
-#' ## End (Not run)
-#' @return An xts object
+#' }
+#' @return An xts object, the transformed data
 preprocess_custom_fct <- function(input_data, fct = NULL) {
   `%>%` <- magrittr::`%>%`
   ts_data <- check_data_sv_as_xts(input_data)
@@ -307,6 +310,7 @@ normalize_data <- function(data_df) {
 #' @param valid_set_size An integer, the validation set size (default = 0)
 #' @param tsteps An integer, the number of time steps
 #' @param lag_setting An integer, lag to apply on regressors
+#' @param ... Additional arguments to be passed to the function
 #' @return A data.frame object
 add_timesteps <- function(data_df,
                           fc_horizon = 12,
@@ -429,6 +433,10 @@ reshape_Y <- function(Y) {
 }
 
 #' Apply a transformation on the data
+#' @param original_ts ts or xts object, data to apply transformation on
+#' @param transformed_ts ts or xts object, data on which the transformation has been applied on
+#' @param method string, method of data transformation
+#' @param apply_transform boolean, if TRUE the data will be transformed, else the transformation will be undone.
 transform_data <- function(original_ts,
                            transformed_ts = NULL,
                            method = "diff",

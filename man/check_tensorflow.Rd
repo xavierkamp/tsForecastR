@@ -7,10 +7,10 @@
 check_tensorflow(model_names)
 }
 \arguments{
-\item{model_names}{A list or vector of strings}
+\item{model_names}{A list or vector of strings representing the model names to be used}
 }
 \value{
-model_names: vector of strings
+model_names: vector of strings the input model_names without 'lstm_keras' depending on that algorithms prerequisites.
 }
 \description{
 This function ensures that the user has Python and Tensorflow (version <= 1.14) installed.

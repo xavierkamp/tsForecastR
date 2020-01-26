@@ -11,6 +11,15 @@ transform_data(
   apply_transform = TRUE
 )
 }
+\arguments{
+\item{original_ts}{ts or xts object, data to apply transformation on}
+
+\item{transformed_ts}{ts or xts object, data on which the transformation has been applied on}
+
+\item{method}{string, method of data transformation}
+
+\item{apply_transform}{boolean, if TRUE the data will be transformed, else the transformation will be undone.}
+}
 \description{
 Apply a transformation on the data
 }

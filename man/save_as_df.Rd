@@ -21,6 +21,8 @@ save_as_df(
 results from}
 
 \item{model_names}{A vector of strings, the models to read the results from}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A data frame
@@ -29,11 +31,11 @@ A data frame
 This function transforms a tsForecastR object into a data.frame object
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 
 fc <- generate_fc(AirPassengers)
 df <- save_as_df(fc)
 print(df)
-## End (Not run)
+}
 }

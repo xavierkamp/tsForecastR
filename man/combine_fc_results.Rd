@@ -37,7 +37,9 @@ combine_fc_results(
 
 \item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
 
-\item{run_time}{A string}
+\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A data.frame object

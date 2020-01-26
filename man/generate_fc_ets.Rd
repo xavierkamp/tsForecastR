@@ -40,6 +40,8 @@ interval of non-missing values is selected and the most recent dates are then at
 \item{ets_arg}{A list, optional arguments to pass to the \code{\link[forecast]{ets}} function}
 
 \item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A tsForecastR object
@@ -49,7 +51,7 @@ Function to apply the \code{\link[forecast]{ets}} function from the \code{foreca
 time series data.
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 
 # Generate forecasts on future dates
@@ -66,5 +68,5 @@ fc <- generate_fc_ets(AirPassengers,
                       fc_horizon = 6,
                       backtesting_opt = list(use_bt = TRUE,
                                              nb_iters = 6))
-## End (Not run)
+}
 }

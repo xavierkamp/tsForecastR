@@ -35,6 +35,8 @@ save_fc_forecast(
 \item{model_args}{A list, optional arguments to pass to the models}
 
 \item{exclude_PI}{A boolean, exclude prediction intervals in results}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A data frame

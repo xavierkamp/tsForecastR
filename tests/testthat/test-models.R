@@ -26,10 +26,10 @@ if (require(testthat)) {
     expect_equal(class(fc)[1], "tsForecastR")
     # check preprocess function
     fc <- generate_fc(xts_na_data, model_names = model_names,
-                      preprocess_fct = imputeTS::na_mean)
+                      preprocess_fct = imputeTS::na.mean)
     expect_equal(class(fc)[1], "tsForecastR")
     fc <- generate_fc(xts_na_data, model_names = model_names,
-                      preprocess_fct = "imputeTS::na_mean")
+                      preprocess_fct = "imputeTS::na.mean")
     expect_equal(class(fc)[1], "tsForecastR")
     # check backtesing opt
     fc1 <- generate_fc(ts_data, model_names = model_names,

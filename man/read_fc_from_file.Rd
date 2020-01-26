@@ -7,7 +7,11 @@
 read_fc_from_file(data_colnames, save_fc_to_file, model_names)
 }
 \arguments{
-\item{save_fc_to_file}{A directory}
+\item{data_colnames}{a vector of strings, colnames to be cleaned}
+
+\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+
+\item{model_names}{A list or vector of strings representing the model names to be used}
 }
 \value{
 A data frame

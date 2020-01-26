@@ -8,6 +8,8 @@ nb_diffs(input_data, ...)
 }
 \arguments{
 \item{input_data}{A univariate or multivariate ts, mts or xts object}
+
+\item{...}{Additional arguments to be passed to the function}
 }
 \value{
 A list, training, validation and test sets
@@ -17,8 +19,8 @@ Uses \code{\link[forecast]{nsdiffs}} and \code{\link[forecast]{ndiffs}}
 to determine the number of differencing to obtain a stationary time series.
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 nb_diffs(AirPassengers)
-## End (Not run)
+}
 }

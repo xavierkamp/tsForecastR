@@ -9,6 +9,17 @@ check_backtesting_iter(bt_iter, backtesting_opt = NULL)
 \arguments{
 \item{bt_iter}{A positive integer which is smaller or equal to the
 number of backtesting operations to perform.}
+
+\item{backtesting_opt}{A list, options for the backtesting program:
+
+ use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+
+ nb_iters - An integer, to determine the number of backtesting operations to apply
+
+ method - A string, to determine whether to use a rolling or a moving forecasting window
+
+ sample_size - A string, to determine whether the training set size should expand or
+ remain fixed across backtesting operations}
 }
 \value{
 bt_iter: a positive integer

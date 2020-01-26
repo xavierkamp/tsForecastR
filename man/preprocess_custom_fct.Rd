@@ -7,21 +7,23 @@
 preprocess_custom_fct(input_data, fct = NULL)
 }
 \arguments{
-\item{ts_data_xts}{A ts, mts or xts object}
+\item{input_data}{A ts, mts or xts object}
+
+\item{fct}{A function, function which transforms the data}
 }
 \value{
-An xts object
+An xts object, the transformed data
 }
 \description{
 The user can specify a custom preprocessing function to deal with missing values
 }
 \examples{
-## Not run:
+\dontrun{
 library(datasets)
 library(timeSeries)
 preprocessing(AirPassengers, timeSeries::na.contiguous)
 
 library(imputeTS)
 preprocessing(AirPassengers, imputeTS::na.mean)
-## End (Not run)
+}
 }

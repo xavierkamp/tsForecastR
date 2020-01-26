@@ -3,7 +3,7 @@
 #' traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
 #' @param mts_data A univariate or multivariate ts, mts or xts object
 #' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
+#' @param xreg_data A univariate or multivariate ts, mts or xts object, optional external regressors
 #' @param backtesting_opt A list, options for the backtesting program:
 #'
 #'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
@@ -16,15 +16,16 @@
 #'  remain fixed across backtesting operations
 #'
 #' @param model_names A list or character, names of models to apply
-#' @param model_args A list, optional arguments to pass to the models
+#' @param models_args A list, optional arguments to pass to the models
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param save_fc_to_file A string, directory to which results can be saved as text files
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param nb_cores An integer, the number of threads to use for automl_h2o
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -58,7 +59,7 @@
 #'                   fc_horizon = 6,
 #'                   backtesting_opt = list(use_bt = TRUE,
 #'                                          nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A list
 #' @export
 generate_fc <- function(mts_data, fc_horizon = 12,
@@ -151,8 +152,9 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -169,7 +171,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_arima <- function(ts_data_xts,
@@ -265,8 +267,9 @@ generate_fc_arima <- function(ts_data_xts,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -283,7 +286,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_ets <- function(ts_data_xts,
@@ -367,8 +370,9 @@ generate_fc_ets <- function(ts_data_xts,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -385,7 +389,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'                         fc_horizon = 6,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_tbats <- function(ts_data_xts,
@@ -487,8 +491,9 @@ generate_fc_tbats <- function(ts_data_xts,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future periods
@@ -505,7 +510,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'                          fc_horizon = 6,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_nnetar <- function(ts_data_xts,
@@ -597,8 +602,9 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -615,7 +621,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'                       fc_horizon = 6,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_stl <- function(ts_data_xts,
@@ -699,8 +705,9 @@ generate_fc_stl <- function(ts_data_xts,
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -717,7 +724,7 @@ generate_fc_stl <- function(ts_data_xts,
 #'                          fc_horizon = 6,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_snaive <- function(ts_data_xts,
@@ -797,9 +804,12 @@ generate_fc_snaive <- function(ts_data_xts,
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
+#' @param data_transf_method A string, the data transformation technique to be passed to the function.
+#' (options: 'diff', 'log', 'sqrt')
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -816,7 +826,7 @@ generate_fc_snaive <- function(ts_data_xts,
 #'                        fc_horizon = 6,
 #'                        backtesting_opt = list(use_bt = TRUE,
 #'                                               nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_bsts <- function(ts_data_xts,
@@ -1027,9 +1037,12 @@ generate_fc_bsts <- function(ts_data_xts,
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
+#' @param data_transf_method A string, the data transformation technique to be passed to the function.
+#' (options: 'diff', 'log', 'sqrt')
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -1046,7 +1059,7 @@ generate_fc_bsts <- function(ts_data_xts,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_lstm_keras <- function(ts_data_xts,
@@ -1476,10 +1489,13 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
+#' @param data_transf_method A string, the data transformation technique to be passed to the function.
+#' (options: 'diff', 'log', 'sqrt')
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param nb_cores A numeric, number of threads to use in parallel computed model selection process
+#' @param ... Additional arguments to be passed to the function
 #' @examples
-#' ## Not run:
+#' \dontrun{
 #' library(datasets)
 #'
 #' # Generate forecasts on future dates
@@ -1496,7 +1512,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'                              fc_horizon = 6,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
-#' ## End (Not run)
+#' }
 #' @return A tsForecastR object
 #' @export
 generate_fc_automl_h2o <- function(ts_data_xts,

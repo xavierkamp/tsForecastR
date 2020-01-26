@@ -40,7 +40,6 @@ check_backtesting_opt <- function(backtesting_opt) {
   }
   if ("use_bt" %in% base::names(backtesting_opt)) {
     if (!base::is.logical(backtesting_opt$use_bt)) {
-
       message("The value of the backtesting plan is invalid, using FALSE as default")
       backtesting_opt$use_bt <- FALSE
     }
@@ -145,6 +144,17 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 #' If not, the function throws an error.
 #' @param bt_iter A positive integer which is smaller or equal to the
 #' number of backtesting operations to perform.
+#' @param backtesting_opt A list, options for the backtesting program:
+#'
+#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'
+#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'
+#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'
+#'  sample_size - A string, to determine whether the training set size should expand or
+#'  remain fixed across backtesting operations
+#'
 #' @return bt_iter: a positive integer
 #' @export
 check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
@@ -163,9 +173,10 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
 #' @description
 #' Punctuations in colnames will dropped in order to
 #' avoid errors when converting between different data types.
-#' @param colnames_vec a vector of strings, colnames to be cleaned
-#' @param default_colname a string,
-#' @return colnames_vec
+#' @param data_colnames a vector of strings, colnames to be cleaned
+#' @param default_colname a string, default colname assigned when no colnames are defined
+#' @param nb_colnames an integer, number of colnames to check
+#' @return data_colnames: A vector of strings, where special symbols are dropped
 #' @export
 check_colnames <- function(data_colnames,
                            default_colname = "time_series",
@@ -203,6 +214,7 @@ check_colnames <- function(data_colnames,
 #' colnames will be applied. Moreover, punctuations in colnames will dropped to
 #' avoid errors when converting between different data types.
 #' @param input_data ts, mts or xts object
+#' @param default_colname a string, default colname assigned when no colnames are defined
 #' @return xts object with punctuations dropped in colnames
 #' @export
 check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
@@ -270,8 +282,8 @@ check_save_fc_to_file <- function(save_fc_to_file) {
 #' @description
 #' This function ensures that the selected model names are valid.
 #' If not, the function throws an error.
-#' @param model_names A list or vector of strings
-#' @return model_names: vector of strings
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return model_names: vector of strings the input model_names without 'lstm_keras' depending on that algorithms prerequisites.
 #' @export
 check_model_names <- function(model_names) {
   `%>%` <- magrittr::`%>%`
@@ -301,8 +313,8 @@ check_model_names <- function(model_names) {
 #' @description
 #' This function ensures that the user has Python and Tensorflow (version <= 1.14) installed.
 #' If these criteria are violated, then the user cannot use the 'lstm_keras' model.
-#' @param model_names A list or vector of strings
-#' @return model_names: vector of strings
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return model_names: vector of strings the input model_names without 'lstm_keras' depending on that algorithms prerequisites.
 #' @export
 check_tensorflow <- function(model_names) {
   base::tryCatch({
@@ -325,8 +337,9 @@ check_tensorflow <- function(model_names) {
 #' This function ensures that the models' arguments are a list. Furthermore, the
 #' function checks if these arguments match the selected model names, otherwise they
 #' will be dropped.
-#' @param models_args A list
-#' @return models_args: A list
+#' @param models_args A list, parameters to be passed to the model
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @return models_args: A list, parameters to be passed to the models where unused parameters are dropped
 #' @export
 check_models_args <- function(models_args, model_names = NULL) {
   if (base::is.null(models_args)){

@@ -7,12 +7,14 @@
 check_colnames(data_colnames, default_colname = "time_series", nb_colnames = 1)
 }
 \arguments{
-\item{default_colname}{a string,}
+\item{data_colnames}{a vector of strings, colnames to be cleaned}
 
-\item{colnames_vec}{a vector of strings, colnames to be cleaned}
+\item{default_colname}{a string, default colname assigned when no colnames are defined}
+
+\item{nb_colnames}{an integer, number of colnames to check}
 }
 \value{
-colnames_vec
+data_colnames: A vector of strings, where special symbols are dropped
 }
 \description{
 Punctuations in colnames will dropped in order to
