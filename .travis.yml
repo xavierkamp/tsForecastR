@@ -3,11 +3,9 @@
 language: R
 cache: packages
 apt_packages:
- - python3
+ - upgrade python3
 brew_packages:
- - python3
-script:
- - travis_wait R -e 'devtools::test()'
+ - upgrade python3
 r:
  - release
 os:
