@@ -3,11 +3,7 @@
 language: R
 cache: packages
 before_install:
-before_install:
-  - sudo apt-get update
-  - sudo apt-get -y install mvn
-install: travis_wait mvn install
-
+ - sudo apt-get -y install python3
 r:
  - release
 os:
