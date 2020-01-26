@@ -3,3 +3,4 @@
 ^packrat/
 ^\.travis\.yml$
 ^codecov\.yml$
+^appveyor\.yml$
