@@ -1,4 +1,5 @@
-[![Travis build status](https://travis-ci.org/xavierkamp/tsForecastR.svg?branch=master)](https://travis-ci.org/xavierkamp/tsForecastR)
+[![Travis build status](https://travis-ci.com/xavierkamp/tsForecastR.svg?branch=master)](https://travis-ci.com/xavierkamp/tsForecastR)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/xavierkamp/tsForecastR?branch=master&svg=true)](https://ci.appveyor.com/project/xavierkamp/tsForecastR)
 [![Codecov test coverage](https://codecov.io/gh/xavierkamp/tsForecastR/branch/master/graph/badge.svg)](https://codecov.io/gh/xavierkamp/tsForecastR?branch=master)
 
 # __Time Series Forecasting__
