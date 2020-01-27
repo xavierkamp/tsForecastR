@@ -23,7 +23,7 @@ environment:
    - R_VERSION: release
 
 build_script:
-  - R -e  "0" --args --bootstrap-packrat
+  - travis-tool.sh install_deps
 
 test_script:
   - travis-tool.sh run_tests
