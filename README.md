@@ -4,14 +4,13 @@
 [![Codecov test coverage](https://codecov.io/gh/xavierkamp/tsForecastR/branch/master/graph/badge.svg)](https://codecov.io/gh/xavierkamp/tsForecastR?branch=master)
 
 # __Time Series Forecasting__
-This project involves developing a forecasting engine which is capable of applying traditional time series and 
-machine learning models on univariate and multivariate time series. 
-The idea is to facilitate forecasting accuracy testing of these methods through backtesting approaches. The procedure is meant to handle different case studies such as demand forecasting, inventory projections and financial forecasting. As the forecasting procedure is based on 'xts' data types, it can handle a variety of data frequencies (e.g. yearly, monthly, daily).
+This project involves developing a forecasting engine which can apply traditional time series models (e.g. ARIMA, ETS, STL) and machine learning models (e.g. AutoML-h2o, LSTM-keras) on univariate and multivariate time series. 
+The idea is to facilitate forecast accuracy testing of these methods using different backtesting approaches. The forecasting procedures are designed to handle different case studies such as demand forecasting, inventory projections and possibly financial forecasting. As the procedures are based on 'xts' data types, a variety of data frequencies (e.g. yearly, monthly, daily) can be tested.
 
 All codes are written in R.
 
 ## __Acknowledgements__
-The main source of inspiration of this project is the TSstudio package which presents excellent powerful tools for dealing with time series data. Nevertheless, at the time of this writing (24/01/2020), TSstudio does not provide a framework to include newer types of machine learning algorithms such as AutoML from the h2o package and Long Short-term Memory Networks. This led to the need for a framework which would enable a possible extension to these newer models which this package hopes to provide.
+The main source of inspiration for this project is the TSstudio package which offers excellent powerful tools for dealing with time series data. However, at the time of this writing (January 2020), TSstudio does not provide a solution for testing newer types of machine learning algorithms such as the AutoML method from h2o or Long Short-term Memory Networks with keras. This project hopes to provide a possible solution to this interesting challenge and enable simple performance comparisons between traditional and machine learning models.
 
 ## __Getting Started__
 
@@ -31,9 +30,9 @@ library("devtools")
 devtools::install_github("xavierkamp/tsForecastR")
 ```
 
-Note:
+__Note:__
 
-When installing this package, in order to use the LSTM model, you will be required to have Python and Tensorflow (version <= 1.14) installed on your machine. Note that the current forecasting procedure does not support Tensorflow 2.0.
+When installing this package, in order to use the LSTM model you will be required to have Python and Tensorflow (version <= 1.14) installed on your machine. Please note that currently the forecasting procedure does not support Tensorflow 2.0.
 
 To check the tensorflow version:
 ``` r
@@ -41,13 +40,14 @@ tensorflow::tf_config()
 ```
 To install tensorflow:
 ``` r
+install.packages("tensorflow")
 tensorflow::install_tensorflow(version = 1.14)
 ```
-When installing packages, you may be required to restart the R session and repeat the installation process in order to successfully install or update packages.
+When installing packages, in order to successfully install or update packages, you may be required to restart the R session and repeat the installation process.
 
-### Dependencies
+### __Dependencies__
 
-List of the main dependencies of this package:
+List of main dependencies:
 
 - bsts
 - doParallel
@@ -70,9 +70,12 @@ List of the main dependencies of this package:
 - xts
 - zoo
 
-Optional dependency:
+Optional dependencies:
 
 - keras
+- tensorflow
+- testthat
+- covr
 
 ## __Functions__
 
@@ -90,11 +93,11 @@ List of main functions:
 - generate_fc_tbats
 - save_as_df
 
-Note:
+__Note:__
 
 The above listed functions are all based on a sequential processing approach. To use parallel processing, please also inspect the [parTsForecastR](https://github.com/xavierkamp/parTsForecastR) package which is built on top of this package.
 
-Example:
+__Example:__
 ``` r
 library(datasets)
 library(tsForecastR)
