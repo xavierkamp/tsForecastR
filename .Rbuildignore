@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^packrat/
+^\.Rprofile$
 ^\.travis\.yml$
 ^codecov\.yml$
 ^appveyor\.yml$
