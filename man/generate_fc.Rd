@@ -14,7 +14,7 @@ generate_fc(
     "automl_h2o"),
   preprocess_fct = NULL,
   models_args = NULL,
-  save_fc_to_file = NULL,
+  data_dir = NULL,
   time_id = base::Sys.time(),
   nb_cores = 1,
   ...
@@ -46,7 +46,7 @@ interval of non-missing values is selected and the most recent dates are then at
 
 \item{models_args}{A list, optional arguments to pass to the models}
 
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+\item{data_dir}{A string, directory to which results can be saved as text files}
 
 \item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
 

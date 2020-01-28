@@ -376,7 +376,7 @@ extract_coef_tbats <- function(fc_obj) {
 #' @param fc_obj A forecast object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
@@ -385,7 +385,7 @@ extract_coef_tbats <- function(fc_obj) {
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_forecast <- function(fc_obj, raw_data, sample_split,
-                             save_fc_to_file, model_name,
+                             data_dir, model_name,
                              time_id = base::Sys.time(),
                              period_iter = NULL,
                              model_args = NULL,
@@ -395,7 +395,7 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
     stop("forecasts must be a forecast object")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   model_name <- check_model_names(model_name)
   time_id <- check_time_id(time_id)
   period_iter <- check_period_iter(period_iter)
@@ -426,13 +426,13 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
                                 model_args = model_args,
                                 period_iter = period_iter,
                                 time_id = time_id)
-  if (!base::is.null(save_fc_to_file)) {
+  if (!base::is.null(data_dir)) {
     if (period_iter == "period_1") {
       append_colnames <- TRUE
     } else {
       append_colnames <- FALSE
     }
-    file_name <- base::paste(save_fc_to_file,
+    file_name <- base::paste(data_dir,
                              base::paste(base::colnames(raw_data_xts),
                                          model_name,
                                          sep = "_"),
@@ -456,7 +456,7 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' @param fc_obj A bsts.prediction object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
@@ -464,7 +464,7 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_bsts <- function(fc_obj, raw_data, sample_split,
-                         save_fc_to_file, model_name,
+                         data_dir, model_name,
                          time_id = base::Sys.time(),
                          period_iter = NULL,
                          model_args = NULL,
@@ -474,7 +474,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
     stop("forecasts must be a bsts.prediction object")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   model_name <- check_model_names(model_name)
   time_id <- check_time_id(time_id)
   period_iter <- check_period_iter(period_iter)
@@ -505,13 +505,13 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
                                 model_args = model_args,
                                 period_iter = period_iter,
                                 time_id = time_id)
-  if (!is.null(save_fc_to_file)) {
+  if (!is.null(data_dir)) {
     if (period_iter == "period_1") {
       append_colnames <- TRUE
     } else {
       append_colnames <- FALSE
     }
-    file_name <- base::paste(save_fc_to_file,
+    file_name <- base::paste(data_dir,
                              base::paste(base::colnames(raw_data_xts),
                                          model_name,
                                          sep = "_"),
@@ -535,7 +535,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
 #' @param fc_obj A data.frame object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param model_name A string, name of the forecasting model
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param period_iter A string, period identifier of format: 'period' + '_' + iter
@@ -543,7 +543,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
 save_fc_ml <- function(fc_obj, raw_data, sample_split,
-                       save_fc_to_file, model_name,
+                       data_dir, model_name,
                        time_id = base::Sys.time(),
                        period_iter = NULL,
                        model_args = NULL,
@@ -553,7 +553,7 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
     stop("Forecasts must be passed as an xts object!")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   model_name <- check_model_names(model_name)
   time_id <- check_time_id(time_id)
   period_iter <- check_period_iter(period_iter)
@@ -577,13 +577,13 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
                                 model_args = model_args,
                                 period_iter = period_iter,
                                 time_id = time_id)
-  if (!base::is.null(save_fc_to_file)) {
+  if (!base::is.null(data_dir)) {
     if (period_iter == "period_1") {
       append_colnames <- TRUE
     } else {
       append_colnames <- FALSE
     }
-    file_name <- base::paste(save_fc_to_file,
+    file_name <- base::paste(data_dir,
                              base::paste(base::colnames(raw_data_xts),
                                          model_name,
                                          sep = "_"),
@@ -627,21 +627,21 @@ read_tsForecastR <- function(fc) {
 
 #' Read results from files
 #' @param data_colnames a vector of strings, colnames to be cleaned
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param model_names A list or vector of strings representing the model names to be used
 #' @return A data frame
 read_fc_from_file <- function(data_colnames,
-                              save_fc_to_file,
+                              data_dir,
                               model_names) {
   `%>%` <- magrittr::`%>%`
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   data_colnames <- check_colnames(data_colnames)
   df <- base::data.frame()
   for (ts_name in data_colnames) {
     for (method in model_names) {
       suppressWarnings(
         base::tryCatch({
-          file_name <- base::paste(save_fc_to_file,
+          file_name <- base::paste(data_dir,
                                    base::paste(ts_name, method, sep = "_"),
                                    sep = "/")
           file_data <-
@@ -662,7 +662,7 @@ read_fc_from_file <- function(data_colnames,
 #' Read forecasts from tsForecastR object
 #' @description This function transforms a tsForecastR object into a data.frame object
 #' @param fc A tsForecastR object
-#' @param save_fc_to_file A string, directory to which results can be saved as text files.
+#' @param data_dir A string, directory to which results can be saved as text files.
 #' @param data_colnames A vector of strings, the names of the time series objects to read the
 #' results from
 #' @param model_names A vector of strings, the models to read the results from
@@ -678,14 +678,14 @@ read_fc_from_file <- function(data_colnames,
 #' }
 #' @export
 save_as_df <- function(fc = NULL,
-                       save_fc_to_file = NULL,
+                       data_dir = NULL,
                        data_colnames = NULL,
                        model_names = NULL,
                        ...) {
   `%>%` <- magrittr::`%>%`
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   model_names <- check_model_names(model_names)
-  if (base::is.null(save_fc_to_file)) {
+  if (base::is.null(data_dir)) {
     if (base::is.null(fc)) {
       stop(base::paste("No data found! Please specify a valid data directory and time series' ",
                        "names or specify a valid tsForecastR object.",
@@ -697,9 +697,9 @@ save_as_df <- function(fc = NULL,
     if (base::is.null(data_colnames)) {
       message(base::paste("No time series' names found! When reading files from a data directory, ",
                           "the time series' names must be provided. Otherwise, no file can be read ",
-                          "from the directory and save_fc_to_file will be set to NULL as default.",
+                          "from the directory and data_dir will be set to NULL as default.",
                           sep = ""))
-      save_fc_to_file <- NULL
+      data_dir <- NULL
       if (base::is.null(fc)) {
         stop(base::paste("No data found! Please specify a valid data directory and time series' ",
                          "names or specify a valid tsForecastR object.",
@@ -713,10 +713,10 @@ save_as_df <- function(fc = NULL,
       data_colnames <- check_colnames(data_colnames)
     }
   }
-  if (base::is.null(save_fc_to_file)) {
+  if (base::is.null(data_dir)) {
     results_df <- read_tsForecastR(fc)
   } else {
-    results_df <- read_fc_from_file(save_fc_to_file = save_fc_to_file,
+    results_df <- read_fc_from_file(data_dir = data_dir,
                                     data_colnames = data_colnames,
                                     model_names = model_names)
   }

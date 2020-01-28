@@ -1,6 +1,5 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Travis build status](https://travis-ci.com/xavierkamp/tsForecastR.svg?branch=master)](https://travis-ci.com/xavierkamp/tsForecastR)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/xavierkamp/tsForecastR?branch=master&svg=true)](https://ci.appveyor.com/project/xavierkamp/tsForecastR)
 [![Codecov test coverage](https://codecov.io/gh/xavierkamp/tsForecastR/branch/master/graph/badge.svg)](https://codecov.io/gh/xavierkamp/tsForecastR?branch=master)
 
 # __Time Series Forecasting__
@@ -79,25 +78,46 @@ Optional dependencies:
 
 ## __Functions__
 
-List of main functions:
+__Part 1: Statistical Models__
 
-- generate_fc
+__generate_fc__ - Function which enables the user to select different forecasting models from traditional time series models (e.g. ARIMA, ETS, STL) to machine learning algorithms (e.g. LSTM, AutoML). Results can be stored either as a tsForecastR object (default) or in text files.
+
+Example:
+
+``` r
+library(datasets)
+library(tsForecastR)
+
+fc <- generate_fc(AirPassengers, fc_horizon = 12,
+                  model_names = c("ets", "snaive",
+                                  "stl", "nnetar",
+                                  "lstm_keras",
+                                  "automl_h2o"))
+```
+For more details:
+
+``` r
+help(generate_fc)
+?generate_fc
+```
+
+Similar functions:
+
 - generate_fc_arima
 - generate_fc_automl_h2o
 - generate_fc_bsts
 - generate_fc_ets
-- generate_fc_lstm_keras (available if keras correctly installed)
+- generate_fc_lstm_keras - (available only if tensorflow requirements are met)
 - generate_fc_nnetar
 - generate_fc_snaive
 - generate_fc_stl
 - generate_fc_tbats
-- save_as_df
 
-__Note:__
+__Part 2: Analysis__
 
-The above listed functions are all based on a sequential processing approach. To use parallel processing, please also inspect the [parTsForecastR](https://github.com/xavierkamp/parTsForecastR) package which is built on top of this package.
+__save_as_df__ - Function which transforms a tsForecastR object or selected text files into a data.frame object which can then be integrated in user-defined analyses.
 
-__Example:__
+Example:
 ``` r
 library(datasets)
 library(tsForecastR)
@@ -106,12 +126,8 @@ fc <- generate_fc(AirPassengers,
                   fc_horizon = 12)
 df <- save_as_df(fc)
 print(df)
-
-# Generate forecasts on twelve most recent dates
-fc <- generate_fc(AirPassengers,
-                  model_names = "arima",
-                  fc_horizon = 12,
-                  backtesting_opt = list(use_bt = TRUE))
-df <- save_as_df(fc)
-print(df)
 ```
+
+__Note:__
+
+The above listed functions are all based on a sequential processing approach. To enable parallel processing, please refer to the [parTsForecastR](https://github.com/xavierkamp/parTsForecastR) package which is built on top of this package.

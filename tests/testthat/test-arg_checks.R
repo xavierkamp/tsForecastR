@@ -79,11 +79,11 @@ test_that("check_data_sv_as_xts_works", {
   colnames(data_xts) <- "ts.testN@me"
   expect_equivalent(colnames(check_data_sv_as_xts(data_xts)), "tstestNme")
 })
-test_that("check_save_fc_to_file_works", {
-  expect_equal(check_save_fc_to_file(getwd()), getwd())
-  expect_equal(check_save_fc_to_file(NULL), NULL)
-  expect_error(check_save_fc_to_file("This_Is_not_a_v@lid_directory"))
-  expect_error(check_save_fc_to_file(list("This_Is_not_a_v@lid_directory")))
+test_that("check_data_dir_works", {
+  expect_equal(check_data_dir(getwd()), getwd())
+  expect_equal(check_data_dir(NULL), NULL)
+  expect_error(check_data_dir("This_Is_not_a_v@lid_directory"))
+  expect_error(check_data_dir(list("This_Is_not_a_v@lid_directory")))
 })
 test_that("check_model_names_works", {
   available_models <-

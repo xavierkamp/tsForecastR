@@ -8,7 +8,7 @@ save_fc_ml(
   fc_obj,
   raw_data,
   sample_split,
-  save_fc_to_file,
+  data_dir,
   model_name,
   time_id = base::Sys.time(),
   period_iter = NULL,
@@ -23,7 +23,7 @@ save_fc_ml(
 
 \item{sample_split}{A list, the sample split}
 
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+\item{data_dir}{A string, directory to which results can be saved as text files}
 
 \item{model_name}{A string, name of the forecasting model}
 

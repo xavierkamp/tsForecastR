@@ -6,7 +6,7 @@
 \usage{
 save_as_df(
   fc = NULL,
-  save_fc_to_file = NULL,
+  data_dir = NULL,
   data_colnames = NULL,
   model_names = NULL,
   ...
@@ -15,7 +15,7 @@ save_as_df(
 \arguments{
 \item{fc}{A tsForecastR object}
 
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files.}
+\item{data_dir}{A string, directory to which results can be saved as text files.}
 
 \item{data_colnames}{A vector of strings, the names of the time series objects to read the
 results from}

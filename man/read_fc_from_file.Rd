@@ -4,12 +4,12 @@
 \alias{read_fc_from_file}
 \title{Read results from files}
 \usage{
-read_fc_from_file(data_colnames, save_fc_to_file, model_names)
+read_fc_from_file(data_colnames, data_dir, model_names)
 }
 \arguments{
 \item{data_colnames}{a vector of strings, colnames to be cleaned}
 
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+\item{data_dir}{A string, directory to which results can be saved as text files}
 
 \item{model_names}{A list or vector of strings representing the model names to be used}
 }

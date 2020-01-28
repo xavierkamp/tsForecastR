@@ -60,7 +60,7 @@ test_that("generate_fc_works", {
   fc <- generate_fc(ts_data, model_names = model_names,
                     models_args = model_args)
   expect_equal(class(fc)[1], "tsForecastR")
-  # check save_fc_to_file
+  # check data_dir
   ts_data <- stats::ts(data, frequency = 12, start = c(1, 1))
   tmp_dir <- base::paste(getwd(), "tmp_testing_dir", sep = "/")
   while (dir.exists(tmp_dir)) {
@@ -68,7 +68,7 @@ test_that("generate_fc_works", {
   }
   dir.create(tmp_dir)
   fc <- generate_fc(ts_data, model_names = model_names,
-                    save_fc_to_file = tmp_dir)
+                    data_dir = tmp_dir)
   for (ts_name in base::names(fc)) {
     for (i in model_names) {
       file_name <- base::paste(tmp_dir,
@@ -80,6 +80,6 @@ test_that("generate_fc_works", {
     }
   }
   expect_error(generate_fc(ts_data, model_names = model_names,
-                           save_fc_to_file = "1234"))
+                           data_dir = "1234"))
   base::unlink(tmp_dir, recursive = TRUE)
 })

@@ -242,21 +242,21 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 #' @description
 #' This function ensures that the filepath where forecast can be saved is valid
 #' If not the argument is invalid, the function throws an error.
-#' @param save_fc_to_file NULL or a valid filepath
+#' @param data_dir NULL or a valid filepath
 #' @return NULL or a valid filepath
 #' @export
-check_save_fc_to_file <- function(save_fc_to_file) {
+check_data_dir <- function(data_dir) {
   `%>%` <- magrittr::`%>%`
-  if (base::is.null(save_fc_to_file)) {
+  if (base::is.null(data_dir)) {
     return(NULL)
-  } else if (!base::is.character(save_fc_to_file)) {
+  } else if (!base::is.character(data_dir)) {
     stop("The provided directory must be a string!")
-  } else if (!base::dir.exists(file.path(save_fc_to_file))) {
+  } else if (!base::dir.exists(file.path(data_dir))) {
     stop("The provided directory does not exist!")
   } else {
-    dir_name <- base::dirname(file.path(save_fc_to_file))
+    dir_name <- base::dirname(file.path(data_dir))
     folder_name <-
-      stringr::str_split(save_fc_to_file, pattern = "/") %>%
+      stringr::str_split(data_dir, pattern = "/") %>%
       base::unlist() %>%
       utils::tail(1)
     # To test permissions: create a new file and delete it:
@@ -274,7 +274,7 @@ check_save_fc_to_file <- function(save_fc_to_file) {
     }
     utils::write.table("test", unique_file_path)
     base::file.remove(unique_file_path)
-    return(save_fc_to_file)
+    return(data_dir)
   }
 }
 

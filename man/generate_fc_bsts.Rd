@@ -8,7 +8,7 @@ generate_fc_bsts(
   ts_data_xts,
   fc_horizon = 12,
   backtesting_opt = NULL,
-  save_fc_to_file = NULL,
+  data_dir = NULL,
   preprocess_fct = NULL,
   data_transf_method = "diff",
   bsts_arg = NULL,
@@ -32,7 +32,7 @@ generate_fc_bsts(
  sample_size - A string, to determine whether the training set size should expand or
  remain fixed across backtesting operations}
 
-\item{save_fc_to_file}{A string, directory to which results can be saved as text files}
+\item{data_dir}{A string, directory to which results can be saved as text files}
 
 \item{preprocess_fct}{A function, a custom function to handle missing values in the data.
 (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
