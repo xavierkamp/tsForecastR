@@ -20,7 +20,7 @@
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
 #' @param nb_cores An integer, the number of threads to use for automl_h2o
 #' @param ... Additional arguments to be passed to the function
@@ -75,7 +75,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                         "automl_h2o"),
                         preprocess_fct = NULL,
                         models_args = NULL,
-                        save_fc_to_file = NULL,
+                        data_dir = NULL,
                         time_id = base::Sys.time(),
                         nb_cores = 1,
                         ...) {
@@ -100,7 +100,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   model_names <- check_model_names(model_names)
   models_args <- check_models_args(models_args, model_names)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   nb_cores <- check_nb_cores(nb_cores)
   time_id <- check_time_id(time_id)
@@ -117,7 +117,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                                                 "xreg_xts = xreg_data_xts, ",
                                                 "fc_horizon = fc_horizon, ",
                                                 "backtesting_opt = backtesting_opt, ",
-                                                "save_fc_to_file = save_fc_to_file, ",
+                                                "data_dir = data_dir, ",
                                                 "preprocess_fct = preprocess_fct, ",
                                                 "time_id = time_id, ",
                                                 "nb_cores = nb_cores, ",
@@ -146,7 +146,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -178,7 +178,7 @@ generate_fc_arima <- function(ts_data_xts,
                               fc_horizon = 12,
                               xreg_xts = NULL,
                               backtesting_opt = NULL,
-                              save_fc_to_file = NULL,
+                              data_dir = NULL,
                               preprocess_fct = NULL,
                               arima_arg = NULL,
                               time_id = base::Sys.time(),
@@ -188,7 +188,7 @@ generate_fc_arima <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -232,7 +232,7 @@ generate_fc_arima <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 time_id = time_id,
                                 period_iter = period_iter,
@@ -261,7 +261,7 @@ generate_fc_arima <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -292,7 +292,7 @@ generate_fc_arima <- function(ts_data_xts,
 generate_fc_ets <- function(ts_data_xts,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
-                            save_fc_to_file = NULL,
+                            data_dir = NULL,
                             preprocess_fct = NULL,
                             ets_arg = NULL,
                             time_id = base::Sys.time(),
@@ -301,7 +301,7 @@ generate_fc_ets <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
@@ -335,7 +335,7 @@ generate_fc_ets <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 time_id = time_id,
                                 period_iter = period_iter,
@@ -364,7 +364,7 @@ generate_fc_ets <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -395,7 +395,7 @@ generate_fc_ets <- function(ts_data_xts,
 generate_fc_tbats <- function(ts_data_xts,
                               fc_horizon = 12,
                               backtesting_opt = NULL,
-                              save_fc_to_file = NULL,
+                              data_dir = NULL,
                               preprocess_fct = NULL,
                               tbats_arg = NULL,
                               time_id = base::Sys.time(),
@@ -404,7 +404,7 @@ generate_fc_tbats <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -455,7 +455,7 @@ generate_fc_tbats <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 period_iter = period_iter,
                                 time_id = time_id,
@@ -485,7 +485,7 @@ generate_fc_tbats <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -517,7 +517,7 @@ generate_fc_nnetar <- function(ts_data_xts,
                                fc_horizon = 12,
                                xreg_xts = NULL,
                                backtesting_opt = NULL,
-                               save_fc_to_file = NULL,
+                               data_dir = NULL,
                                preprocess_fct = NULL,
                                nnetar_arg = NULL,
                                time_id = base::Sys.time(),
@@ -527,7 +527,7 @@ generate_fc_nnetar <- function(ts_data_xts,
   fc_horizon <- check_fc_horizon(fc_horizon)
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -566,7 +566,7 @@ generate_fc_nnetar <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 time_id = time_id,
                                 period_iter = period_iter,
@@ -596,7 +596,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -627,7 +627,7 @@ generate_fc_nnetar <- function(ts_data_xts,
 generate_fc_stl <- function(ts_data_xts,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
-                            save_fc_to_file = NULL,
+                            data_dir = NULL,
                             preprocess_fct = NULL,
                             stl_arg = NULL,
                             time_id = base::Sys.time(),
@@ -636,7 +636,7 @@ generate_fc_stl <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -670,7 +670,7 @@ generate_fc_stl <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 time_id = time_id,
                                 period_iter = period_iter,
@@ -699,7 +699,7 @@ generate_fc_stl <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -730,7 +730,7 @@ generate_fc_stl <- function(ts_data_xts,
 generate_fc_snaive <- function(ts_data_xts,
                                fc_horizon = 12,
                                backtesting_opt = NULL,
-                               save_fc_to_file = NULL,
+                               data_dir = NULL,
                                preprocess_fct = NULL,
                                snaive_arg = NULL,
                                time_id = base::Sys.time(),
@@ -739,7 +739,7 @@ generate_fc_snaive <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -770,7 +770,7 @@ generate_fc_snaive <- function(ts_data_xts,
     results <- save_fc_forecast(fc_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
-                                save_fc_to_file = save_fc_to_file,
+                                data_dir = data_dir,
                                 model_name = model_name,
                                 period_iter = period_iter,
                                 time_id = time_id,
@@ -799,7 +799,7 @@ generate_fc_snaive <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -832,7 +832,7 @@ generate_fc_snaive <- function(ts_data_xts,
 generate_fc_bsts <- function(ts_data_xts,
                              fc_horizon = 12,
                              backtesting_opt = NULL,
-                             save_fc_to_file = NULL,
+                             data_dir = NULL,
                              preprocess_fct = NULL,
                              data_transf_method = "diff",
                              bsts_arg = NULL,
@@ -842,7 +842,7 @@ generate_fc_bsts <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -1002,7 +1002,7 @@ generate_fc_bsts <- function(ts_data_xts,
     results <- save_fc_bsts(fc_obj = fc,
                             sample_split = sample_split,
                             raw_data = ts_data_xts,
-                            save_fc_to_file = save_fc_to_file,
+                            data_dir = data_dir,
                             model_name = model_name,
                             period_iter = period_iter,
                             time_id = time_id,
@@ -1033,7 +1033,7 @@ generate_fc_bsts <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -1067,7 +1067,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                                    fc_horizon = 12,
                                    xreg_xts = NULL,
                                    backtesting_opt = NULL,
-                                   save_fc_to_file = NULL,
+                                   data_dir = NULL,
                                    preprocess_fct = NULL,
                                    data_transf_method = "diff",
                                    lstm_keras_arg = NULL,
@@ -1077,7 +1077,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
@@ -1459,7 +1459,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
     results <- save_fc_ml(fc_obj = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
-                          save_fc_to_file = save_fc_to_file,
+                          data_dir = data_dir,
                           model_name = model_name,
                           time_id = time_id,
                           period_iter = period_iter,
@@ -1489,7 +1489,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'  sample_size - A string, to determine whether the training set size should expand or
 #'  remain fixed across backtesting operations
 #'
-#' @param save_fc_to_file A string, directory to which results can be saved as text files
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @param preprocess_fct A function, a custom function to handle missing values in the data.
 #' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
 #' interval of non-missing values is selected and the most recent dates are then attributed to these values.
@@ -1524,7 +1524,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
                                    xreg_xts = NULL,
                                    fc_horizon = 12,
                                    backtesting_opt = NULL,
-                                   save_fc_to_file = NULL,
+                                   data_dir = NULL,
                                    preprocess_fct = NULL,
                                    data_transf_method = "diff",
                                    automl_h2o_arg = NULL,
@@ -1536,7 +1536,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   xreg_xts <- check_data_sv_as_xts(xreg_xts)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
-  save_fc_to_file <- check_save_fc_to_file(save_fc_to_file)
+  data_dir <- check_data_dir(data_dir)
   preprocess_fct <- check_preprocess_fct(preprocess_fct)
   time_id <- check_time_id(time_id)
   nb_cores <- check_nb_cores(nb_cores)
@@ -1798,7 +1798,7 @@ generate_fc_automl_h2o <- function(ts_data_xts,
     results <- save_fc_ml(fc_obj = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
-                          save_fc_to_file= save_fc_to_file,
+                          data_dir= data_dir,
                           model_name = model_name,
                           time_id = time_id,
                           period_iter = period_iter,
