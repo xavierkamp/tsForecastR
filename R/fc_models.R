@@ -27,7 +27,7 @@
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -166,7 +166,7 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -290,7 +290,7 @@ generate_fc_arima <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -403,7 +403,7 @@ generate_fc_ets <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -535,7 +535,7 @@ generate_fc_tbats <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -655,7 +655,7 @@ generate_fc_nnetar <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -767,7 +767,7 @@ generate_fc_stl <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
 #' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
@@ -876,7 +876,7 @@ generate_fc_snaive <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
 #' @param data_transf_method A string, the data transformation method to be passed to the function.
@@ -1120,7 +1120,7 @@ generate_fc_bsts <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
 #' @param data_transf_method A string, the data transformation method to be passed to the function.
@@ -1588,7 +1588,7 @@ generate_fc_lstm_keras <- function(ts_data,
 #' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
 #' The default preprocessing function selects the largest interval of non-missing values and then attributes the
 #' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-#' imputeTS::na.mean, custom-developped...).
+#' imputeTS::na.mean, custom-developed...).
 #'
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
 #' @param data_transf_method A string, the data transformation method to be passed to the function.

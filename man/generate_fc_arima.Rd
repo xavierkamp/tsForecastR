@@ -46,7 +46,7 @@ generate_fc_arima(
 \item{prepro_fct}{A function, a preprocessing function which handles missing values in the data.
 The default preprocessing function selects the largest interval of non-missing values and then attributes the
 most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-imputeTS::na.mean, custom-developped...).}
+imputeTS::na.mean, custom-developed...).}
 
 \item{arima_arg}{A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function}
 
