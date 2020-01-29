@@ -4,10 +4,10 @@
 \alias{extract_coef_tbats}
 \title{Extract model estimates for TBATS}
 \usage{
-extract_coef_tbats(fc_obj)
+extract_coef_tbats(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

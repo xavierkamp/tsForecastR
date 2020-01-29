@@ -4,12 +4,12 @@
 \alias{get_fc_with_PI}
 \title{Extract forecasts and prediction intervals from list}
 \usage{
-get_fc_with_PI(fc_obj, exclude_PI = FALSE)
+get_fc_with_PI(fc_ls, exclude_PI = FALSE)
 }
 \arguments{
-\item{fc_obj}{A list, the forecasts must be stored under the keyword 'mean'.}
+\item{fc_ls}{A list, the forecasts must be stored under the keyword 'mean'.}
 
-\item{exclude_PI}{A boolean, extract prediction intervals stored under the keywords 'upper' and 'lower'.}
+\item{exclude_PI}{A boolean, to extract prediction intervals stored in 'list' object under the keywords 'upper' and 'lower'.}
 }
 \value{
 A data.frame

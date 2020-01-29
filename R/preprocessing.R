@@ -1,21 +1,29 @@
 #' Add empty placeholders
 #' @description Empty values are added when forecasts are generated for future periods (i.e. values are unknown)
-#' @param input_data A univariate or multivariate ts, mts or xts object
-#' @param fc_horizon An integer, forecasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
-#' @return A univariate or multivariate xts object
-add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
+#' @return A univariate 'xts' object
+add_placeholders <- function(ts_data, fc_horizon, backtesting_opt = NULL) {
   `%>%` <- magrittr::`%>%`
-  input_data_xts <- check_data_sv_as_xts(input_data)
+  input_data_xts <- check_data_sv_as_xts(ts_data)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   if (backtesting_opt$use_bt) {
     placeholder_data_xts <- input_data_xts
@@ -35,12 +43,12 @@ add_placeholders <- function(input_data, fc_horizon, backtesting_opt = NULL) {
 }
 
 #' Add features
-#' @param input_data A univariate or multivariate ts, mts or xts object
-#' @param xreg_data A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @return A univariate or multivariate xts object
-add_features <- function(input_data, xreg_data = NULL) {
+#' @param mts_data A univariate or multivariate 'ts', 'mts' or 'xts' object
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @return A univariate or multivariate 'xts' object
+add_features <- function(mts_data, xreg_data = NULL) {
   `%>%` <- magrittr::`%>%`
-  input_data_xts <- check_data_sv_as_xts(input_data)
+  input_data_xts <- check_data_sv_as_xts(mts_data)
   xreg_data_xts <- check_data_sv_as_xts(xreg_data)
   if (base::is.null(xreg_data_xts)) {
     joined_data_xts <- input_data_xts
@@ -57,31 +65,41 @@ add_features <- function(input_data, xreg_data = NULL) {
 }
 
 #' Split the data into a training, validation and test set
-#' @param input_data A univariate or multivariate ts, mts or xts object
-#' @param fc_horizon An integer, forecasting horizon
-#' @param bt_iter An integer, number of the current backtesting operation
+#' @param mts_data A univariate or multivariate 'ts', 'mts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param bt_iter An integer, number of the current backtesting operation (i.e. forecasting exercise). This argument
+#' must be smaller or equal to the number of backtesting operations to perform.
+#'
 #' @param valid_set_size An integer, the validation set size (default = 0)
 #' @param tmp_test_set_size An integer, size of a second test set (used by h2o.automl) (default = 0)
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param ... Additional arguments to be passed to the function
-#' @return A list, training, validation and test sets
-split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
+#' @return A list with training, validation and test sets
+split_train_test_set <- function(mts_data, fc_horizon = 12, bt_iter = 1,
                                  valid_set_size = 0, tmp_test_set_size = 0,
                                  backtesting_opt = NULL,
                                  ...) {
   `%>%` <- magrittr::`%>%`
   split <- base::list()
   x_train <- x_valid <- x_tmp_test <- x_test <- NULL
-  input_data_xts <- check_data_sv_as_xts(input_data)
+  input_data_xts <- check_data_sv_as_xts(mts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   valid_set_size <- check_valid_set_size(valid_set_size)
   tmp_test_set_size <- check_tmp_test_set_size(tmp_test_set_size)
@@ -164,7 +182,7 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' Determine the number of differencing to obtain a stationary time series
 #' @description Uses \code{\link[forecast]{nsdiffs}} and \code{\link[forecast]{ndiffs}}
 #' to determine the number of differencing to obtain a stationary time series.
-#' @param input_data A univariate or multivariate ts, mts or xts object
+#' @param ts_data A univariate 'ts' or 'xts' object
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -172,21 +190,21 @@ split_train_test_set <- function(input_data, fc_horizon = 12, bt_iter = 1,
 #' nb_diffs(AirPassengers)
 #' }
 #' @return A list, training, validation and test sets
-nb_diffs <- function(input_data, ...) {
+nb_diffs <- function(ts_data, ...) {
   `%>%` <- magrittr::`%>%`
   input_data <-
-    check_data_sv_as_xts(input_data) %>%
-    timeSeries::na.contiguous()
-  ts_data <- input_data %>% stats::as.ts()
+    check_data_sv_as_xts(ts_data) %>%
+    timeSeries::na.contiguous() %>%
+    stats::as.ts()
   ns_diffs <-
     tryCatch({
-      forecast::nsdiffs(ts_data, ...)
+      forecast::nsdiffs(input_data, ...)
     }, error = function(e) {
       return(0)
     })
   ndiffs <-
     tryCatch({
-      forecast::ndiffs(ts_data, ...)
+      forecast::ndiffs(input_data, ...)
     }, error = function(e) {
       return(0)
     })
@@ -197,8 +215,8 @@ nb_diffs <- function(input_data, ...) {
 
 #' Customized preprocessing function
 #' @description The user can specify a custom preprocessing function to deal with missing values
-#' @param input_data A ts, mts or xts object
-#' @param fct A function, function which transforms the data
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param transf_fct A function, function which transforms the data
 #' @examples
 #' \dontrun{
 #' library(datasets)
@@ -209,37 +227,37 @@ nb_diffs <- function(input_data, ...) {
 #' preprocessing(AirPassengers, imputeTS::na.mean)
 #' }
 #' @return An xts object, the transformed data
-preprocess_custom_fct <- function(input_data, fct = NULL) {
+preprocess_custom_fct <- function(ts_data, transf_fct = NULL) {
   `%>%` <- magrittr::`%>%`
-  ts_data <- check_data_sv_as_xts(input_data)
-  fct <- check_preprocess_fct(fct)
-  if (base::is.null(fct)) {
-    transformed_data <- ts_data
-  } else if (base::is.function(fct)) {
+  xts_data <- check_data_sv_as_xts(ts_data)
+  transf_fct <- check_preprocess_fct(transf_fct)
+  if (base::is.null(transf_fct)) {
+    transformed_data <- xts_data
+  } else if (base::is.function(transf_fct)) {
     transformed_data <-
-      ts_data %>%
-      fct()
-  } else if (base::is.list(fct)) {
-    custom_fct <- fct[[1]]
+      xts_data %>%
+      transf_fct()
+  } else if (base::is.list(transf_fct)) {
+    custom_fct <- transf_fct[[1]]
     if (!base::is.function(custom_fct)) {
       message("First argument in list must be a function! Using no transformation by default")
-      transformed_data <- ts_data
+      transformed_data <- xts_data
     } else {
-      fct_args <- fct[[-1]]
+      fct_args <- transf_fct[[-1]]
       transformed_data <-
-        ts_data %>%
+        xts_data %>%
         base::do.call(., custom_fct, c(fct_args))
     }
   } else {
     message("Arguments were invalid. No transformation will be applied!")
-    transformed_data <- ts_data
+    transformed_data <- xts_data
   }
   return(transformed_data)
 }
 
 #' Normalize the data
-#' @param data_df A data.frame object
-#' @return A list, normalized data and scalers
+#' @param data_df A 'data.frame' object
+#' @return A list, normalized data and scaling arguments
 normalize_data <- function(data_df) {
   `%>%` <- magrittr::`%>%`
   if (!base::is.data.frame(data_df)) {
@@ -247,7 +265,7 @@ normalize_data <- function(data_df) {
   }
   df <- data_df
   features_to_norm <- base::colnames(df)[base::colnames(df) != "key"]
-  scalers <- list()
+  scale_arg_ls <- list()
   for (feature in features_to_norm) {
     position_feature <-
       base::colnames(df) %>%
@@ -270,7 +288,7 @@ normalize_data <- function(data_df) {
       } %>%
       dplyr::select(-tmp_var)
 
-    base::eval(base::parse(text = base::paste("scalers$", feature, " <-
+    base::eval(base::parse(text = base::paste("scale_arg_ls$", feature, " <-
                                                  c(mean_history, scale_history) %>%
                                                  matrix(ncol = 2) %>%
                                                  {
@@ -280,8 +298,8 @@ normalize_data <- function(data_df) {
                                                  }",
                                               sep = "")))
   }
-  normalized_data <- base::list(df, scalers)
-  base::names(normalized_data) <- c("data", "scalers")
+  normalized_data <- base::list(df, scale_arg_ls)
+  base::names(normalized_data) <- c("data", "scale_arg_ls")
   return(normalized_data)
 }
 
@@ -305,11 +323,11 @@ normalize_data <- function(data_df) {
 #' then input values will be: t-15, ... , t-12, ... , t-1.
 #'
 #' Same goes for lag_setting other than 12.
-#' @param data_df A data.frame object
-#' @param fc_horizon An integer, forecasting horizon
+#' @param data_df A 'data.frame' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
 #' @param valid_set_size An integer, the validation set size (default = 0)
-#' @param tsteps An integer, the number of time steps
-#' @param lag_setting An integer, lag to apply on regressors
+#' @param tsteps An integer, the number of time steps (i.e. lags) with explanatory power. These will be included as regressors.
+#' @param lag_setting An integer, the periodicity of the data. Important when dealing with seasonal data.
 #' @param ... Additional arguments to be passed to the function
 #' @return A data.frame object
 add_timesteps <- function(data_df,
@@ -417,8 +435,8 @@ add_timesteps <- function(data_df,
 }
 
 #' Reshape regressors X
-#' @param X must be a positive integer
-#' @param tsteps A positive integer, number of time steps
+#' @param X input matrix
+#' @param tsteps An integer, the number of time steps (i.e. lags) with explanatory power. These will be included as regressors.
 #' @param nb_features A positive integer, number of features/regressors
 reshape_X <- function(X, tsteps = 1, nb_features = 1) {
   base::dim(X) <- c(base::dim(X)[1], tsteps, nb_features)
@@ -426,51 +444,51 @@ reshape_X <- function(X, tsteps = 1, nb_features = 1) {
 }
 
 #' Reshape target variable y
-#' @param Y must be a positive integer
+#' @param Y ouput vector
 reshape_Y <- function(Y) {
   base::dim(Y) <- c(base::dim(Y)[1], 1)
   return(Y)
 }
 
 #' Apply a transformation on the data
-#' @param original_ts ts or xts object, data to apply transformation on
-#' @param transformed_ts ts or xts object, data on which the transformation has been applied on
-#' @param method string, method of data transformation
+#' @param original_data A 'ts' or 'xts' object, data to apply transformation on
+#' @param transformed_ts A 'ts' or 'xts' object, data on which the transformation has been applied on
+#' @param transf_method A string, method of data transformation
 #' @param apply_transform boolean, if TRUE the data will be transformed, else the transformation will be undone.
-transform_data <- function(original_ts,
+transform_data <- function(original_data,
                            transformed_ts = NULL,
-                           method = "diff",
+                           transf_method = "diff",
                            apply_transform = TRUE) {
   `%>%` <- magrittr::`%>%`
-  original_ts <- check_data_sv_as_xts(original_ts)
+  original_data <- check_data_sv_as_xts(original_data)
   transformed_ts <- check_data_sv_as_xts(transformed_ts)
-  if (!method %in% c("diff", "log", "sqrt")) {
-    message("The value of the 'method' argument is invalid, using 'diff' as default!")
-    method <- "diff"
+  if (!transf_method %in% c("diff", "log", "sqrt")) {
+    message("The value of the 'transf_method' argument is invalid, using 'diff' as default!")
+    transf_method <- "diff"
   }
   if (!base::is.logical(apply_transform)) {
     message("The value of the 'apply_transform' argument is invalid, using 'TRUE' as default!")
     apply_transform <- TRUE
   }
   if (apply_transform) {
-    if (base::is.null(original_ts)) {
+    if (base::is.null(original_data)) {
       stop("To apply the transformation, data must be provided!")
     }
-    if (method == "diff") {
-      transformed_ts <- base::diff(original_ts)
+    if (transf_method == "diff") {
+      transformed_ts <- base::diff(original_data)
     }
-    if (method == "log") {
+    if (transf_method == "log") {
       y <-
-        (original_ts
-         + base::abs(base::min(base::min(original_ts,
+        (original_data
+         + base::abs(base::min(base::min(original_data,
                                          na.rm = TRUE),
                                0)))
       transformed_ts <- base::log(y + 1)
     }
-    if (method == "sqrt") {
+    if (transf_method == "sqrt") {
       y <-
-        (original_ts
-         + base::abs(base::min(base::min(original_ts,
+        (original_data
+         + base::abs(base::min(base::min(original_data,
                                          na.rm = TRUE),
                                0)))
       transformed_ts <- base::sqrt(y)
@@ -480,13 +498,13 @@ transform_data <- function(original_ts,
     if (base::is.null(transformed_ts)) {
       stop("To undo the transformation, the transformed data must be provided!")
     }
-    if (base::is.null(original_ts)) {
+    if (base::is.null(original_data)) {
       stop("To undo the transformation, the original untransformed data must be provided!")
     }
-    if (method == "diff") {
-      sum_data <- original_ts[1]
+    if (transf_method == "diff") {
+      sum_data <- original_data[1]
       theor_trans_ts <-
-        base::diff(original_ts) %>%
+        base::diff(original_data) %>%
         xts::merge.xts(., transformed_ts, join = "outer") %>%
         .[, 1]
       filled_trans_ts <- theor_trans_ts
@@ -495,23 +513,23 @@ transform_data <- function(original_ts,
       for (num in 1:base::nrow(filled_trans_ts)) {
         sum_data <-
           (base::as.numeric(sum_data)
-           + if (is.na(filled_trans_ts[num])) 0 else filled_trans_ts[num])
+           + if (base::is.na(filled_trans_ts[num])) 0 else filled_trans_ts[num])
         undo_theo_trans_ts[num] <- sum_data
       }
       undo_trans_ts <- undo_theo_trans_ts[zoo::index(undo_theo_trans_ts) %in% zoo::index(transformed_ts)]
     }
-    if (method == "log") {
+    if (transf_method == "log") {
       undo_trans_ts <-
         (base::exp(transformed_ts)
          - 1
-         - base::abs(base::min(base::min(original_ts,
+         - base::abs(base::min(base::min(original_data,
                                          na.rm = TRUE),
                                0)))
     }
-    if (method == "sqrt") {
+    if (transf_method == "sqrt") {
       undo_trans_ts <-
         (transformed_ts^2
-         - base::abs(base::min(base::min(original_ts,
+         - base::abs(base::min(base::min(original_data,
                                          na.rm = TRUE),
                                0)))
     }
@@ -519,15 +537,15 @@ transform_data <- function(original_ts,
   }
 }
 
-#' Extract a univariate xts object from a mutivariate xts object
-#' @param mts_data_xts a univariate or multivariate xts object
-#' @param ind a numeric, the column index of the desired univariate xts object
+#' Extract a univariate xts object from a mutivariate 'xts' object
+#' @param mts_data_xts a univariate or multivariate 'xts' object
+#' @param ind a numeric, the column index of the desired univariate 'xts' object
 #' @export
 univariate_xts <- function(mts_data_xts, ind = 1) {
   ts_data_xts <- NULL
   if (!xts::is.xts(mts_data_xts)) {
     stop("The data must be an xts object!")
-  } else if (!is.numeric(ind)) {
+  } else if (!base::is.numeric(ind)) {
     stop("The index number must be a numeric!")
   } else {
     ts_data_xts <-
@@ -542,11 +560,11 @@ univariate_xts <- function(mts_data_xts, ind = 1) {
 #' @description
 #' Default preprocessing function to handle missing values in the data. This function selects the
 #' largest interval of non-missing values and attributes the most recent dates to these values.
-#' @param ts_data A ts or xts object
+#' @param ts_data A univariate 'ts' or 'xts' object
 #' @export
 default_prepro_fct <- function(ts_data) {
   `%>%` <- magrittr::`%>%`
-  if (!class(ts_data)[1] %in% c("ts", "xts")) {
+  if (!base::class(ts_data)[1] %in% c("ts", "xts")) {
     stop("The input data must be of class ts or xts!")
   }
   xts_data <- check_data_sv_as_xts(ts_data)
@@ -554,8 +572,8 @@ default_prepro_fct <- function(ts_data) {
     xts_data %>%
     timeSeries::na.contiguous()
   zoo::index(contiguous_data) <-
-    zoo::index(xts_data)[(length(xts_data)
-                          - length(contiguous_data)
+    zoo::index(xts_data)[(base::length(xts_data)
+                          - base::length(contiguous_data)
                           + 1):length(xts_data)]
   return(contiguous_data)
 }

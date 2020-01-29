@@ -4,10 +4,10 @@
 \alias{extract_coef_arima}
 \title{Extract model estimates for ARIMA}
 \usage{
-extract_coef_arima(fc_obj)
+extract_coef_arima(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

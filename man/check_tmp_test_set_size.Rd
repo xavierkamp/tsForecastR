@@ -7,7 +7,7 @@
 check_tmp_test_set_size(tmp_test_set_size)
 }
 \arguments{
-\item{tmp_test_set_size}{A positive integer}
+\item{tmp_test_set_size}{An integer, size of the second test set (used in the automl_h2o procedure)}
 }
 \value{
 tmp_test_set_size: a positive integer

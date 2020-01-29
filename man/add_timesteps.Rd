@@ -14,15 +14,15 @@ add_timesteps(
 )
 }
 \arguments{
-\item{data_df}{A data.frame object}
+\item{data_df}{A 'data.frame' object}
 
-\item{fc_horizon}{An integer, forecasting horizon}
+\item{fc_horizon}{An integer, the forecasting horizon (i.e. the number of periods to forecast)}
 
 \item{valid_set_size}{An integer, the validation set size (default = 0)}
 
-\item{tsteps}{An integer, the number of time steps}
+\item{tsteps}{An integer, the number of time steps (i.e. lags) with explanatory power. These will be included as regressors.}
 
-\item{lag_setting}{An integer, lag to apply on regressors}
+\item{lag_setting}{An integer, the periodicity of the data. Important when dealing with seasonal data.}
 
 \item{...}{Additional arguments to be passed to the function}
 }

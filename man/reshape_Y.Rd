@@ -7,7 +7,7 @@
 reshape_Y(Y)
 }
 \arguments{
-\item{Y}{must be a positive integer}
+\item{Y}{ouput vector}
 }
 \description{
 Reshape target variable y

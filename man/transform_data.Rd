@@ -5,18 +5,18 @@
 \title{Apply a transformation on the data}
 \usage{
 transform_data(
-  original_ts,
+  original_data,
   transformed_ts = NULL,
-  method = "diff",
+  transf_method = "diff",
   apply_transform = TRUE
 )
 }
 \arguments{
-\item{original_ts}{ts or xts object, data to apply transformation on}
+\item{original_data}{A 'ts' or 'xts' object, data to apply transformation on}
 
-\item{transformed_ts}{ts or xts object, data on which the transformation has been applied on}
+\item{transformed_ts}{A 'ts' or 'xts' object, data on which the transformation has been applied on}
 
-\item{method}{string, method of data transformation}
+\item{transf_method}{A string, method of data transformation}
 
 \item{apply_transform}{boolean, if TRUE the data will be transformed, else the transformation will be undone.}
 }

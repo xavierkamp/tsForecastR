@@ -29,10 +29,10 @@ test_that("generate_fc_works", {
   expect_equal(class(fc)[1], "tsForecastR")
   # check preprocess function
   fc <- generate_fc(xts_na_data, model_names = model_names,
-                    preprocess_fct = imputeTS::na.mean)
+                    prepro_fct = imputeTS::na.mean)
   expect_equal(class(fc)[1], "tsForecastR")
   fc <- generate_fc(xts_na_data, model_names = model_names,
-                    preprocess_fct = "imputeTS::na.mean")
+                    prepro_fct = "imputeTS::na.mean")
   expect_equal(class(fc)[1], "tsForecastR")
   # check backtesing opt
   fc1 <- generate_fc(ts_data, model_names = model_names,
@@ -46,9 +46,9 @@ test_that("generate_fc_works", {
                                             nb_iters = 1))
   # check nb cores
   model_names_2 <- c("arima", "automl_h2o")
-  fc <- generate_fc(ts_data, model_names = model_names_2, nb_cores = 2)
-  fc <- generate_fc(ts_data, model_names = model_names_2, nb_cores = 0)
-  fc <- generate_fc(ts_data, model_names = model_names_2, nb_cores = "1")
+  fc <- generate_fc(ts_data, model_names = model_names_2, nb_threads =  2)
+  fc <- generate_fc(ts_data, model_names = model_names_2, nb_threads = 0)
+  fc <- generate_fc(ts_data, model_names = model_names_2, nb_threads = "1")
   # check time id
   fc <- generate_fc(ts_data, model_names = model_names, time_id = "1234")
   # check model names

@@ -7,9 +7,9 @@
 reshape_X(X, tsteps = 1, nb_features = 1)
 }
 \arguments{
-\item{X}{must be a positive integer}
+\item{X}{input matrix}
 
-\item{tsteps}{A positive integer, number of time steps}
+\item{tsteps}{An integer, the number of time steps (i.e. lags) with explanatory power. These will be included as regressors.}
 
 \item{nb_features}{A positive integer, number of features/regressors}
 }

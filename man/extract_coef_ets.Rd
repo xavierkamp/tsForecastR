@@ -4,10 +4,10 @@
 \alias{extract_coef_ets}
 \title{Extract model estimates for ETS}
 \usage{
-extract_coef_ets(fc_obj)
+extract_coef_ets(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

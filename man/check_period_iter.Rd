@@ -7,7 +7,8 @@
 check_period_iter(period_iter)
 }
 \arguments{
-\item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
+\item{period_iter}{A string, period id (format: 'period' + '_' + iter). This id defines the iteration number of forecasting
+exercise.}
 }
 \value{
 A POSIXct, time identifier

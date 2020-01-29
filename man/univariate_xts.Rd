@@ -2,15 +2,15 @@
 % Please edit documentation in R/preprocessing.R
 \name{univariate_xts}
 \alias{univariate_xts}
-\title{Extract a univariate xts object from a mutivariate xts object}
+\title{Extract a univariate xts object from a mutivariate 'xts' object}
 \usage{
 univariate_xts(mts_data_xts, ind = 1)
 }
 \arguments{
-\item{mts_data_xts}{a univariate or multivariate xts object}
+\item{mts_data_xts}{a univariate or multivariate 'xts' object}
 
-\item{ind}{a numeric, the column index of the desired univariate xts object}
+\item{ind}{a numeric, the column index of the desired univariate 'xts' object}
 }
 \description{
-Extract a univariate xts object from a mutivariate xts object
+Extract a univariate xts object from a mutivariate 'xts' object
 }

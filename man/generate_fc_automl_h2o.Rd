@@ -5,56 +5,64 @@
 \title{Automated Machine Learning}
 \usage{
 generate_fc_automl_h2o(
-  ts_data_xts,
-  xreg_xts = NULL,
+  ts_data,
+  xreg_data = NULL,
   fc_horizon = 12,
   backtesting_opt = NULL,
   data_dir = NULL,
-  preprocess_fct = NULL,
+  prepro_fct = NULL,
   data_transf_method = "diff",
   automl_h2o_arg = NULL,
   time_id = base::Sys.time(),
-  nb_cores = 1,
+  nb_threads = 1,
   ...
 )
 }
 \arguments{
-\item{ts_data_xts}{A univariate ts or xts object}
+\item{ts_data}{A univariate 'ts' or 'xts' object}
 
-\item{xreg_xts}{A univariate or multivariate ts, mts or xts object, optional external regressors}
+\item{xreg_data}{A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors}
 
-\item{fc_horizon}{An integer, the forcasting horizon}
+\item{fc_horizon}{An integer, the forecasting horizon (i.e. the number of periods to forecast)}
 
-\item{backtesting_opt}{A list, options for the backtesting program:
+\item{backtesting_opt}{A list, options which define the backtesting approach:
 
- use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+ use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+ forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+ signals from the data.
 
- nb_iters - An integer, to determine the number of backtesting operations to apply
+ nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+ one forecasting exercise is performed)
 
- method - A string, to determine whether to use a rolling or a moving forecasting window
+ method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+ after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+ the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 
- sample_size - A string, to determine whether the training set size should expand or
- remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+ When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+ be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+ many last periods to keep the set's size constant.}
 
 \item{data_dir}{A string, directory to which results can be saved as text files}
 
-\item{preprocess_fct}{A function, a custom function to handle missing values in the data.
-(e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-interval of non-missing values is selected and the most recent dates are then attributed to these values.}
+\item{prepro_fct}{A function, a preprocessing function which handles missing values in the data.
+The default preprocessing function selects the largest interval of non-missing values and then attributes the
+most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+imputeTS::na.mean, custom-developped...).}
 
-\item{data_transf_method}{A string, the data transformation technique to be passed to the function.
-(options: 'diff', 'log', 'sqrt')}
+\item{data_transf_method}{A string, the data transformation method to be passed to the function.
+(available options: 'diff', 'log', 'sqrt')}
 
 \item{automl_h2o_arg}{A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function}
 
-\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+\item{time_id}{A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results}
 
-\item{nb_cores}{A numeric, number of threads to use in parallel computed model selection process}
+\item{nb_threads}{A numeric, number of threads to use in parallel computed model selection process}
 
 \item{...}{Additional arguments to be passed to the function}
 }
 \value{
-A tsForecastR object
+A 'tsForecastR' object
 }
 \description{
 Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o} package on

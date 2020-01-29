@@ -5,7 +5,7 @@
 \title{Save forecasts (for bsts.prediction objects)}
 \usage{
 save_fc_bsts(
-  fc_obj,
+  bsts_obj,
   raw_data,
   sample_split,
   data_dir,
@@ -17,7 +17,7 @@ save_fc_bsts(
 )
 }
 \arguments{
-\item{fc_obj}{A bsts.prediction object}
+\item{bsts_obj}{A bsts.prediction object}
 
 \item{raw_data}{A univariate ts or xts object, original (i.e. unprocessed) time series data}
 

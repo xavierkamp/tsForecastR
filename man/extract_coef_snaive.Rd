@@ -4,10 +4,10 @@
 \alias{extract_coef_snaive}
 \title{Extract model estimates for seasonal naive}
 \usage{
-extract_coef_snaive(fc_obj)
+extract_coef_snaive(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

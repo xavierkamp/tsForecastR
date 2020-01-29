@@ -4,10 +4,10 @@
 \alias{extract_coef_stl}
 \title{Extract model estimates for STL}
 \usage{
-extract_coef_stl(fc_obj)
+extract_coef_stl(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

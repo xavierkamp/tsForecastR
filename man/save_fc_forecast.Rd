@@ -5,7 +5,7 @@
 \title{Save forecasts (for forecast objects)}
 \usage{
 save_fc_forecast(
-  fc_obj,
+  forecast_obj,
   raw_data,
   sample_split,
   data_dir,
@@ -18,7 +18,7 @@ save_fc_forecast(
 )
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 
 \item{raw_data}{A univariate ts or xts object, original (i.e. unprocessed) time series data}
 

@@ -4,15 +4,15 @@
 \alias{format_historical_data}
 \title{Format original data}
 \usage{
-format_historical_data(data_xts)
+format_historical_data(ts_data)
 }
 \arguments{
-\item{data_xts}{An xts object, the original (i.e. unprocessed) time series data}
+\item{ts_data}{A univariate 'ts' or 'xts' object}
 }
 \value{
 A data.frame object
 }
 \description{
-This function ensures that the original data is uniformely formatted across all forecasting procedures
+This function ensures that the original (unprocessed) data input is standardized across all forecasting procedures
 before saving it in a data table. The original data can be accessed under 'values' with 'key'=='actual'.
 }

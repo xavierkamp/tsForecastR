@@ -7,19 +7,26 @@
 check_backtesting_iter(bt_iter, backtesting_opt = NULL)
 }
 \arguments{
-\item{bt_iter}{A positive integer which is smaller or equal to the
-number of backtesting operations to perform.}
+\item{bt_iter}{An integer, number of the current backtesting operation (i.e. forecasting exercise). This argument
+must be smaller or equal to the number of backtesting operations to perform.}
 
-\item{backtesting_opt}{A list, options for the backtesting program:
+\item{backtesting_opt}{A list, options which define the backtesting approach:
 
- use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+ use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+ forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+ signals from the data.
 
- nb_iters - An integer, to determine the number of backtesting operations to apply
+ nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+ one forecasting exercise is performed)
 
- method - A string, to determine whether to use a rolling or a moving forecasting window
+ method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+ after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+ the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 
- sample_size - A string, to determine whether the training set size should expand or
- remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+ When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+ be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+ many last periods to keep the set's size constant.}
 }
 \value{
 bt_iter: a positive integer

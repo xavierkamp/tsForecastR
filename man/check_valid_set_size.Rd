@@ -7,7 +7,7 @@
 check_valid_set_size(valid_set_size)
 }
 \arguments{
-\item{valid_set_size}{An integer}
+\item{valid_set_size}{An integer, the validation set size}
 }
 \value{
 valid_set_size: An integer

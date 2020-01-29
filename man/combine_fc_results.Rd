@@ -21,23 +21,24 @@ combine_fc_results(
 \arguments{
 \item{ts_name}{A string}
 
-\item{model_name}{A string}
+\item{model_name}{A string representing the model name to be used}
 
 \item{fc_formated}{A data.frame}
 
 \item{actual_formated}{A data.frame}
 
-\item{split_keys}{A data.frame}
+\item{split_keys}{A data.frame, with the sample split keys (e.g. train, valid, test)}
 
 \item{model_descr}{A string}
 
-\item{model_par}{A string}
+\item{model_par}{A string representing the model estimates which were previously collapsed into a single string}
 
-\item{model_args}{A string}
+\item{model_args}{A list, optional arguments to pass to the models}
 
-\item{period_iter}{A string, period identifier of format: 'period' + '_' + iter}
+\item{period_iter}{A string, period id (format: 'period' + '_' + iter). This id defines the iteration number of forecasting
+exercise.}
 
-\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+\item{time_id}{A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results}
 
 \item{...}{Additional arguments to be passed to the function}
 }

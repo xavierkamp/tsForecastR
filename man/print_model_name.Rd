@@ -7,7 +7,7 @@
 print_model_name(model_name)
 }
 \arguments{
-\item{model_name}{A string}
+\item{model_name}{A string representing the model name to be used}
 }
 \description{
 Print to console the model name currently selected

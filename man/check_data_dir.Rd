@@ -7,7 +7,7 @@
 check_data_dir(data_dir)
 }
 \arguments{
-\item{data_dir}{NULL or a valid filepath}
+\item{data_dir}{A string, directory to which results can be saved as text files}
 }
 \value{
 NULL or a valid filepath

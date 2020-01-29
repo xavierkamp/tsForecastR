@@ -5,7 +5,7 @@
 \title{Split the data into a training, validation and test set}
 \usage{
 split_train_test_set(
-  input_data,
+  mts_data,
   fc_horizon = 12,
   bt_iter = 1,
   valid_set_size = 0,
@@ -15,30 +15,39 @@ split_train_test_set(
 )
 }
 \arguments{
-\item{input_data}{A univariate or multivariate ts, mts or xts object}
+\item{mts_data}{A univariate or multivariate 'ts', 'mts' or 'xts' object}
 
-\item{fc_horizon}{An integer, forecasting horizon}
+\item{fc_horizon}{An integer, the forecasting horizon (i.e. the number of periods to forecast)}
 
-\item{bt_iter}{An integer, number of the current backtesting operation}
+\item{bt_iter}{An integer, number of the current backtesting operation (i.e. forecasting exercise). This argument
+must be smaller or equal to the number of backtesting operations to perform.}
 
 \item{valid_set_size}{An integer, the validation set size (default = 0)}
 
 \item{tmp_test_set_size}{An integer, size of a second test set (used by h2o.automl) (default = 0)}
 
-\item{backtesting_opt}{A list, options for the backtesting program:
+\item{backtesting_opt}{A list, options which define the backtesting approach:
 
- use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+ use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+ forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+ signals from the data.
 
- nb_iters - An integer, to determine the number of backtesting operations to apply
+ nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+ one forecasting exercise is performed)
 
- method - A string, to determine whether to use a rolling or a moving forecasting window
+ method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+ after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+ the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 
- sample_size - A string, to determine whether the training set size should expand or remain fixed across backtesting operations}
+ sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+ When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+ be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+ many last periods to keep the set's size constant.}
 
 \item{...}{Additional arguments to be passed to the function}
 }
 \value{
-A list, training, validation and test sets
+A list with training, validation and test sets
 }
 \description{
 Split the data into a training, validation and test set
