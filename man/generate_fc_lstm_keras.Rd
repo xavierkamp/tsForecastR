@@ -47,7 +47,7 @@ generate_fc_lstm_keras(
 \item{prepro_fct}{A function, a preprocessing function which handles missing values in the data.
 The default preprocessing function selects the largest interval of non-missing values and then attributes the
 most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
-imputeTS::na.mean, custom-developped...).}
+imputeTS::na.mean, custom-developed...).}
 
 \item{data_transf_method}{A string, the data transformation method to be passed to the function.
 (available options: 'diff', 'log', 'sqrt')}
