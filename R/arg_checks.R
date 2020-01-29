@@ -3,16 +3,23 @@
 #' This function ensures that the selected backtesting options are valid.
 #' If not, the function throws an error. If the options are NULL, then default
 #' values will be applied.
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or remain
-#'  fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @return A list of backtesting options
 #' @export
@@ -93,7 +100,7 @@ check_backtesting_opt <- function(backtesting_opt) {
 #' @description
 #' This function ensures that the selected forecasting horizon is valid.
 #' If not, the function throws an error.
-#' @param fc_horizon A positive integer
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
 #' @return fc_horizon: A positive integer
 #' @export
 check_fc_horizon <- function(fc_horizon) {
@@ -109,7 +116,7 @@ check_fc_horizon <- function(fc_horizon) {
 #' @description
 #' This function ensures that the selected validation set size is valid.
 #' If not, the function throws an error.
-#' @param valid_set_size An integer
+#' @param valid_set_size An integer, the validation set size
 #' @return valid_set_size: An integer
 #' @export
 check_valid_set_size <- function(valid_set_size) {
@@ -126,7 +133,7 @@ check_valid_set_size <- function(valid_set_size) {
 #' This function ensures that the optional test set size is valid. The optional
 #' test set size is used to identify the best performing model inside the
 #' h2o.automl procedure. If the argument is invalid, the function throws an error.
-#' @param tmp_test_set_size A positive integer
+#' @param tmp_test_set_size An integer, size of the second test set (used in the automl_h2o procedure)
 #' @return tmp_test_set_size: a positive integer
 #' @export
 check_tmp_test_set_size <- function(tmp_test_set_size) {
@@ -142,18 +149,25 @@ check_tmp_test_set_size <- function(tmp_test_set_size) {
 #' @description
 #' This function ensures that the backtesting iteration number is valid.
 #' If not, the function throws an error.
-#' @param bt_iter A positive integer which is smaller or equal to the
-#' number of backtesting operations to perform.
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param bt_iter An integer, number of the current backtesting operation (i.e. forecasting exercise). This argument
+#' must be smaller or equal to the number of backtesting operations to perform.
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @return bt_iter: a positive integer
 #' @export
@@ -173,7 +187,7 @@ check_backtesting_iter <- function(bt_iter, backtesting_opt = NULL) {
 #' @description
 #' Punctuations in colnames will dropped in order to
 #' avoid errors when converting between different data types.
-#' @param data_colnames a vector of strings, colnames to be cleaned
+#' @param data_colnames A vector of strings, colnames of the input data which need to be cleaned
 #' @param default_colname a string, default colname assigned when no colnames are defined
 #' @param nb_colnames an integer, number of colnames to check
 #' @return data_colnames: A vector of strings, where special symbols are dropped
@@ -213,7 +227,7 @@ check_colnames <- function(data_colnames,
 #' converts it to an xts object. Furthermore, if no colnames are specified, default
 #' colnames will be applied. Moreover, punctuations in colnames will dropped to
 #' avoid errors when converting between different data types.
-#' @param input_data ts, mts or xts object
+#' @param input_data A 'ts', 'mts' or 'xts' object
 #' @param default_colname a string, default colname assigned when no colnames are defined
 #' @return xts object with punctuations dropped in colnames
 #' @export
@@ -242,7 +256,7 @@ check_data_sv_as_xts <- function(input_data, default_colname = "time_series") {
 #' @description
 #' This function ensures that the filepath where forecast can be saved is valid
 #' If not the argument is invalid, the function throws an error.
-#' @param data_dir NULL or a valid filepath
+#' @param data_dir A string, directory to which results can be saved as text files
 #' @return NULL or a valid filepath
 #' @export
 check_data_dir <- function(data_dir) {
@@ -337,7 +351,7 @@ check_tensorflow <- function(model_names) {
 #' This function ensures that the models' arguments are a list. Furthermore, the
 #' function checks if these arguments match the selected model names, otherwise they
 #' will be dropped.
-#' @param models_args A list, parameters to be passed to the model
+#' @param models_args A list, optional arguments to passed to the models
 #' @param model_names A list or vector of strings representing the model names to be used
 #' @return models_args: A list, parameters to be passed to the models where unused parameters are dropped
 #' @export
@@ -366,8 +380,8 @@ check_models_args <- function(models_args, model_names = NULL) {
 #' @description
 #' This function ensures that the user selects a valid number of CPU cores.
 #' If the number of cores is invalid, then use the total number of available cores as default.
-#' @param nb_cores A numeric, the number of selected CPU cores
-#' @return A numeric, the number of selected CPU cores
+#' @param nb_cores An integer, the number of CPU cores to select
+#' @return An integer, the number of CPU cores to select
 #' @export
 check_nb_cores <- function(nb_cores) {
   nb_cores_available <- parallel::detectCores()
@@ -403,37 +417,40 @@ check_nb_cores <- function(nb_cores) {
 #' Check the custom preprocessing function
 #' @description
 #' This function checks whether the specified function is indeed a function
-#' @param fct A function, the custom preprocessing function to handle missing values in the data
-#' @return NULL (if no fct is specified) or fct (if fct is specified)
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#' @return NULL (if no fct is specified) or prepro_fct (if prepro_fct is specified)
 #' @export
-check_preprocess_fct <- function(fct) {
-  if (base::is.null(fct)) {
+check_preprocess_fct <- function(prepro_fct) {
+  if (base::is.null(prepro_fct)) {
     message(base::paste("No custom preprocessing function has been specified! ",
                         "Setting to default: default_prepro_fct",
                         sep = ""))
     return(default_prepro_fct)
-  } else if (base::is.character(fct)) {
+  } else if (base::is.character(prepro_fct)) {
     message(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
                         "Setting to default: default_prepro_fct",
                         sep = ""))
     return(default_prepro_fct)
-  } else if (base::is.function(fct)) {
-    return(fct)
-  } else if (base::is.list(fct)) {
-    if (base::length(fct) == 0) {
+  } else if (base::is.function(prepro_fct)) {
+    return(prepro_fct)
+  } else if (base::is.list(prepro_fct)) {
+    if (base::length(prepro_fct) == 0) {
       message(base::paste("Invalid argument for the custom preprocessing function! Argument must be a function. ",
                           "Setting to default: default_prepro_fct",
                           sep = ""))
       return(default_prepro_fct)
     } else {
-      custom_fct <- fct[[1]]
+      custom_fct <- prepro_fct[[1]]
       if (!base::is.function(custom_fct)) {
         message(base::paste("No custom preprocessing function has been found in list. Argument must be a function. ",
                             "Setting to default: default_prepro_fct",
                             sep = ""))
         return(default_prepro_fct)
       } else {
-        return(fct)
+        return(prepro_fct)
       }
     }
   } else {
@@ -444,8 +461,8 @@ check_preprocess_fct <- function(fct) {
 #' Check the time identifier
 #' @description
 #' This function ensures that the user specifies a valid time identifier.
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
-#' @return A POSIXct, time identifier
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
+#' @return A POSIXct, timestamp
 #' @export
 check_time_id <- function(time_id) {
   if (!base::is.null(time_id)) {
@@ -469,7 +486,8 @@ check_time_id <- function(time_id) {
 #' Check the period identifier
 #' @description
 #' This function ensures that the user specifies a valid period identifier.
-#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
+#' @param period_iter A string, period id (format: 'period' + '_' + iter). This id defines the iteration number of forecasting
+#' exercise.
 #' @return A POSIXct, time identifier
 #' @export
 check_period_iter <- function(period_iter) {
@@ -489,8 +507,13 @@ check_period_iter <- function(period_iter) {
   }
 }
 
-valid_md_arima <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check ARIMA model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_arima <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (base::nrow(ts_data_xts) < stats::frequency(ts_data_xts) + 1) {
     message(base::paste("Not enough observations! To use 'arima', there must be more than ",
                         stats::frequency(ts_data_xts)," observations available.",
@@ -501,8 +524,13 @@ valid_md_arima <- function(ts_data_xts) {
   }
 }
 
-valid_md_ets <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check ETS model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_ets <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (base::nrow(ts_data_xts) < 2) {
     message("Not enough observations! To use 'ets', there must be more than 2 observations available.")
     return(FALSE)
@@ -511,8 +539,14 @@ valid_md_ets <- function(ts_data_xts) {
   }
 }
 
-valid_md_snaive <- function(ts_data_xts, fc_horizon) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check seasonal-naive model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_snaive <- function(ts_data, fc_horizon) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   if (fc_horizon > 2 * stats::frequency(ts_data_xts)) {
     message("snaive cannot be used to generate forecasts with: fc horizon > 2 * ts_frequency")
@@ -522,8 +556,13 @@ valid_md_snaive <- function(ts_data_xts, fc_horizon) {
   }
 }
 
-valid_md_stl <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check STL model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_stl <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (stats::frequency(ts_data_xts) <= 1) {
     message("The data is not a seasonal object! To use 'stl', the data frequency must be higher than 1.
             Otherwise, the seasonal component cannot be estimated.")
@@ -538,8 +577,13 @@ valid_md_stl <- function(ts_data_xts) {
   }
 }
 
-valid_md_tbats <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check TBATS model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_tbats <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (base::nrow(ts_data_xts) < 2) {
     message("Not enough observations! To use 'tbats', there must be more than 2 observations available.")
     return(FALSE)
@@ -548,8 +592,13 @@ valid_md_tbats <- function(ts_data_xts) {
   }
 }
 
-valid_md_nnetar <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check Neural Net model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_nnetar <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (base::nrow(ts_data_xts) < 3) {
     message("Not enough observations! To use 'nnetar', there must be more than 3 observations available.")
     return(FALSE)
@@ -558,8 +607,13 @@ valid_md_nnetar <- function(ts_data_xts) {
   }
 }
 
-valid_md_bsts <- function(ts_data_xts) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check BSTS model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_bsts <- function(ts_data) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   if (base::nrow(ts_data_xts) < 3) {
     message("Not enough observations! To use 'bsts', there must be more than 3 observations available.")
     return(FALSE)
@@ -568,8 +622,14 @@ valid_md_bsts <- function(ts_data_xts) {
   }
 }
 
-valid_md_lstm_keras <- function(ts_data_xts, lstm_keras_arg) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check LSTM-keras model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_lstm_keras <- function(ts_data, lstm_keras_arg) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   min_nb_obs <-
     (base::max(lstm_keras_arg$lag_setting, lstm_keras_arg$nb_timesteps)
      + lstm_keras_arg$valid_set_size
@@ -584,8 +644,14 @@ valid_md_lstm_keras <- function(ts_data_xts, lstm_keras_arg) {
   }
 }
 
-valid_md_autml_h2o <- function(ts_data_xts, automl_h2o_arg) {
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+#' Check AutoML-h2o model validity
+#' @description
+#' This function ensures that the data meets model requirements
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
+#' @return A boolean, TRUE if the forecasting is possible.
+valid_md_autml_h2o <- function(ts_data, automl_h2o_arg) {
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   min_nb_obs <-
     (automl_h2o_arg$valid_set_size
      + automl_h2o_arg$test_set_size)

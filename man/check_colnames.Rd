@@ -7,7 +7,7 @@
 check_colnames(data_colnames, default_colname = "time_series", nb_colnames = 1)
 }
 \arguments{
-\item{data_colnames}{a vector of strings, colnames to be cleaned}
+\item{data_colnames}{A vector of strings, colnames of the input data which need to be cleaned}
 
 \item{default_colname}{a string, default colname assigned when no colnames are defined}
 

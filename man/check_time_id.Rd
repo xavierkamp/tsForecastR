@@ -7,10 +7,10 @@
 check_time_id(time_id)
 }
 \arguments{
-\item{time_id}{A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results}
+\item{time_id}{A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results}
 }
 \value{
-A POSIXct, time identifier
+A POSIXct, timestamp
 }
 \description{
 This function ensures that the user specifies a valid time identifier.

@@ -1,5 +1,5 @@
 #' Print to console the model name currently selected
-#' @param model_name A string
+#' @param model_name A string representing the model name to be used
 print_model_name <- function(model_name) {
   model_name <- check_model_names(model_name)
   cat(base::paste("Currently forecasting with: ",
@@ -10,7 +10,7 @@ print_model_name <- function(model_name) {
 
 #' Initialize the model output
 #' @description
-#' Generate an empty list with a tsForecastR class attribute
+#' Generate an empty list with a 'tsForecastR' class attribute
 ini_model_output <- function() {
   return(structure(base::list(),
                    class = "tsForecastR"))
@@ -19,21 +19,21 @@ ini_model_output <- function() {
 #' Extract forecasts and prediction intervals from list
 #' @description
 #' This function extracts the forecasts and prediction intervals from a list.
-#' @param fc_obj A list, the forecasts must be stored under the keyword 'mean'.
-#' @param exclude_PI A boolean, extract prediction intervals stored under the keywords 'upper' and 'lower'.
+#' @param fc_ls A list, the forecasts must be stored under the keyword 'mean'.
+#' @param exclude_PI A boolean, to extract prediction intervals stored in 'list' object under the keywords 'upper' and 'lower'.
 #' @return A data.frame
-get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
+get_fc_with_PI <- function(fc_ls, exclude_PI = FALSE) {
   `%>%` <- magrittr::`%>%`
-  if (!base::is.list(fc_obj)) {
+  if (!base::is.list(fc_ls)) {
     stop(base::paste("Input data must be a list! To save forecasts, ",
                      "forecasts must be passed as a data.frame in a list under the keyword 'mean'!",
                      sep = ""))
   } else {
-    if (!"mean" %in% base::names(fc_obj)) {
+    if (!"mean" %in% base::names(fc_ls)) {
       stop("Keyword 'mean' not found in list!")
-    } else if (!base::is.data.frame(fc_obj$mean)
-               & !stats::is.ts(fc_obj$mean)
-               & !base::is.numeric(fc_obj$mean)) {
+    } else if (!base::is.data.frame(fc_ls$mean)
+               & !stats::is.ts(fc_ls$mean)
+               & !base::is.numeric(fc_ls$mean)) {
       stop("Object stored as 'mean' in list is not a data.frame, ts obj or numeric!")
     }
   }
@@ -43,21 +43,21 @@ get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
   }
   if (exclude_PI) {
     fc <-
-      fc_obj$mean %>%
+      fc_ls$mean %>%
       base::as.data.frame() %>%
       dplyr::mutate(key = "predict")
     base::colnames(fc) <- c("values", "key")
   } else {
     fc <-
-      cbind(fc_obj$mean,
-            fc_obj$lower,
-            fc_obj$upper) %>%
+      cbind(fc_ls$mean,
+            fc_ls$lower,
+            fc_ls$upper) %>%
       base::as.data.frame() %>%
       dplyr::mutate(key = "predict")
     base::colnames(fc) <-
       c("values",
-        base::paste("lower", base::colnames(fc_obj$lower), sep = "_"),
-        base::paste("upper", base::colnames(fc_obj$upper), sep = "_"),
+        base::paste("lower", base::colnames(fc_ls$lower), sep = "_"),
+        base::paste("upper", base::colnames(fc_ls$upper), sep = "_"),
         "key")
   }
   return(fc)
@@ -68,29 +68,29 @@ get_fc_with_PI <- function(fc_obj, exclude_PI = FALSE) {
 #' This function collapses a vector to a single string where values are separated by ';'. This conversion
 #' is useful when estimates are later stored in a data table, providing the user the possibility to check on
 #' the most important model parameters.
-#' @param model_par_vector A vector, estimates of the model parameters to be converted to a single string.
+#' @param model_par_vec A vector of strings representing the model estimates which will be collapsed to a single string.
 #' @return A string
-collapse_model_par <- function(model_par_vector) {
+collapse_model_par <- function(model_par_vec) {
   `%>%` <- magrittr::`%>%`
   model_par <-
-    model_par_vector %>%
+    model_par_vec %>%
     base::paste(base::names(.), ., collapse = ";")
   return(model_par)
 }
 
 #' Format original data
 #' @description
-#' This function ensures that the original data is uniformely formatted across all forecasting procedures
+#' This function ensures that the original (unprocessed) data input is standardized across all forecasting procedures
 #' before saving it in a data table. The original data can be accessed under 'values' with 'key'=='actual'.
-#' @param data_xts An xts object, the original (i.e. unprocessed) time series data
+#' @param ts_data A univariate 'ts' or 'xts' object
 #' @return A data.frame object
-format_historical_data <- function(data_xts) {
+format_historical_data <- function(ts_data) {
   `%>%` <- magrittr::`%>%`
   data_formated <-
-    data_xts %>%
+    ts_data %>%
     base::as.data.frame() %>%
     dplyr::select("values" = base::colnames(.)) %>%
-    dplyr::mutate(dates = zoo::index(data_xts) %>%
+    dplyr::mutate(dates = zoo::index(ts_data) %>%
                     lubridate::as_date()) %>%
     dplyr::mutate(key = "actual")
   return(data_formated)
@@ -100,15 +100,16 @@ format_historical_data <- function(data_xts) {
 #' @description
 #' This function combines every info which will be stored in a data table.
 #' @param ts_name A string
-#' @param model_name A string
+#' @param model_name A string representing the model name to be used
 #' @param fc_formated A data.frame
 #' @param actual_formated A data.frame
-#' @param split_keys A data.frame
+#' @param split_keys A data.frame, with the sample split keys (e.g. train, valid, test)
 #' @param model_descr A string
-#' @param model_par A string
-#' @param model_args A string
-#' @param period_iter A string, period identifier of format: 'period' + '_' + iter
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param model_par A string representing the model estimates which were previously collapsed into a single string
+#' @param model_args A list, optional arguments to pass to the models
+#' @param period_iter A string, period id (format: 'period' + '_' + iter). This id defines the iteration number of forecasting
+#' exercise.
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @return A data.frame object
 combine_fc_results <- function(ts_name,
@@ -141,12 +142,12 @@ combine_fc_results <- function(ts_name,
   return(results)
 }
 
-#' Get split identifiers
+#' Get split keys
 #' @description
 #' This function identifies which observations belong to which set (e.g. training, validation, test sets) by creating
 #' a split identifier.
-#' @param sample_split A list, the sample split
-#' @return A data.frame
+#' @param sample_split A list, the sample split (e.g. training, validation and test sets)
+#' @return A data.frame with split keys
 get_split_keys <- function(sample_split) {
   `%>%` <- magrittr::`%>%`
   names_split <- names(sample_split)
@@ -172,12 +173,12 @@ get_split_keys <- function(sample_split) {
 #' Extract model estimates for ARIMA
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_arima <- function(fc_obj) {
+extract_coef_arima <- function(forecast_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef_1 <-
-    fc_obj$model$coef %>%
+    forecast_obj$model$coef %>%
     {
       if (base::length(.) != 0) {
         base::names(.) <- base::paste("coef.", base::names(.), sep = "")
@@ -185,7 +186,7 @@ extract_coef_arima <- function(fc_obj) {
       }
     }
   model_coef_2 <-
-    fc_obj$model$var.coef %>%
+    forecast_obj$model$var.coef %>%
     {
       if (base::length(.) != 0) {
         var_name <- NULL
@@ -211,39 +212,39 @@ extract_coef_arima <- function(fc_obj) {
 #' Extract model estimates for ETS
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_ets <- function(fc_obj) {
-  return(fc_obj$model$par)
+extract_coef_ets <- function(forecast_obj) {
+  return(forecast_obj$model$par)
 }
 
 #' Extract model estimates for STL
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_stl <- function(fc_obj) {
-  return(fc_obj$model$par)
+extract_coef_stl <- function(forecast_obj) {
+  return(forecast_obj$model$par)
 }
 
 #' Extract model estimates for seasonal naive
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_snaive <- function(fc_obj) {
-  return(fc_obj$model$par)
+extract_coef_snaive <- function(forecast_obj) {
+  return(forecast_obj$model$par)
 }
 
 #' Extract model estimates for NNETAR
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_nnetar <- function(fc_obj) {
+extract_coef_nnetar <- function(forecast_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef <-
-    capture.output(fc_obj$model) %>%
+    capture.output(forecast_obj$model) %>%
     base::paste(collapse = " ") %>%
     {
       base::names(.) <- "msg"
@@ -255,41 +256,41 @@ extract_coef_nnetar <- function(fc_obj) {
 #' Extract model estimates for TBATS
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @return A vector of strings
-extract_coef_tbats <- function(fc_obj) {
+extract_coef_tbats <- function(forecast_obj) {
   `%>%` <- magrittr::`%>%`
   model_coef <-
     c(
-      fc_obj$model$lambda %>%
+      forecast_obj$model$lambda %>%
         {
           if (!base::is.null(.)) {
           names(.) <- "lambda"
           }
           .
         },
-      fc_obj$model$alpha %>%
+      forecast_obj$model$alpha %>%
         {
           if (!base::is.null(.)) {
           names(.) <- "alpha"
           }
           .
         },
-      fc_obj$model$beta %>%
+      forecast_obj$model$beta %>%
         {
           if (!base::is.null(.)) {
           names(.) <- "beta"
           }
           .
         },
-      fc_obj$model$damping.parameter %>%
+      forecast_obj$model$damping.parameter %>%
         {
           if (!base::is.null(.)) {
           names(.) <- "damping.parameter"
           }
           .
         },
-      fc_obj$model$gamma.one.values %>%
+      forecast_obj$model$gamma.one.values %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- base::paste("gamma.one.values",
@@ -298,7 +299,7 @@ extract_coef_tbats <- function(fc_obj) {
           }
           .
         },
-      fc_obj$model$gamma.two.values %>%
+      forecast_obj$model$gamma.two.values %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- base::paste("gamma.two.values",
@@ -307,7 +308,7 @@ extract_coef_tbats <- function(fc_obj) {
           }
           .
         },
-      fc_obj$model$ar.coefficients %>%
+      forecast_obj$model$ar.coefficients %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- base::paste("ar.coefficients",
@@ -316,7 +317,7 @@ extract_coef_tbats <- function(fc_obj) {
           }
           .
         },
-      fc_obj$model$ma.coefficients %>%
+      forecast_obj$model$ma.coefficients %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- base::paste("ma.coefficients",
@@ -325,12 +326,12 @@ extract_coef_tbats <- function(fc_obj) {
           }
           .
         },
-      fc_obj$model$optim.return.code %>%
+      forecast_obj$model$optim.return.code %>%
         {
           base::names(.) <- "optim.return.code"
           .
         },
-      fc_obj$model$seed.states %>%
+      forecast_obj$model$seed.states %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- base::paste("seed.states",
@@ -339,28 +340,28 @@ extract_coef_tbats <- function(fc_obj) {
           }
           .
         },
-      fc_obj$model$seasonal.periods %>%
+      forecast_obj$model$seasonal.periods %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- "seasonal.periods"
           }
           .
         },
-      fc_obj$model$k.vector %>%
+      forecast_obj$model$k.vector %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- "k.vector"
           }
           .
         },
-      fc_obj$model$p %>%
+      forecast_obj$model$p %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- "p"
           }
           .
         },
-      fc_obj$model$q %>%
+      forecast_obj$model$q %>%
         {
           if (!base::is.null(.)) {
             base::names(.) <- "q"
@@ -373,7 +374,7 @@ extract_coef_tbats <- function(fc_obj) {
 #' Save forecasts (for forecast objects)
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A forecast object
+#' @param forecast_obj A 'forecast' object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
 #' @param data_dir A string, directory to which results can be saved as text files
@@ -384,14 +385,14 @@ extract_coef_tbats <- function(fc_obj) {
 #' @param exclude_PI A boolean, exclude prediction intervals in results
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
-save_fc_forecast <- function(fc_obj, raw_data, sample_split,
+save_fc_forecast <- function(forecast_obj, raw_data, sample_split,
                              data_dir, model_name,
                              time_id = base::Sys.time(),
                              period_iter = NULL,
                              model_args = NULL,
                              exclude_PI = FALSE, ...) {
   `%>%` <- magrittr::`%>%`
-  if (class(fc_obj)[1] != "forecast") {
+  if (class(forecast_obj)[1] != "forecast") {
     stop("forecasts must be a forecast object")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
@@ -404,16 +405,16 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
     zoo::index() %>%
     lubridate::as_date()
   fc_formated <-
-    get_fc_with_PI(fc_obj, exclude_PI) %>%
+    get_fc_with_PI(forecast_obj, exclude_PI) %>%
     dplyr::mutate(dates = pred_dates)
   eval(parse(text = paste("model_coef <- ",
                           "extract_coef_",
                           model_name,
-                          "(fc_obj)",
+                          "(forecast_obj)",
                           sep = "")))
   model_par <- collapse_model_par(model_coef)
   model_args <- collapse_model_par(model_args)
-  model_descr <- fc_obj$method
+  model_descr <- forecast_obj$method
   raw_data_formated <- format_historical_data(raw_data_xts)
   split_keys <- get_split_keys(sample_split)
   results <- combine_fc_results(ts_name = base::colnames(raw_data_xts),
@@ -453,7 +454,7 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' Save forecasts (for bsts.prediction objects)
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A bsts.prediction object
+#' @param bsts_obj A bsts.prediction object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
 #' @param data_dir A string, directory to which results can be saved as text files
@@ -463,14 +464,14 @@ save_fc_forecast <- function(fc_obj, raw_data, sample_split,
 #' @param model_args A list, optional arguments to pass to the models
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
-save_fc_bsts <- function(fc_obj, raw_data, sample_split,
+save_fc_bsts <- function(bsts_obj, raw_data, sample_split,
                          data_dir, model_name,
                          time_id = base::Sys.time(),
                          period_iter = NULL,
                          model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
-  if (class(fc_obj)[1] != "bsts.prediction") {
+  if (class(bsts_obj)[1] != "bsts.prediction") {
     stop("forecasts must be a bsts.prediction object")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
@@ -483,7 +484,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
     zoo::index() %>%
     lubridate::as_date()
   pred_int <-
-    fc_obj$interval %>%
+    bsts_obj$interval %>%
     {
       base::colnames(.) <- c(base::paste("lower", base::colnames(.)[1], sep = "_"),
                              base::paste("upper", base::colnames(.)[1], sep = "_"))
@@ -491,7 +492,7 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
     } %>%
     as.data.frame()
   fc_formated <-
-    get_fc_with_PI(fc_obj, exclude_PI = TRUE) %>%
+    get_fc_with_PI(bsts_obj, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates) %>%
     base::cbind(., pred_int)
   raw_data_formated <- format_historical_data(raw_data_xts)
@@ -529,10 +530,10 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
   }
 }
 
-#' Save forecasts (for forecast objects)
+#' Save forecasts (for Machine Learning models)
 #' @description
 #' This function extracts the estimates of the model parameters
-#' @param fc_obj A data.frame object
+#' @param data_df A 'data.frame' object
 #' @param raw_data A univariate ts or xts object, original (i.e. unprocessed) time series data
 #' @param sample_split A list, the sample split
 #' @param data_dir A string, directory to which results can be saved as text files
@@ -542,14 +543,14 @@ save_fc_bsts <- function(fc_obj, raw_data, sample_split,
 #' @param model_args A list, optional arguments to pass to the models
 #' @param ... Additional arguments to be passed to the function
 #' @return A data frame
-save_fc_ml <- function(fc_obj, raw_data, sample_split,
+save_fc_ml <- function(data_df, raw_data, sample_split,
                        data_dir, model_name,
                        time_id = base::Sys.time(),
                        period_iter = NULL,
                        model_args = NULL,
                          ...) {
   `%>%` <- magrittr::`%>%`
-  if (!base::is.data.frame(fc_obj)) {
+  if (!base::is.data.frame(data_df)) {
     stop("Forecasts must be passed as an xts object!")
   }
   raw_data_xts <- check_data_sv_as_xts(raw_data)
@@ -562,7 +563,7 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
     zoo::index() %>%
     lubridate::as_date()
   fc_list <- list()
-  fc_list$mean <- fc_obj
+  fc_list$mean <- data_df
   fc_formated <-
     get_fc_with_PI(fc_list, exclude_PI = TRUE) %>%
     dplyr::mutate(dates = pred_dates)
@@ -602,18 +603,18 @@ save_fc_ml <- function(fc_obj, raw_data, sample_split,
 }
 
 #' Recursive function to read results from tsForecastR object
-#' @param fc A tsForecastR object
+#' @param tsfcr_obj A tsForecastR object
 #' @return A data frame
-read_tsForecastR <- function(fc) {
+read_tsForecastR <- function(tsfcr_obj) {
   `%>%` <- magrittr::`%>%`
   df <- base::data.frame()
-  if (base::is.data.frame(fc)) {
-    return(fc)
-  } else if (!is.null(base::names(fc))) {
-    for (i in base::names(fc)) {
+  if (base::is.data.frame(tsfcr_obj)) {
+    return(tsfcr_obj)
+  } else if (!is.null(base::names(tsfcr_obj))) {
+    for (i in base::names(tsfcr_obj)) {
       df <-
         dplyr::bind_rows(df,
-                         base::paste("fc[['",
+                         base::paste("tsfcr_obj[['",
                                      i,
                                      "']]",
                                      sep = "") %>%
@@ -626,7 +627,7 @@ read_tsForecastR <- function(fc) {
 }
 
 #' Read results from files
-#' @param data_colnames a vector of strings, colnames to be cleaned
+#' @param data_colnames A vector of strings, colnames of the input data which need to be cleaned
 #' @param data_dir A string, directory to which results can be saved as text files
 #' @param model_names A list or vector of strings representing the model names to be used
 #' @return A data frame
@@ -661,7 +662,7 @@ read_fc_from_file <- function(data_colnames,
 
 #' Read forecasts from tsForecastR object
 #' @description This function transforms a tsForecastR object into a data.frame object
-#' @param fc A tsForecastR object
+#' @param tsfcr_obj A 'tsForecastR' object
 #' @param data_dir A string, directory to which results can be saved as text files.
 #' @param data_colnames A vector of strings, the names of the time series objects to read the
 #' results from
@@ -677,7 +678,7 @@ read_fc_from_file <- function(data_colnames,
 #' print(df)
 #' }
 #' @export
-save_as_df <- function(fc = NULL,
+save_as_df <- function(tsfcr_obj = NULL,
                        data_dir = NULL,
                        data_colnames = NULL,
                        model_names = NULL,
@@ -686,12 +687,12 @@ save_as_df <- function(fc = NULL,
   data_dir <- check_data_dir(data_dir)
   model_names <- check_model_names(model_names)
   if (base::is.null(data_dir)) {
-    if (base::is.null(fc)) {
+    if (base::is.null(tsfcr_obj)) {
       stop(base::paste("No data found! Please specify a valid data directory and time series' ",
                        "names or specify a valid tsForecastR object.",
                        sep = ""))
-    } else if (class(fc) != "tsForecastR") {
-      stop("The value of the fc argument is invalid! Please specify a valid tsForecastR object.")
+    } else if (class(tsfcr_obj) != "tsForecastR") {
+      stop("The value of the tsfcr_obj argument is invalid! Please specify a valid tsForecastR object.")
     }
   } else {
     if (base::is.null(data_colnames)) {
@@ -700,11 +701,11 @@ save_as_df <- function(fc = NULL,
                           "from the directory and data_dir will be set to NULL as default.",
                           sep = ""))
       data_dir <- NULL
-      if (base::is.null(fc)) {
+      if (base::is.null(tsfcr_obj)) {
         stop(base::paste("No data found! Please specify a valid data directory and time series' ",
                          "names or specify a valid tsForecastR object.",
                          sep = ""))
-      } else if (class(fc) != "tsForecastR") {
+      } else if (class(tsfcr_obj) != "tsForecastR") {
         stop(base::paste("No data found! Please specify a valid data directory and time series' ",
                          "names or specify a valid tsForecastR object.",
                          sep = ""))
@@ -714,7 +715,7 @@ save_as_df <- function(fc = NULL,
     }
   }
   if (base::is.null(data_dir)) {
-    results_df <- read_tsForecastR(fc)
+    results_df <- read_tsForecastR(tsfcr_obj)
   } else {
     results_df <- read_fc_from_file(data_dir = data_dir,
                                     data_colnames = data_colnames,

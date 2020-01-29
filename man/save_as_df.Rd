@@ -5,7 +5,7 @@
 \title{Read forecasts from tsForecastR object}
 \usage{
 save_as_df(
-  fc = NULL,
+  tsfcr_obj = NULL,
   data_dir = NULL,
   data_colnames = NULL,
   model_names = NULL,
@@ -13,7 +13,7 @@ save_as_df(
 )
 }
 \arguments{
-\item{fc}{A tsForecastR object}
+\item{tsfcr_obj}{A 'tsForecastR' object}
 
 \item{data_dir}{A string, directory to which results can be saved as text files.}
 

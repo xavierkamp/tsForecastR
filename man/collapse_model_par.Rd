@@ -4,10 +4,10 @@
 \alias{collapse_model_par}
 \title{Store model estimates as a string}
 \usage{
-collapse_model_par(model_par_vector)
+collapse_model_par(model_par_vec)
 }
 \arguments{
-\item{model_par_vector}{A vector, estimates of the model parameters to be converted to a single string.}
+\item{model_par_vec}{A vector of strings representing the model estimates which will be collapsed to a single string.}
 }
 \value{
 A string

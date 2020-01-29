@@ -4,10 +4,10 @@
 \alias{read_tsForecastR}
 \title{Recursive function to read results from tsForecastR object}
 \usage{
-read_tsForecastR(fc)
+read_tsForecastR(tsfcr_obj)
 }
 \arguments{
-\item{fc}{A tsForecastR object}
+\item{tsfcr_obj}{A tsForecastR object}
 }
 \value{
 A data frame

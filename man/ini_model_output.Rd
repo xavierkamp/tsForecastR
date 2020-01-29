@@ -7,5 +7,5 @@
 ini_model_output()
 }
 \description{
-Generate an empty list with a tsForecastR class attribute
+Generate an empty list with a 'tsForecastR' class attribute
 }

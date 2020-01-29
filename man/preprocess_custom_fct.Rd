@@ -4,12 +4,12 @@
 \alias{preprocess_custom_fct}
 \title{Customized preprocessing function}
 \usage{
-preprocess_custom_fct(input_data, fct = NULL)
+preprocess_custom_fct(ts_data, transf_fct = NULL)
 }
 \arguments{
-\item{input_data}{A ts, mts or xts object}
+\item{ts_data}{A univariate 'ts' or 'xts' object}
 
-\item{fct}{A function, function which transforms the data}
+\item{transf_fct}{A function, function which transforms the data}
 }
 \value{
 An xts object, the transformed data

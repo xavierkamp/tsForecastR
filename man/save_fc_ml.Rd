@@ -2,10 +2,10 @@
 % Please edit documentation in R/data_management.R
 \name{save_fc_ml}
 \alias{save_fc_ml}
-\title{Save forecasts (for forecast objects)}
+\title{Save forecasts (for Machine Learning models)}
 \usage{
 save_fc_ml(
-  fc_obj,
+  data_df,
   raw_data,
   sample_split,
   data_dir,
@@ -17,7 +17,7 @@ save_fc_ml(
 )
 }
 \arguments{
-\item{fc_obj}{A data.frame object}
+\item{data_df}{A 'data.frame' object}
 
 \item{raw_data}{A univariate ts or xts object, original (i.e. unprocessed) time series data}
 

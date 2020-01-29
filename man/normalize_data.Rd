@@ -7,10 +7,10 @@
 normalize_data(data_df)
 }
 \arguments{
-\item{data_df}{A data.frame object}
+\item{data_df}{A 'data.frame' object}
 }
 \value{
-A list, normalized data and scalers
+A list, normalized data and scaling arguments
 }
 \description{
 Normalize the data

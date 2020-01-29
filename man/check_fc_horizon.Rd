@@ -7,7 +7,7 @@
 check_fc_horizon(fc_horizon)
 }
 \arguments{
-\item{fc_horizon}{A positive integer}
+\item{fc_horizon}{An integer, the forecasting horizon (i.e. the number of periods to forecast)}
 }
 \value{
 fc_horizon: A positive integer

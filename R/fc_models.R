@@ -1,28 +1,37 @@
 #' Forecasting Engine API
 #' @description Function which enables the user to select different forecasting algorithms ranging from
 #' traditional time series models (i.e. ARIMA, ETS, STL) to machine learning methods (i.e. LSTM, AutoML).
-#' @param mts_data A univariate or multivariate ts, mts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_data A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param mts_data A univariate or multivariate 'ts', 'mts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
-#' @param model_names A list or character, names of models to apply
-#' @param models_args A list, optional arguments to pass to the models
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param model_names A list or vector of strings representing the model names to be used
+#' @param models_args A list, optional arguments to passed to the models
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
-#' @param nb_cores An integer, the number of threads to use for automl_h2o
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
+#' @param nb_threads An integer, the number of threads to use for the automl_h2o model selection process
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -60,7 +69,7 @@
 #'                   backtesting_opt = list(use_bt = TRUE,
 #'                                          nb_iters = 6))
 #' }
-#' @return A list
+#' @return A 'tsForecastR' object
 #' @export
 generate_fc <- function(mts_data, fc_horizon = 12,
                         xreg_data = NULL,
@@ -73,11 +82,11 @@ generate_fc <- function(mts_data, fc_horizon = 12,
                         model_names = c("arima", "ets", "tbats", "bsts",
                                         "snaive", "nnetar", "stl",
                                         "automl_h2o"),
-                        preprocess_fct = NULL,
+                        prepro_fct = NULL,
                         models_args = NULL,
                         data_dir = NULL,
                         time_id = base::Sys.time(),
-                        nb_cores = 1,
+                        nb_threads = 1,
                         ...) {
   `%>%` <- magrittr::`%>%`
   `%do%` <- foreach::`%do%`
@@ -101,8 +110,8 @@ generate_fc <- function(mts_data, fc_horizon = 12,
   models_args <- check_models_args(models_args, model_names)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
-  nb_cores <- check_nb_cores(nb_cores)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
+  nb_threads <- check_nb_cores(nb_threads)
   time_id <- check_time_id(time_id)
   ind_seq <- base::seq(base::ncol(mts_data_xts))
   foreach::foreach(ind = ind_seq) %do% {
@@ -113,14 +122,14 @@ generate_fc <- function(mts_data, fc_horizon = 12,
       base::eval(base::parse(text = base::paste("model_output$", ts_colname, "$",
                                                 model_name, " <- ",
                                                 "generate_fc_", model_name, "(",
-                                                "ts_data_xts = ts_data_xts, ",
-                                                "xreg_xts = xreg_data_xts, ",
+                                                "ts_data = ts_data_xts, ",
+                                                "xreg_data = xreg_data_xts, ",
                                                 "fc_horizon = fc_horizon, ",
                                                 "backtesting_opt = backtesting_opt, ",
                                                 "data_dir = data_dir, ",
-                                                "preprocess_fct = preprocess_fct, ",
+                                                "prepro_fct = prepro_fct, ",
                                                 "time_id = time_id, ",
-                                                "nb_cores = nb_cores, ",
+                                                "nb_threads = nb_threads, ",
                                                 model_name, "_arg = models_args$",
                                                 model_name, "_arg)",
                                                 sep = "")))
@@ -132,26 +141,35 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #' ARIMA Model
 #' @description Function to apply the \code{\link[forecast]{auto.arima}} function from the \code{forecast} package
 #' on time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param arima_arg A list, optional arguments to pass to the \code{\link[forecast]{auto.arima}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -172,24 +190,24 @@ generate_fc <- function(mts_data, fc_horizon = 12,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_arima <- function(ts_data_xts,
+generate_fc_arima <- function(ts_data,
                               fc_horizon = 12,
-                              xreg_xts = NULL,
+                              xreg_data = NULL,
                               backtesting_opt = NULL,
                               data_dir = NULL,
-                              preprocess_fct = NULL,
+                              prepro_fct = NULL,
                               arima_arg = NULL,
                               time_id = base::Sys.time(),
                               ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
-  xreg_xts <- check_data_sv_as_xts(xreg_xts)
+  xreg_xts <- check_data_sv_as_xts(xreg_data)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   md <- fc <- NULL
@@ -197,7 +215,7 @@ generate_fc_arima <- function(ts_data_xts,
   print_model_name(model_name)
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
@@ -229,7 +247,7 @@ generate_fc_arima <- function(ts_data_xts,
     fc <- forecast::forecast(md,
                              h = fc_horizon,
                              xreg = xreg_test)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -248,25 +266,34 @@ generate_fc_arima <- function(ts_data_xts,
 #' Exponential Smoothing Model
 #' @description Function to apply the \code{\link[forecast]{ets}} function from the \code{forecast} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param ets_arg A list, optional arguments to pass to the \code{\link[forecast]{ets}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -287,22 +314,22 @@ generate_fc_arima <- function(ts_data_xts,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_ets <- function(ts_data_xts,
+generate_fc_ets <- function(ts_data,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
                             data_dir = NULL,
-                            preprocess_fct = NULL,
+                            prepro_fct = NULL,
                             ets_arg = NULL,
                             time_id = base::Sys.time(),
                             ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   if (!base::is.list(ets_arg) & !base::is.null(ets_arg)) {
     stop("Model arguments must be of type list!")
@@ -313,7 +340,7 @@ generate_fc_ets <- function(ts_data_xts,
   print_model_name(model_name)
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -332,7 +359,7 @@ generate_fc_ets <- function(ts_data_xts,
       return(model_output)
     }
     fc <- forecast::forecast(md, h = fc_horizon)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -350,26 +377,36 @@ generate_fc_ets <- function(ts_data_xts,
 
 #' TBATS Model
 #' @description Function to apply the \code{\link[forecast]{tbats}} function from the \code{forecast} package on
-#' time series data. The \code{\link[forecast]{tbats}} function is only applicable on ts objects.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' time series data. The \code{\link[forecast]{tbats}} function requires 'ts' objects. Consequently, 'xts' objects will
+#' be converted to 'ts' objects.
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param tbats_arg A list, optional arguments to pass to the \code{\link[forecast]{tbats}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -390,22 +427,22 @@ generate_fc_ets <- function(ts_data_xts,
 #'                         backtesting_opt = list(use_bt = TRUE,
 #'                                                nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_tbats <- function(ts_data_xts,
+generate_fc_tbats <- function(ts_data,
                               fc_horizon = 12,
                               backtesting_opt = NULL,
                               data_dir = NULL,
-                              preprocess_fct = NULL,
+                              prepro_fct = NULL,
                               tbats_arg = NULL,
                               time_id = base::Sys.time(),
                               ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   md <- fc <- NULL
@@ -413,7 +450,7 @@ generate_fc_tbats <- function(ts_data_xts,
   print_model_name(model_name)
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -422,6 +459,8 @@ generate_fc_tbats <- function(ts_data_xts,
                                          fc_horizon = fc_horizon,
                                          nb_iter = bt_iter,
                                          backtesting_opt = backtesting_opt)
+
+    # TBATS requires 'ts' objects
     x_train <-
       sample_split[["train"]] %>%
       {
@@ -452,7 +491,7 @@ generate_fc_tbats <- function(ts_data_xts,
       return(model_output)
     }
     fc <- forecast::forecast(md, h = fc_horizon)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -471,26 +510,35 @@ generate_fc_tbats <- function(ts_data_xts,
 #' Neural Network
 #' @description Function to apply the \code{\link[forecast]{nnetar}} function from the \code{forecast} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param nnetar_arg A list, optional arguments to pass to the \code{\link[forecast]{nnetar}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -511,24 +559,24 @@ generate_fc_tbats <- function(ts_data_xts,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_nnetar <- function(ts_data_xts,
+generate_fc_nnetar <- function(ts_data,
                                fc_horizon = 12,
-                               xreg_xts = NULL,
+                               xreg_data = NULL,
                                backtesting_opt = NULL,
                                data_dir = NULL,
-                               preprocess_fct = NULL,
+                               prepro_fct = NULL,
                                nnetar_arg = NULL,
                                time_id = base::Sys.time(),
                                ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
-  xreg_xts <- check_data_sv_as_xts(xreg_xts)
+  xreg_xts <- check_data_sv_as_xts(xreg_data)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   md <- fc <- NULL
@@ -536,7 +584,7 @@ generate_fc_nnetar <- function(ts_data_xts,
   print_model_name(model_name)
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt) %>%
     add_features(xreg_xts)
@@ -563,7 +611,7 @@ generate_fc_nnetar <- function(ts_data_xts,
       return(model_output)
     }
     fc <- forecast::forecast(md, h = fc_horizon, xreg = xreg_test)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -583,25 +631,34 @@ generate_fc_nnetar <- function(ts_data_xts,
 #' Season-Trend Decomposition with Loess Model
 #' @description Function to apply the \code{\link[stats]{stl}} function from the \code{stats} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param stl_arg A list, optional arguments to pass to the \code{\link[stats]{stl}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -622,22 +679,22 @@ generate_fc_nnetar <- function(ts_data_xts,
 #'                       backtesting_opt = list(use_bt = TRUE,
 #'                                              nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_stl <- function(ts_data_xts,
+generate_fc_stl <- function(ts_data,
                             fc_horizon = 12,
                             backtesting_opt = NULL,
                             data_dir = NULL,
-                            preprocess_fct = NULL,
+                            prepro_fct = NULL,
                             stl_arg = NULL,
                             time_id = base::Sys.time(),
                             ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   md <- fc <- NULL
@@ -648,7 +705,7 @@ generate_fc_stl <- function(ts_data_xts,
   }
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -667,7 +724,7 @@ generate_fc_stl <- function(ts_data_xts,
       return(model_output)
     }
     fc <- forecast::forecast(md, h = fc_horizon)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -686,25 +743,34 @@ generate_fc_stl <- function(ts_data_xts,
 #' Seasonal Naive Model
 #' @description Function to apply the \code{\link[forecast]{snaive}} function from the \code{forecast} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param snaive_arg A list, optional arguments to pass to the \code{\link[forecast]{snaive}} function
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -725,22 +791,22 @@ generate_fc_stl <- function(ts_data_xts,
 #'                          backtesting_opt = list(use_bt = TRUE,
 #'                                                 nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_snaive <- function(ts_data_xts,
+generate_fc_snaive <- function(ts_data,
                                fc_horizon = 12,
                                backtesting_opt = NULL,
                                data_dir = NULL,
-                               preprocess_fct = NULL,
+                               prepro_fct = NULL,
                                snaive_arg = NULL,
                                time_id = base::Sys.time(),
                                ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   md <- fc <- NULL
@@ -748,7 +814,7 @@ generate_fc_snaive <- function(ts_data_xts,
   print_model_name(model_name)
   ts_contiguous_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct) %>%
+                          prepro_fct) %>%
     add_placeholders(fc_horizon,
                      backtesting_opt)
   for (bt_iter in 1:backtesting_opt$nb_iters) {
@@ -767,7 +833,7 @@ generate_fc_snaive <- function(ts_data_xts,
       return(model_output)
     }
     fc <- forecast::forecast(md, h = fc_horizon)
-    results <- save_fc_forecast(fc_obj = fc,
+    results <- save_fc_forecast(forecast_obj = fc,
                                 sample_split = sample_split,
                                 raw_data = ts_data_xts,
                                 data_dir = data_dir,
@@ -786,27 +852,37 @@ generate_fc_snaive <- function(ts_data_xts,
 #' Bayesian Structural Time Series Model
 #' @description Function to apply the \code{\link[bsts]{bsts}} function from the \code{bsts} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param bsts_arg A list, optional arguments to pass to the \code{\link[bsts]{bsts}} function
-#' @param data_transf_method A string, the data transformation technique to be passed to the function.
-#' (options: 'diff', 'log', 'sqrt')
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param data_transf_method A string, the data transformation method to be passed to the function.
+#' (available options: 'diff', 'log', 'sqrt')
+#'
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -827,23 +903,23 @@ generate_fc_snaive <- function(ts_data_xts,
 #'                        backtesting_opt = list(use_bt = TRUE,
 #'                                               nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_bsts <- function(ts_data_xts,
+generate_fc_bsts <- function(ts_data,
                              fc_horizon = 12,
                              backtesting_opt = NULL,
                              data_dir = NULL,
-                             preprocess_fct = NULL,
+                             prepro_fct = NULL,
                              data_transf_method = "diff",
                              bsts_arg = NULL,
                              time_id = base::Sys.time(),
                              ...){
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   ss <- base::list()
@@ -939,12 +1015,12 @@ generate_fc_bsts <- function(ts_data_xts,
   }
   ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct)
+                          prepro_fct)
   nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
   if (nb_diffs > 0) {
     ts_transformed_data <-
       ts_preprocessed_data %>%
-      transform_data(., method = data_transf_method) %>%
+      transform_data(., transf_method = data_transf_method) %>%
       timeSeries::na.contiguous() %>%
       add_placeholders(fc_horizon,
                        backtesting_opt)
@@ -981,25 +1057,25 @@ generate_fc_bsts <- function(ts_data_xts,
       fc$mean <-
         fc$mean %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE)
       fc$median <-
         fc$median %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE)
       fc$interval[,1] <-
         fc$interval[, 1] %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE)
       fc$interval[, 2] <-
         fc$interval[, 2] %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE)
     }
-    results <- save_fc_bsts(fc_obj = fc,
+    results <- save_fc_bsts(bsts_obj = fc,
                             sample_split = sample_split,
                             raw_data = ts_data_xts,
                             data_dir = data_dir,
@@ -1019,28 +1095,38 @@ generate_fc_bsts <- function(ts_data_xts,
 #' @description Function to apply lstm networks (\code{\link[keras]{layer_lstm}}) from the \code{keras} package on
 #' time series data. In order to use the LSTM model, Python and Tensorflow (version <= 1.14) must be installed on the machine.
 #' Please check the README file for more information.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param lstm_keras_arg A list, optional arguments to pass to the lstm network
-#' @param data_transf_method A string, the data transformation technique to be passed to the function.
-#' (options: 'diff', 'log', 'sqrt')
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
+#' @param data_transf_method A string, the data transformation method to be passed to the function.
+#' (available options: 'diff', 'log', 'sqrt')
+#'
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -1061,24 +1147,25 @@ generate_fc_bsts <- function(ts_data_xts,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_lstm_keras <- function(ts_data_xts,
+generate_fc_lstm_keras <- function(ts_data,
                                    fc_horizon = 12,
-                                   xreg_xts = NULL,
+                                   xreg_data = NULL,
                                    backtesting_opt = NULL,
                                    data_dir = NULL,
-                                   preprocess_fct = NULL,
+                                   prepro_fct = NULL,
                                    data_transf_method = "diff",
                                    lstm_keras_arg = NULL,
                                    time_id = base::Sys.time(),
                                    ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
+  xreg_xts <- check_data_sv_as_xts(xreg_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
   model_output <- ini_model_output()
   model_name <- "lstm_keras"
@@ -1228,12 +1315,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
   callbacks <- base::list(keras::callback_early_stopping(patience = lstm_keras_arg$patience))
   ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct)
+                          prepro_fct)
   nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
   if (nb_diffs > 0) {
     ts_transformed_data <-
       ts_preprocessed_data %>%
-      transform_data(., method = data_transf_method)
+      transform_data(., transf_method = data_transf_method)
   } else {
     ts_transformed_data <-
       ts_preprocessed_data
@@ -1283,8 +1370,8 @@ generate_fc_lstm_keras <- function(ts_data_xts,
                       base::unlist())
     normalization_step <- normalize_data(ts_data)
     normalized_data <- normalization_step$data
-    mean_history <- normalization_step$scalers[[base::colnames(ts_data_xts)]][, 'mean_history']
-    scale_history <- normalization_step[["scalers"]][[base::colnames(ts_data_xts)]][, 'scale_history']
+    mean_history <- normalization_step$scale_arg_ls[[base::colnames(ts_data_xts)]][, 'mean_history']
+    scale_history <- normalization_step[["scale_arg_ls"]][[base::colnames(ts_data_xts)]][, 'scale_history']
     data_with_tsteps <- add_timesteps(data_df = normalized_data,
                                       fc_horizon = fc_horizon,
                                       valid_set_size = lstm_keras_arg$valid_set_size,
@@ -1444,11 +1531,12 @@ generate_fc_lstm_keras <- function(ts_data_xts,
          . * scale_history + mean_history
       } %>%
       xts::as.xts(order.by = zoo::index(sample_split[["test"]]))
+
     if (nb_diffs > 0) {
       fc <-
         fc_transformed %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE) %>%
         as.data.frame()
     } else {
@@ -1456,7 +1544,7 @@ generate_fc_lstm_keras <- function(ts_data_xts,
         fc_transformed %>%
         as.data.frame()
     }
-    results <- save_fc_ml(fc_obj = fc,
+    results <- save_fc_ml(data_df = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
                           data_dir = data_dir,
@@ -1475,29 +1563,39 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #' Automated Machine Learning
 #' @description Function to apply the \code{\link[h2o]{h2o.automl}} function from the \code{h2o} package on
 #' time series data.
-#' @param ts_data_xts A univariate ts or xts object
-#' @param fc_horizon An integer, the forcasting horizon
-#' @param xreg_xts A univariate or multivariate ts, mts or xts object, optional external regressors
-#' @param backtesting_opt A list, options for the backtesting program:
+#' @param ts_data A univariate 'ts' or 'xts' object
+#' @param fc_horizon An integer, the forecasting horizon (i.e. the number of periods to forecast)
+#' @param xreg_data A univariate or multivariate 'ts', 'mts' or 'xts' object, optional external regressors
+#' @param backtesting_opt A list, options which define the backtesting approach:
 #'
-#'  use_bt - A boolean, to determine whether to apply backtesting or to generate forcasts on future dates
+#'  use_bt - A boolean, to determine whether forecasts should be generated on future dates (default) or on past values. Generating
+#'  forecasts on past dates allows to measure past forecast accuracy and to monitor a statistical model's ability to learn
+#'  signals from the data.
 #'
-#'  nb_iters - An integer, to determine the number of backtesting operations to apply
+#'  nb_iters - An integer, to determine the number of forecasting operations to apply (When no backtesting is selected, then only
+#'  one forecasting exercise is performed)
 #'
-#'  method - A string, to determine whether to use a rolling or a moving forecasting window
+#'  method - A string, to determine whether to apply a 'rolling' (default) or a 'moving' forecasting window. When 'rolling' is selected,
+#'  after each forecasting exercise, the forecasting interval increments by one period and drops the last period to include it in
+#'  the new training sample. When 'moving' is selected, the forecasting interval increments by its size rather than one period.
 #'
-#'  sample_size - A string, to determine whether the training set size should expand or
-#'  remain fixed across backtesting operations
+#'  sample_size - A string, to determine whether the training set size should be 'expanding' (default) or 'fixed'.
+#'  When 'expanding' is selected, then after each forecasting operation, the periods dropped from the forecasting interval will
+#'  be added to the training set. When 'fixed' is selected, then adding new periods to the training set will require dropping as
+#'  many last periods to keep the set's size constant.
 #'
 #' @param data_dir A string, directory to which results can be saved as text files
-#' @param preprocess_fct A function, a custom function to handle missing values in the data.
-#' (e.g. timeSeries::na.contiguous or imputeTS::na.mean) As default the largest
-#' interval of non-missing values is selected and the most recent dates are then attributed to these values.
+#' @param prepro_fct A function, a preprocessing function which handles missing values in the data.
+#' The default preprocessing function selects the largest interval of non-missing values and then attributes the
+#' most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+#' imputeTS::na.mean, custom-developped...).
+#'
 #' @param automl_h2o_arg A list, optional arguments to pass to the \code{\link[h2o]{h2o.automl}} function
-#' @param data_transf_method A string, the data transformation technique to be passed to the function.
-#' (options: 'diff', 'log', 'sqrt')
-#' @param time_id A POSIXct, created with \code{\link[base]{Sys.time}} and appended to results
-#' @param nb_cores A numeric, number of threads to use in parallel computed model selection process
+#' @param data_transf_method A string, the data transformation method to be passed to the function.
+#' (available options: 'diff', 'log', 'sqrt')
+#'
+#' @param time_id A POSIXct, timestamp created with \code{\link[base]{Sys.time}} which is then appended to the results
+#' @param nb_threads A numeric, number of threads to use in parallel computed model selection process
 #' @param ... Additional arguments to be passed to the function
 #' @examples
 #' \dontrun{
@@ -1518,32 +1616,32 @@ generate_fc_lstm_keras <- function(ts_data_xts,
 #'                              backtesting_opt = list(use_bt = TRUE,
 #'                                                     nb_iters = 6))
 #' }
-#' @return A tsForecastR object
+#' @return A 'tsForecastR' object
 #' @export
-generate_fc_automl_h2o <- function(ts_data_xts,
-                                   xreg_xts = NULL,
+generate_fc_automl_h2o <- function(ts_data,
+                                   xreg_data = NULL,
                                    fc_horizon = 12,
                                    backtesting_opt = NULL,
                                    data_dir = NULL,
-                                   preprocess_fct = NULL,
+                                   prepro_fct = NULL,
                                    data_transf_method = "diff",
                                    automl_h2o_arg = NULL,
                                    time_id = base::Sys.time(),
-                                   nb_cores = 1,
+                                   nb_threads = 1,
                                    ...) {
   `%>%` <- magrittr::`%>%`
-  ts_data_xts <- check_data_sv_as_xts(ts_data_xts)
-  xreg_xts <- check_data_sv_as_xts(xreg_xts)
+  ts_data_xts <- check_data_sv_as_xts(ts_data)
+  xreg_xts <- check_data_sv_as_xts(xreg_data)
   fc_horizon <- check_fc_horizon(fc_horizon)
   backtesting_opt <- check_backtesting_opt(backtesting_opt)
   data_dir <- check_data_dir(data_dir)
-  preprocess_fct <- check_preprocess_fct(preprocess_fct)
+  prepro_fct <- check_preprocess_fct(prepro_fct)
   time_id <- check_time_id(time_id)
-  nb_cores <- check_nb_cores(nb_cores)
+  nb_threads <- check_nb_cores(nb_threads)
   model_output <- ini_model_output()
   model_name <- "automl_h2o"
   print_model_name(model_name)
-  h2o::h2o.init(port = 54321, nthreads = nb_cores)
+  h2o::h2o.init(port = 54321, nthreads = nb_threads)
   all_time_features <-
     timetk::tk_get_timeseries_signature(ts_data_xts %>%
                                           zoo::index() %>%
@@ -1682,12 +1780,12 @@ generate_fc_automl_h2o <- function(ts_data_xts,
   }
   ts_preprocessed_data <-
     preprocess_custom_fct(ts_data_xts,
-                          preprocess_fct)
+                          prepro_fct)
   nb_diffs <- forecast::ndiffs(ts_preprocessed_data)
   if (nb_diffs > 0) {
     ts_transformed_data <-
       ts_preprocessed_data %>%
-      transform_data(., method = data_transf_method)
+      transform_data(., transf_method = data_transf_method)
   } else {
     ts_transformed_data <-
       ts_preprocessed_data
@@ -1787,15 +1885,15 @@ generate_fc_automl_h2o <- function(ts_data_xts,
       fc <-
         pred_h2o %>%
         transform_data(ts_preprocessed_data, .,
-                       method = data_transf_method,
+                       transf_method = data_transf_method,
                        apply_transform = FALSE) %>%
-        as.data.frame()
+        base::as.data.frame()
     } else {
       fc <-
         pred_h2o %>%
-        as.data.frame()
+        base::as.data.frame()
     }
-    results <- save_fc_ml(fc_obj = fc,
+    results <- save_fc_ml(data_df = fc,
                           sample_split = sample_split,
                           raw_data = ts_data_xts,
                           data_dir= data_dir,

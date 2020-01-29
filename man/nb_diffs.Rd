@@ -4,10 +4,10 @@
 \alias{nb_diffs}
 \title{Determine the number of differencing to obtain a stationary time series}
 \usage{
-nb_diffs(input_data, ...)
+nb_diffs(ts_data, ...)
 }
 \arguments{
-\item{input_data}{A univariate or multivariate ts, mts or xts object}
+\item{ts_data}{A univariate 'ts' or 'xts' object}
 
 \item{...}{Additional arguments to be passed to the function}
 }

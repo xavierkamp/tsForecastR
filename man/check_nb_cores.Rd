@@ -7,10 +7,10 @@
 check_nb_cores(nb_cores)
 }
 \arguments{
-\item{nb_cores}{A numeric, the number of selected CPU cores}
+\item{nb_cores}{An integer, the number of CPU cores to select}
 }
 \value{
-A numeric, the number of selected CPU cores
+An integer, the number of CPU cores to select
 }
 \description{
 This function ensures that the user selects a valid number of CPU cores.

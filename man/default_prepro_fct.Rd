@@ -7,7 +7,7 @@
 default_prepro_fct(ts_data)
 }
 \arguments{
-\item{ts_data}{A ts or xts object}
+\item{ts_data}{A univariate 'ts' or 'xts' object}
 }
 \description{
 Default preprocessing function to handle missing values in the data. This function selects the

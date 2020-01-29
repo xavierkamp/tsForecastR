@@ -4,10 +4,10 @@
 \alias{extract_coef_nnetar}
 \title{Extract model estimates for NNETAR}
 \usage{
-extract_coef_nnetar(fc_obj)
+extract_coef_nnetar(forecast_obj)
 }
 \arguments{
-\item{fc_obj}{A forecast object}
+\item{forecast_obj}{A 'forecast' object}
 }
 \value{
 A vector of strings

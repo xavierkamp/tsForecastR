@@ -7,7 +7,7 @@
 check_models_args(models_args, model_names = NULL)
 }
 \arguments{
-\item{models_args}{A list, parameters to be passed to the model}
+\item{models_args}{A list, optional arguments to passed to the models}
 
 \item{model_names}{A list or vector of strings representing the model names to be used}
 }

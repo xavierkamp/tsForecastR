@@ -4,13 +4,16 @@
 \alias{check_preprocess_fct}
 \title{Check the custom preprocessing function}
 \usage{
-check_preprocess_fct(fct)
+check_preprocess_fct(prepro_fct)
 }
 \arguments{
-\item{fct}{A function, the custom preprocessing function to handle missing values in the data}
+\item{prepro_fct}{A function, a preprocessing function which handles missing values in the data.
+The default preprocessing function selects the largest interval of non-missing values and then attributes the
+most recent dates to those values. Other data handling functions can be applied (e.g. timeSeries::na.contiguous,
+imputeTS::na.mean, custom-developped...).}
 }
 \value{
-NULL (if no fct is specified) or fct (if fct is specified)
+NULL (if no fct is specified) or prepro_fct (if prepro_fct is specified)
 }
 \description{
 This function checks whether the specified function is indeed a function
